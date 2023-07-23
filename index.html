@@ -1,0 +1,153 @@
+---
+layout: null
+title: VLSI.JP
+---
+<html lang="ja">
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-GD0N23Y87X"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-GD0N23Y87X');
+        </script>
+        <meta charset="UTF-8">
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:title" content="VLSI.JP">
+        <meta property="og:description" content="VLSI.JP" />
+        <style>
+            h1 {
+                border-bottom: 1px solid #c0c0c0;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                white-space: nowrap;
+                display: block;
+                font-size: 2em;
+                margin-block-start: 0.67em;
+                margin-block-end: 0.67em;
+                margin-inline-start: 0px;
+                margin-inline-end: 0px;
+                font-weight: bold;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Roboto, Arial, "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", Osaka, Meiryo, "メイリオ", "MS Gothic", "ＭＳ ゴシック", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            }
+              table {
+                border-collapse: collapse;
+            }
+              th {
+                cursor: pointer;
+            }
+            td.detailsColumn {
+                padding-inline-start: 2em;
+                text-align: end;
+                white-space: nowrap;
+            }
+            a.icon {
+                padding-inline-start: 1.5em;
+                text-decoration: none;
+                user-select: auto;
+            }
+            a.icon:hover {
+                text-decoration: underline;
+            }
+
+            a.file {
+                background : url("./images/hontofile.png") left top no-repeat;
+            }
+            a.dir {
+                background : url("./images/file.png") left top no-repeat;
+            }
+            a.link {
+                background : url("./images/link.png") left top no-repeat;
+            }
+            a.out {
+                background : url("./images/outlink.png") left top no-repeat;
+            }
+            body {
+                height: auto;
+                width: auto;
+            }
+            @media screen and (max-width:1024px) {
+                h1 {
+                    font-size: 55px;
+                }
+                h2 {
+                    font-size: 45px;
+                }
+                h3 {
+                    font-size: 40px;
+                }
+                h4 {
+                    font-size: 35px;
+                }
+                h5 {
+                    font-size: 30px;
+                }
+                h6 {
+                    font-size: 25px;
+                }
+                a, th, td {
+                    font-size: 25px;
+                }
+                a.icon {
+                    background-size: 25px;
+                }
+                .topname {
+                    font-size: 65px;
+                }
+                ol {
+                    padding-left: 5rem;
+                }
+                p, li {
+                    overflow-wrap: break-word;
+                    font-size: 30px;
+                }
+            }
+        </style>
+        <title id="title">VLSI.JP</title>
+    </head>
+    <body>
+        <h1 class="topname" id="header"> Index of VLSI.JP </h1>
+        記事の追加、修正提案はこちらまで<br>
+        Please contact us with suggestions for additions or corrections to the article.<br>
+        <a href="https://github.com/VLSI-JP/VLSI-JP.github.io">https://github.com/VLSI-JP/VLSI-JP.github.io</a><br>
+        <br>
+        ☆クリックで記事に飛びます / click to article☆ <br>
+        <table>
+          <thead>
+            <tr class="header" id="theader">
+              <th id="nameColumnHeader" tabindex=0 role="button">name</th>
+              <th id="sizeColumnHeader" class="detailsColumn" tabindex=0 role="button">
+                Author
+              </th>
+              <th id="dateColumnHeader" class="detailsColumn" tabindex=0 role="button">
+                date 
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+              {% for article_list in site.data.article_list %}
+              <tr>
+                  <td>
+                    {% case article_list.icon %}
+                      {% when "dir" %}
+                        <a class="icon dir" href="/{{ article_list.link }}">{{ article_list.title }}/</a>
+                      {% when "file" %}
+                        <a class="icon file" href="/{{ article_list.link }}">{{ article_list.title }}</a>
+                      {% when "link" %}
+                        <a class="icon link" href="/{{ article_list.link }}">{{ article_list.title }}</a>
+                      {% when "out" %}
+                        <a class="icon out" href="{{ article_list.link }}" target="_blank">{{ article_list.title }}</a>
+                      {% else %}
+                        <a class="icon file" href="/{{ article_list.link }}">{{ article_list.title }}</a>
+                    {% endcase %}
+                  </td>
+                  <td class="detailsColumn" >{{ article_list.author }}</td>
+                  <td class="detailsColumn" >{{ article_list.date }}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+        </table>
+    </body>
+</html>

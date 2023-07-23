@@ -1,3 +1,7 @@
+---
+layout: default
+title: README.md
+---
 # VLSI.JP
 
 愛と半導体と計算機のゆるふわコミュニティ

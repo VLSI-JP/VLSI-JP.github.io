@@ -1,0 +1,106 @@
+
+- title: ⛩
+  author: Cra2yPierr0t
+  date: 
+  link: Shrine.html
+
+- title: 半導体初学者むけ単語集
+  author: jun1okamura
+  date: 2023/07/15
+  link: https://github.com/jun1okamura/glossary_semiconductor_design_terms_for_beginners/
+  icon: out
+
+- title: オープンソースASIC関連リンク集
+  author: jun1okamura
+  date: 2023/07/20
+  link: https://github.com/jun1okamura/awesome-opensource-asic-resources
+  icon: out
+
+- title: SHAMIKO (tentative) project
+  author: ykm11
+  date: 2023/06/29
+  link: shamiko.html
+
+- title: RgGen ✕ OpenMPWでLSIを焼こう！
+  author: Cra2yPierr0t
+  date: 2022/12/14
+  link: RgGenxOpenMPW.html#rggen--openmpwでlsiを焼こう
+  icon: dir
+
+- title: RgGen ✕ OpenMPW Walkthrough
+  author: Cra2yPierr0t
+  date: 2022/12/14
+  link: RgGenxOpenMPW_eng.html#rggen--openmpw-walkthrough
+  icon: dir
+
+- title: 無から始める自作CPU(作成中)
+  author: Cra2yPierr0t
+  date: 2023/07/15
+  link: LetsMakeCPU.html#無から始める自作cpu作成中
+  icon: dir
+
+- title: ダーリン！OpenRAMを使うっちゃ！
+  author: Cra2yPierr0t
+  date: 2022/12/01
+  link: douseOpenRAM.html#ダーリン！OpenRAMを使うっちゃ！
+
+- title: GMII 仕様
+  author: Cra2yPierr0t
+  date: 2022/08/02
+  link: GMII.html#gmii-仕様
+
+- title: 軽率にGPUを使っていこう、OpenCL入門
+  author: Cra2yPierr0t
+  date: 2023/05/18
+  link: tsukaouOpenCL.html#軽率にgpuを使っていこうopencl入門
+  icon: dir
+
+- title:  OpenMPW入門
+  author: Cra2yPierr0t
+  date:  2022/12/14
+  link: OpenMPW.html#openmpw入門-改訂版
+  icon: dir
+
+- title: OpenMPWでSRAMを使う
+  author: Cra2yPierr0t
+  date: 2022/10/11
+  link: OpenMPWSRAM.html#openmpwでsramを使う
+
+- title: Introduction to OpenMPW 
+  author: Cra2yPierr0t
+  date: 2022/12/14
+  link: Introduction_to_OpenMPW.html#introduction-to-openmpw
+  icon: dir
+
+- title: Using SRAM with OpenMPW
+  author: Cra2yPierr0t
+  date: 2022/10/11
+  link: OpenMPWSRAM_eng.html#using-sram-with-openmpw
+
+- title: OpenLANEと半導体設計入門
+  author: Cra2yPierr0t
+  date: 2023/07/16
+  link: learn_lsi.html#openlaneと半導体設計入門
+  icon: dir
+
+- title: Implementing Hardware Extensions for Muticore RISC-V GPUsを読む
+  author: Cra2yPierr0t
+  date: 2022/08/10
+  link: RISCVGPU.html
+
+- title: about me.txt
+  author: Cra2yPierr0t
+  date: 
+  link: about.html
+
+- title: links
+  author: Cra2yPierr0t
+  date: 2023/07/12
+  link: links.html
+  icon: link
+
+- title: README.md
+  author: Cra2yPierr0t
+  date: 2023/07/24
+  link: README.html
+  icon: file

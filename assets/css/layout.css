@@ -1,0 +1,121 @@
+.gist table tr {
+background-color: rgba(220,220,220,0.2) !important;
+}
+
+.gist-file {
+  border-bottom: none !important;
+}
+
+/* 文字大きくしてフォント変更する */
+table.highlight tr td,table.highlight tr td span {
+	font-size: 15px !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+}
+
+
+p {
+    color: #3d4245!important;
+}
+
+table {
+  margin-bottom: 16px;
+}
+
+img{
+ display: block;
+ margin: 0px auto;
+ max-width: 100%;
+ border: 1px solid #eee;
+}
+
+td, tr {
+    padding: 6px 14px;
+    border: 1px solid #ddd;
+}
+
+code.language-plaintext.highlighter-rouge {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+pre.highlight {
+    padding-bottom: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+}
+
+.sidebar {
+    overflow: scroll;
+    position: fixed;
+    margin-left: 1%;
+    height: 100%;
+    width: 25%;
+}
+.content {
+    margin-left: 27%;
+    margin-right: 20%;
+}
+.topname {
+    font-weight: bold;
+}
+
+@media screen and (max-width:1024px) {
+    table.highlight tr td,table.highlight tr td span {
+        font-size: 25px !important;
+        height: 30px;
+    }
+    body {
+        height: auto;
+        width: auto;
+    }
+    h1 {
+        font-size: 55px;
+    }
+    h2 {
+        font-size: 45px;
+    }
+    h3 {
+        font-size: 40px;
+    }
+    h4 {
+        font-size: 35px;
+    }
+    h5 {
+        font-size: 30px;
+    }
+    h6 {
+        font-size: 25px;
+    }
+    pre.highlight {
+        font-size: 25px;
+    }
+    a, th, td {
+        font-size: 25px;
+    }
+    a.topname {
+        font-size: 65px;
+    }
+    ol {
+        padding-left: 5rem;
+    }
+    p, li {
+        overflow-wrap: break-word;
+        font-size: 30px;
+    }
+    .sidebar {
+        overflow: auto;
+        margin-left: 3%;
+        margin-right: 3%;
+        height: auto;
+        width: 94%;
+        position: relative;
+    }
+    .content {
+        width: 94%;
+        margin-left: 3%;
+        margin-right: 3%;
+    }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GD0N23Y87X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-GD0N23Y87X');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ page.title }}">
+    <meta name="twitter:site" content="Cra2yPierr0t">
+    <meta name="twitter:description" content="{{ page.title }}" />
+    <meta property="og:description" content="{{ page.title }}" />
+    {% if page.image %}
+    <meta property="og:image" content="{{ page.image }}"/>
+    <meta name="twitter:image" content="{{ page.image }}" />
+    {% endif %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" href="/assets/css/syntax.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="/assets/css/font.css" media="print" onload="this.meadia='all'">
+    <link rel="stylesheet" href="/assets/css/layout.css" media="print" onload="this.media='all'">
+    <title>{{ page.title }}</title>
+  </head>
+  <body>
+    <br>
+        <div class="sidebar">
+            {% include navigation.html %}
+        </div>
+        <div class="content">
+            {% include anchor_headings.html html=content beforeHeading=true %}
+        </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  </body>
+</html>

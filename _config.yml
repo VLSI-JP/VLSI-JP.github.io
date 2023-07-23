@@ -1,0 +1,5 @@
+highlighter: rouge
+markdown: kramdown
+toc:
+  min_level: 1
+  max_level: 2
