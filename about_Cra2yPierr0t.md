@@ -1,6 +1,6 @@
 ---
 layout: default
-title: About me
+title: About Cra2yPierr0t
 ---
 ## Profile
 - Student at Information Security Engineering Program, University of Electro-Communications
