@@ -2,7 +2,7 @@
 layout: default
 title: README.md
 ---
-# VLSI.JP
+# README.md
 
 愛と半導体と計算機のゆるふわコミュニティ
 
@@ -61,6 +61,8 @@ Index of VLSI.JPから別サイトに飛ばしたい場合の手順
 5. HAPPY
 
 ## Gitコマンドで色々やる方法
+
+**`git pull`は絶対にやろうな！**
 
 1. `git pull`
 2. 色々やる
