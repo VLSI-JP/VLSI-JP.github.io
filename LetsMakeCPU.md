@@ -798,27 +798,58 @@ CPUとってプログラムはこのバイナリになって初めて実行可�
 
 ### 命令セットアーキテクチャ 
 
-#### RISC-Vとは
+先程、プログラムはバイナリに変換されて初めてCPUが実行可能な形になると言いましたね、プログラミング言語がこの世に沢山あるのと同じように、実は変換後のバイナリもこの世にはいくつか種類が存在しています。このバイナリの種類の事を命令セットアーキテクチャ(Instruction Set Architecture)、**ISA**と呼びます。基本的に、CPUはISAが異なるバイナリを実行できません。例えばMacのソフトウェアはMacのCPU以外では動きませんし、PCゲームのファイルをスマホに突っ込んでも動きませんね、動かそうとするな。
 
-### コンピュータアーキテクチャ概論
+具体的なISAとしては、x86_64, AArch64, RISC-Vなどが存在しています。
 
-ここではCPUの内部構造、つまりアーキテクチャについて解説していきます。
+本記事では筆者が定義した本記事独自のISA、**Z16**のCPUを作ります。Z16のCPUを作る前に一度、本項でZ16のアセンブリに親しみを持っておきましょう。
 
-以下の図は非常に単純化したCPUのアーキテクチャです。これをベースに学んでいきましょう。
+#### Z16の概要
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/computer_abst.png)
+Z16は本記事の筆者が定義したISAであり、16-bitの固定長命令セットです。16個の16-bitレジスタと16個の命令を持ちます。実装の容易さだけを考えて作りました。
 
-#### ディジタルビルディングブロック
+RISC-Vみたいなイケてるロゴを持ってるISAに憧れがあるのでZ16のロゴを以下に置いておきます。ライセンスフリーです。
+
+![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/z16_logo.png)
+
+#### Z16のレジスタ
+
+レジスタの内訳は以下の通り。全部で16個であり、アドレス0のレジスタ`ZR`は常に値が0な特殊なレジスタ、レジスタ`B1`~`B3`は後述しますが分岐命令の対象にすることが可能なレジスタです。残りのレジスタ`G0`~`G11`は自由に使えるレジスタとなっています。
+
+| アドレス | 名前 | 説明 |
+| -------- | ---- | ---- |
+|    `0x0` | `ZR` | 常に値が0のレジスタ |
+|    `0x1` | `B1` | 分岐命令用レジスタ |
+|    `0x2` | `B2` | 分岐命令用レジスタ |
+|    `0x3` | `B3` | 分岐命令用レジスタ |
+|    `0x4` | `G0` | 汎用レジスタ |
+|    `0x5` | `G1` | 汎用レジスタ |
+|    `0x6` | `G2` | 汎用レジスタ |
+|    `0x7` | `G3` | 汎用レジスタ |
+|    `0x8` | `G4` | 汎用レジスタ |
+|    `0x9` | `G5` | 汎用レジスタ |
+|    `0xA` | `G6` | 汎用レジスタ |
+|    `0xB` | `G7` | 汎用レジスタ |
+|    `0xC` | `G8` | 汎用レジスタ |
+|    `0xD` | `G9` | 汎用レジスタ |
+|    `0xE` | `G10` | 汎用レジスタ |
+|    `0xF` | `G11` | 汎用レジスタ |
+
+#### Z16の命令
+
+
+
+### ディジタルビルディングブロック
 
 ここではCPUの各モジュールについて、その働きを説明していきます。
 
-##### Instr Mem
+#### Instr Mem
 
 まずは一番左にあるモジュール、**Instr Mem**です。これは**命令メモリ(Instruction Memory)**と呼び、中に命令が入っています。命令メモリ内の各命令にはアドレスが振られており、命令メモリにアドレスを入力すると命令が出力されます。
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/instr_mem.png)
 
-##### PC
+#### PC
 
 次はCPUの中を見ていきましょう。このCPUの中にある**PC**は**プログラムカウンタ(Program Counter)**と呼び、命令メモリにアドレスを供給します。通常、プログラムは上から下に実行されるのでプログラムカウンタが出す値は毎クロック増えていきます。
 
@@ -826,13 +857,13 @@ CPUとってプログラムはこのバイナリになって初めて実行可�
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/fetch.png)
 
-##### Decoder
+#### Decoder
 
 PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から各種制御信号を生成します。具体的な動作の説明は他の部品の説明をしてから行いますので、とりあえず今は命令に応じて各部品を制御するモジュールだと認識しておいてください。
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/decoder.png)
 
-##### Register File
+#### Register File
 
 **Register File**、これは**レジスタファイル**と呼び、CPUが少量のデータを保持するのに使います。
 
@@ -846,13 +877,13 @@ PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/regfile_write.png)
 
-##### ALU
+#### ALU
 
 次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいてかまいません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/alu.png)
 
-##### Data Mem
+#### Data Mem
 
 最後に一番右にあるモジュール**Data Mem**、これは**データメモリ**と呼び。CPUが大量のデータを保存するのに使います。データメモリ対して、CPUはデータの書き込みと読み出しを行います。
 
@@ -866,24 +897,23 @@ PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/data_mem_load.png)
 
-#### データパス
+### マイクロアーキテクチャ
 
-##### Load命令
+#### Load命令
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/path_load.png)
 
-##### Store命令
+#### Store命令
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/path_store.png)
 
-##### 算術命令
+#### 算術命令
 
 ![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/LetsMakeCPU/path_exe.png)
 
-##### ジャンプ命令
-##### 分岐命令
+#### ジャンプ命令
+#### 分岐命令
 
-### ディジタルビルディングブロックを作る
 
 ## 自作CPUでプログラムを動かそう
 
