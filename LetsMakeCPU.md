@@ -921,7 +921,7 @@ ADD G2 G3 G7
 ##### 即値演算命令
 
 - ADDI
-- SUBI
+- ANDI
 
 ##### Load命令
 ##### Store命令
