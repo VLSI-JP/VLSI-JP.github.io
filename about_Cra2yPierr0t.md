@@ -24,6 +24,7 @@ title: About Cra2yPierr0t
 
 ## Awards
 
+- 2018/02 第二回高校生セキュリティコンテスト 神奈川県知事賞
 - 2023/03 情報処理学会 第85回全国大会 学生奨励賞
 
 ## Background
