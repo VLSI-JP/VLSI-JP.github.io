@@ -903,7 +903,7 @@ $$
 論理左シフト命令、`SLL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理左シフトしてRDに格納する。オペコードは`4'h7`であるため、仮に`SLL G3 G2 G1`は`16'h7657`となる。
 
 $$
-\text{RS2} << \text{RS1} \rightarrow \text{RD}
+\text{RS1} << \text{RS2} \rightarrow \text{RD}
 $$
 
 ###### SRL
@@ -911,7 +911,7 @@ $$
 論理右シフト命令、`SRL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理右シフトしてRDに格納する。オペコードは`4'h8`であるため、仮に`SRL G3 G2 G1`は`16'h7658`となる。
 
 $$
-\text{RS2} >> \text{RS1} \rightarrow \text{RD}
+\text{RS1} >> \text{RS2} \rightarrow \text{RD}
 $$
 
 ###### 演算命令まとめ
