@@ -846,37 +846,73 @@ RISC-Vみたいなイケてるロゴを持ってるISAに憧れがあるのでZ1
 
 加算命令、`ADD RS2 RS1 RD`と記述し、RS2とRS1の値を加算してRDに格納する。オペコードは`4'h0`であるため、仮に`ADD G3 G2 G1`は`16'h7650`となる。また、RS2にゼロレジスタZRを指定することでRS1からRDに値を移動させるだけの命令として使うことが可能である。
 
+$$
+\text{RS2} + \text{RS1} \rightarrow \text{RD}
+$$
+
 ###### SUB
 
 減算命令、`SUB RS2 RS1 RD`と記述し、RS2からRS1の値を減算してRDに格納する。オペコードは`4'h1`であるため、仮に`SUB G3 G2 G1`は`16'h7651`となる。
+
+$$
+\text{RS2} - \text{RS1} \rightarrow \text{RD}
+$$
 
 ###### MUL
 
 乗算命令、`MUL RS2 RS1 RD`と記述し、RS2とRS1の値を乗算してRDに格納する。オペコードは`4'h2`であるため、仮に`MUL G3 G2 G1`は`16'h7652`となる。
 
+$$
+\text{RS2}\times \text{RS1} \rightarrow \text{RD}
+$$
+
 ###### DIV
 
 除算命令、`DIV RS2 RS1 RD`と記述し、RS2をRS1で割った商をRDに格納する。オペコードは`4'h3`であるため、仮に`DIV G3 G2 G1`は`16'h7653`となる。
+
+$$
+\text{RS2} \div \text{RS1} \rightarrow \text{RD}
+$$
 
 ###### OR
 
 OR命令、`OR RS2 RS1 RD`と記述し、RS2とRS1の値のORをRDに格納する。オペコードは`4'h4`であるため、仮に`OR G3 G2 G1`は`16'h7654`となる。
 
+$$
+\text{RS2} \parallel \text{RS1} \rightarrow \text{RD}
+$$
+
 ###### AND
 
 AND命令、`AND RS2 RS1 RD`と記述し、RS2とRS1の値のANDをRDに格納する。オペコードは`4'h5`であるため、仮に`AND G3 G2 G1`は`16'h7655`となる。
+
+$$
+\text{RS2} \& \text{RS1} \rightarrow \text{RD}
+$$
 
 ###### XOR
 
 XOR命令、`XOR RS2 RS1 RD`と記述し、RS2とRS1の値のXORをRDに格納する。オペコードは`4'h6`であるため、仮に`XOR G3 G2 G1`は`16'h7656`となる。
 
+$$
+\text{RS2} \oplus \text{RS1} \rightarrow \text{RD}
+$$
+
 ###### SLL
 
 論理左シフト命令、`SLL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理左シフトしてRDに格納する。オペコードは`4'h7`であるため、仮に`SLL G3 G2 G1`は`16'h7657`となる。
 
+$$
+\text{RS2} << \text{RS1} \rightarrow \text{RD}
+$$
+
 ###### SRL
 
 論理右シフト命令、`SRL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理右シフトしてRDに格納する。オペコードは`4'h8`であるため、仮に`SRL G3 G2 G1`は`16'h7658`となる。
+
+$$
+\text{RS2} >> \text{RS1} \rightarrow \text{RD}
+$$
 
 ###### 演算命令まとめ
 
@@ -930,9 +966,17 @@ ADD G2 G3 G7
 
 即値加算命令。`ADDI IMM RD`と記述し、RDにIMMを加算してRDに格納する。IMMが取れる値の範囲は符号付き8bitなので-128~127。オペコードは`4'h9`であるため、仮に`ADDI 100 G0`は`16'h6449`、`ADDI -1 G2`は`16'hFF69`となる。
 
+$$
+\text{IMM} + \text{RD} \rightarrow \text{RD}
+$$
+
 ###### ANDI
 
 即値AND命令。`ANDI IMM RD`と記述し、RDにIMMをANDしてRDに格納する。IMMが取れる値の範囲は符号付き8bitなので-128~127。オペコードは`4'hA`であるため、仮に`ANDI 15 G0`は`16'h0F4A`となる。
+
+$$
+\text{IMM} \& \text{RD} \rightarrow \text{RD}
+$$
 
 ###### 即値命令まとめ
 
@@ -981,6 +1025,10 @@ LOAD命令のビットフィールドの形式は以下の通り、LSBから下�
 
 LOAD命令。`LOAD IMM RS1 RD`と記述し、IMMとRS1の値の和をメモリアドレスとし、メモリのそのアドレスにあるデータをRDに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hB`であるため、仮に`LOAD 0 G0 G1`は`16'h045B`となる。
 
+$$
+\text{Memory}[\text{IMM} + \text{RS1}] \rightarrow \text{RD}
+$$
+
 ###### STORE
 
 Storeはメモリにデータを書き込む操作であり、Z16ではSTOREというStoreを行う命令を一つ持っている。
@@ -990,6 +1038,10 @@ STORE命令のビットフィールドは以下の通り、LSBから下位4bit�
 `MSB | rs2[3:0] | rs1[3:0] | imm[3:0] | opcode[3:0] | LSB`
 
 STORE命令。`STORE RS2 RS1 IMM`と記述し、IMMとRS1の値の和をメモリアドレスとし、RS2の値をメモリのそのアドレスに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hC`であるため、仮に`STORE G1 G0 0`は`16'h540C`となる。
+
+$$
+\text{RS2} \rightarrow \text{Memory}[\text{RS1} + \text{IMM}]
+$$
 
 ###### メモリ命令まとめ
 
