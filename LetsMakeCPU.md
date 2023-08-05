@@ -1089,7 +1089,7 @@ $$
 
 特殊な使い方として、`JRL 0 ZR G0`とすることでプログラムを停止させる事が可能である。
 
-##### ジャンプ命令まとめ
+###### ジャンプ命令まとめ
 
 JALのような、指定したアドレスに飛ぶジャンプの事を**絶対ジャンプ**と呼び、JRLのような自身のアドレスを基準に飛ぶジャンプのことを**相対ジャンプ**と呼ぶ。
 
@@ -1190,7 +1190,208 @@ $$
 
 ### ディジタルビルディングブロック
 
-ここではCPUの各モジュールについて、その働きを説明していきます。
+CPUは多くの部品で構成されていますが、部品それぞれはそこまで複雑ではありません。本章ではCPUの各部品について説明し、実際に作成していきます。
+
+#### Register File
+
+**Register File**、これは**レジスタファイル**と呼び、CPUが少量のデータを保持するのに使います。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile.png)
+
+動作としてはアドレスを入力するとデータを出力する**読み出し**と、
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile_read.png)
+
+アドレスとデータを入力するとレジスタファイルに書き込まれる**書き込み**を行います。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile_write.png)
+
+Z16において、レジスタファイルには2つの読み出しポートと1つの書き込みポートがあると都合が良いです。これはZ16では`ADD RS2 RS1 RD`のように、２つのソースレジスタと１つのディスティネーションレジスタを取る命令が多いためです。
+
+以下が実際にVerilog HDLで実装したものです。Verilog HDL入門を終えているなら読めると思います。
+
+```verilog
+module Z16RegisterFile(
+  input  wire           i_clk,
+  input  wire   [3:0]   i_rs1_addr,
+  input  wire   [3:0]   i_rs2_addr,
+  input  wire   [3:0]   i_rd_addr,
+  input  wire           i_rd_wen,
+  input  wire   [15:0]  i_rd_data,
+  output wire   [15:0]  o_rs1_data,
+  output wire   [15:0]  o_rs2_data
+);
+
+  // レジスタファイル本体
+  reg [15:0] mem[15:0];
+
+  // Read
+  // アドレスが0なら0を出力
+  assign o_rs1_data = (i_rs1_addr == 4'h0) ? 16'h0000 : mem[i_rs1_addr];
+  assign o_rs2_data = (i_rs2_addr == 4'h0) ? 16'h0000 : mem[i_rs2_addr];
+
+  // Write
+  always @(posedge i_clk) begin
+    if(i_rd_wen) begin
+      mem[i_rd_addr]  <= i_rd_data;
+    end else begin
+      mem[i_rd_addr]  <= mem[i_rd_addr];
+    end
+  end
+endmodule
+```
+
+入力として、クロック入力の`i_clk`、RS1のアドレス入力の`i_rs1_addr`、RS2のアドレス入力の`i_rs2_addr`、RDのアドレス入力の`i_rd_addr`、RDへの書き込み有効化信号の`i_rd_wen`、RDへの書き込みデータの`i_rd_data`が存在し、出力としてはRS1の読み出しデータの`o_rs1_data`、RS2の読み出しデータの`o_rs2_data`が存在しています。
+
+これでレジスタファイルが完成しました。テストベンチで動作を確認しましょう。以下のテストベンチでは、`0xA`番目のレジスタに`16'h5555`を書き込んだ後、RS1とRS2両方のポートから読み出しています。
+
+```verilog
+module Z16RegisterFile_tb;
+  
+  reg i_clk = 1'b0;
+
+  reg [3:0]     i_rs1_addr;
+  reg [3:0]     i_rs2_addr;
+  reg [3:0]     i_rd_addr;
+  reg           i_rd_wen;
+  reg [15:0]    i_rd_data;
+  wire [15:0]   o_rs1_data;
+  wire [15:0]   o_rs2_data;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+  
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16RegisterFile_tb);
+  end
+
+  Z16RegisterFile Regfile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (i_rs1_addr ),
+    .i_rs2_addr (i_rs2_addr ),
+    .i_rd_addr  (i_rd_addr  ),
+    .i_rd_wen   (i_rd_wen   ),
+    .i_rd_data  (i_rd_data  ),
+    .o_rs1_data (o_rs1_data ),
+    .o_rs2_data (o_rs2_data )
+  );
+
+  initial begin
+    i_rd_wen = 1'b0;
+    i_rs1_addr  = 4'h0;
+    i_rs2_addr  = 4'h0;
+    #2
+    // 値を書き込み
+    i_rd_wen = 1'b1;
+    i_rd_addr = 4'hA;
+    i_rd_data = 16'h5555;
+    #2
+    i_rd_wen = 1'b0;
+    #2
+    // RS1から値を読み出し
+    i_rs1_addr  = 4'hA;
+    #2
+    // RS2から値を読み出し
+    i_rs2_addr  = 4'hA;
+    #2
+    $finish;
+  end
+
+endmodule
+```
+
+以下のコマンドで動作を確認できます。
+
+```bash
+iverilog Z16RegisterFile_tb.v Z16RegisterFile.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+#### Data Mem
+
+**Data Mem**、これは**データメモリ**と呼び。CPUが大量のデータを保存するのに使います。CPUはデータメモリ対してデータの書き込みと読み出しを行います。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem.png)
+
+メモリに対してのデータ書き込みと読み出しにはそれぞれ名前があり、メモリへのデータ書き込みを**ストア(Store)**、
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_store.png)
+
+メモリからのデータ読み出しを**ロード(Load)**と呼びます。Store命令、Load命令とよく使われる単語ですので覚えておきましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_load.png)
+
+```verilog
+module Z16DataMemory(
+  input  wire           i_clk,
+  input  wire   [15:0]  i_addr,
+  input  wire           i_wen,
+  input  wire   [15:0]  i_data,
+  output wire   [15:0]  o_data
+);
+
+  reg [7:0] mem[65535:0];
+
+  // Load
+  assign o_data = {mem[i_addr+16'h0001], mem[i_addr]};
+
+  // Store
+  always @(posedge i_clk) begin
+    if(i_wen) begin
+      {mem[i_addr+16'h0001], mem[i_addr]} <= i_data;
+    end
+  end
+
+endmodule
+```
+
+```verilog
+module Z16DataMemory_tb;
+
+  reg i_clk = 1'b0;
+  reg [15:0]    i_addr;
+  reg           i_wen;
+  reg [15:0]    i_data;
+  wire [15:0]   o_data;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16DataMemory_tb);
+  end
+
+  Z16DataMemory DataMem(
+    .i_clk  (i_clk  ),
+    .i_addr (i_addr ),
+    .i_wen  (i_wen  ),
+    .i_data (i_data ),
+    .o_data (o_data )
+  );
+
+  initial begin
+    i_wen   = 1'b0;
+    #2
+    // データ書き込み
+    i_wen   = 1'b1;
+    i_addr  = 16'h0101;
+    i_data  = 16'h5555;
+    #2
+    i_wen   = 1'b0;
+    #2
+    // データ読み出し
+    i_addr  = 16'h0101;
+    #2
+    $finish;
+  end
+
+endmodule
+```
 
 #### Instr Mem
 
@@ -1212,39 +1413,12 @@ PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/decoder.png)
 
-#### Register File
-
-**Register File**、これは**レジスタファイル**と呼び、CPUが少量のデータを保持するのに使います。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile.png)
-
-動作としてはアドレスを入力するとデータを出力する**読み出し**と、
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile_read.png)
-
-アドレスとデータを入力するとレジスタファイルに書き込まれる**書き込み**を行います。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile_write.png)
-
 #### ALU
 
 次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいてかまいません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/alu.png)
 
-#### Data Mem
-
-最後に一番右にあるモジュール**Data Mem**、これは**データメモリ**と呼び。CPUが大量のデータを保存するのに使います。データメモリ対して、CPUはデータの書き込みと読み出しを行います。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem.png)
-
-メモリに対してのデータ書き込みと読み出しにはそれぞれ名前があり、メモリへのデータ書き込みを**ストア(Store)**、
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_store.png)
-
-メモリからのデータ読み出しを**ロード(Load)**と呼びます。Store命令、Load命令とよく使われる単語ですので覚えておきましょう。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_load.png)
 
 ### マイクロアーキテクチャ
 
