@@ -1314,7 +1314,7 @@ gtkwave wave.vcd
 
 #### Data Mem
 
-**Data Mem**、これは**データメモリ**と呼び。CPUが大量のデータを保存するのに使います。CPUはデータメモリ対してデータの書き込みと読み出しを行います。
+**Data Mem**、これは**データメモリ**と呼び。CPUがレジスタファイルに収まらない大量のデータを保存するのに使います。CPUはデータメモリ対してデータの書き込みと読み出しを行います。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem.png)
 
@@ -1352,6 +1352,8 @@ module Z16DataMemory(
 endmodule
 ```
 
+これでデータメモリが完成しました。テストベンチで動作を確認しましょう。以下のテストベンチでは、`0x100`番目のアドレスに`16'h5555`をストアした後、ロードしています。
+
 ```verilog
 module Z16DataMemory_tb;
 
@@ -1381,14 +1383,14 @@ module Z16DataMemory_tb;
   initial begin
     i_wen   = 1'b0;
     #2
-    // データ書き込み
+    // ストア
     i_wen   = 1'b1;
-    i_addr  = 16'h0101;
+    i_addr  = 16'h0100;
     i_data  = 16'h5555;
     #2
     i_wen   = 1'b0;
     #2
-    // データ読み出し
+    // ロード
     i_addr  = 16'h0101;
     #2
     $finish;
@@ -1399,9 +1401,28 @@ endmodule
 
 #### Instr Mem
 
-まずは一番左にあるモジュール、**Instr Mem**です。これは**命令メモリ(Instruction Memory)**と呼び、中に命令が入っています。命令メモリ内の各命令にはアドレスが振られており、命令メモリにアドレスを入力すると命令が出力されます。
+**Instr Mem**、これは**命令メモリ(Instruction Memory)**と呼び、データメモリに似ていますが中には命令が入っています。命令メモリ内の各命令にはアドレスが振られており、命令メモリにアドレスを入力すると命令が出力されます。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/instr_mem.png)
+
+```verilog
+module Z16InstrMemory(
+  input  wire   [15:0]  i_addr,
+  output wire   [15:0]  o_instr
+);
+
+  wire [15:0] mem[4:0];
+
+  assign o_instr = mem[i_addr];
+
+  assign mem[0] = 16'h0A19;
+  assign mem[1] = 16'h1220;
+  assign mem[2] = 16'hFF19;
+  assign mem[3] = 16'hFC4F;
+  assign mem[4] = 16'h00FD;
+
+endmodule
+```
 
 #### PC
 
