@@ -325,7 +325,9 @@ $$
 
 ## Verilog HDL入門
 
-この章ではVerilog HDLについて解説します。Verilog HDLとはハードウェア記述言語(Hardware Description Language)の一種で、ディジタル回路の設計・検証に用いられます。早い話**ハードウェア用のプログラミング言語**みたいなものです。その他のHDLとしてSystemVerilog, VHDL等が存在しています。
+この章ではVerilog HDLについて解説していきます。Verilog HDLとはハードウェア記述言語(Hardware Description Language)の一種で、ディジタル回路の設計・検証に用いられます。早い話**ハードウェア用のプログラミング言語**みたいなものです。Verilog HDLで記述されたディジタル回路は、**論理合成**という処理を通して回路に変換されます。その他のHDLとしてSystemVerilog, VHDL等が存在しています。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/learn_lsi/synthesis.png)
 
 本書では、開発環境の快適さと対応ツールの多さからVerilog HDLを採用しています。
 
@@ -942,6 +944,8 @@ ADD G2 G3 G7
 
 演算命令の一覧表
 
+`MSB | rs2[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
+
 | opcode[3:0] | name | operation | assembly | binary |
 | ----------- | ---- | --------- | ------- | ------ |
 | `4'h0` | ADD | `rs2 + rs1 ➜ rd` | `ADD G3 G2 G1` | `16'h7650` |
@@ -968,14 +972,6 @@ ADD G2 G3 G7
 
 $$
 \text{IMM} + \text{RD} \rightarrow \text{RD}
-$$
-
-###### ANDI
-
-即値AND命令。`ANDI IMM RD`と記述し、RDにIMMをANDしてRDに格納する。IMMが取れる値の範囲は符号付き8bitなので-128~127。オペコードは`4'hA`であるため、仮に`ANDI 15 G0`は`16'h0F4A`となる。
-
-$$
-\text{IMM} \& \text{RD} \rightarrow \text{RD}
 $$
 
 ###### 即値命令まとめ
@@ -1006,10 +1002,11 @@ ADD G2 G1 G7
 16'h65B0
 ```
 
+`MSB | imm[7:0] | rd[3:0] | opcode[3:0] | LSB`
+
 | opcode[3:0] | name | operation | assembly | binary |
 | ----------- | ---- | --------- | ------- | ------ |
 | `4'h9` | ADDI | `imm + rd ➜ rd` | `ADDI 100 G0` | `16'h6449` |
-| `4'hA` | ANDI | `imm & rd ➜ rd` | `ANDI 15 G2` | `16'h0F4A` |
 
 ##### メモリ命令
 
@@ -1023,7 +1020,7 @@ LOAD命令のビットフィールドの形式は以下の通り、LSBから下�
 
 `MSB | imm[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
 
-LOAD命令。`LOAD IMM RS1 RD`と記述し、IMMとRS1の値の和をメモリアドレスとし、メモリのそのアドレスにあるデータをRDに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hB`であるため、仮に`LOAD 0 G0 G1`は`16'h045B`となる。
+LOAD命令。`LOAD IMM RS1 RD`と記述し、IMMとRS1の値の和をメモリアドレスとし、メモリのそのアドレスにあるデータをRDに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hA`であるため、仮に`LOAD 0 G0 G1`は`16'h045A`となる。
 
 $$
 \text{Memory}[\text{IMM} + \text{RS1}] \rightarrow \text{RD}
@@ -1037,7 +1034,7 @@ STORE命令のビットフィールドは以下の通り、LSBから下位4bit�
 
 `MSB | rs2[3:0] | rs1[3:0] | imm[3:0] | opcode[3:0] | LSB`
 
-STORE命令。`STORE RS2 RS1 IMM`と記述し、IMMとRS1の値の和をメモリアドレスとし、RS2の値をメモリのそのアドレスに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hC`であるため、仮に`STORE G1 G0 0`は`16'h540C`となる。
+STORE命令。`STORE RS2 RS1 IMM`と記述し、IMMとRS1の値の和をメモリアドレスとし、RS2の値をメモリのそのアドレスに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hB`であるため、仮に`STORE G1 G0 0`は`16'h540B`となる。
 
 $$
 \text{RS2} \rightarrow \text{Memory}[\text{RS1} + \text{IMM}]
@@ -1045,17 +1042,80 @@ $$
 
 ###### メモリ命令まとめ
 
+`MSB | imm[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
+
+`MSB | rs2[3:0] | rs1[3:0] | imm[3:0] | opcode[3:0] | LSB`
+
 | opcode[3:0] | name | operation | assembly | binary |
 | ---- | --------- | ------------- | ------- |
-| `4'hB` | LOAD | `[rs1 + imm] ➜ rd` | `LOAD 4 G5 G6` | `16'h49AB` |
-| `4'hC` | STORE | `rs2 ➜ [rs1 + imm]` | `STORE G5 G6 2` | `16'h9A2C` |
+| `4'hA` | LOAD | `[rs1 + imm] ➜ rd` | `LOAD 4 G5 G6` | `16'h49AA` |
+| `4'hB` | STORE | `rs2 ➜ [rs1 + imm]` | `STORE G5 G6 2` | `16'h9A2B` |
 
 ##### ジャンプ命令
+
+ジャンプ命令とは文字通りジャンプする命令であり、プログラムの流れを強制的に変更します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/jump.png)
+
+ジャンプ命令のビットフィールドは以下の通り、LSBから下位4bitがオペコード、そこから4bitずつにディスティネーションレジスタ、ソースレジスタ１、即値となっている。
+
+`MSB | imm[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
+
+###### JAL
+
+**JAL**はJump Absolute and Link の略であり、`JAL IMM RS1 RD`と記述する。動作としてはIMMとRS1の値の和にジャンプすると同時に、JALの次の命令のアドレスをRDに格納する。
+
+即値のフィールドは符号付き4bitであり、-8~7の値を取る。
+
+$$
+\begin{align}
+\text{PC} + 2 &\rightarrow \text{RD} \\
+\text{IMM} + \text{RS1} &\rightarrow \text{PC}
+\end{align}
+$$
+
+###### JRL
+
+**JRL**はJump Relative and Linkの略であり、`JRL IMM RS1 RD`と記述する。動作としてはIMMとRS1の値とJRLが存在するアドレスの和にジャンプすると同時に、JRLの次の命令のアドレスをRDに格納する。
+
+即値のフィールドは符号付き4bitであり、-8~7の値を取る。
+
+$$
+\begin{align}
+\text{PC} + 2 &\rightarrow \text{RD} \\
+\text{IMM} + \text{RS1} + \text{PC} &\rightarrow \text{PC}
+\end{align}
+$$
+
+特殊な使い方として、`JRL 0 ZR G0`とすることでプログラムを停止させる事が可能である。
+
+##### ジャンプ命令まとめ
+
+以下の命令列では、アドレス4の位置にJRLが存在しています。この命令列が実行されると、JRLでアドレスAの命令にジャンプしAND命令が実行されます。またレジスタG6には6が格納されます。
+
+```
+0: ADD G0 G1 G2
+2: SUB G0 G1 G2
+4: JRL 6 ZR G6
+6: MUL G0 G1 G2
+8: DIV G0 G1 G2
+A: AND G0 G1 G2
+C: XOR G0 G1 G2
+E: ADD G0 G1 G2
+```
+
+| opcode[3:0] | name | operation | assembly | binary |
+| ----------- | ---- | --------- | -------- | ------ |
+| `4'hC` | JAL | `pc + 2 ➜ rd` <br>`imm + rs1 ➜ pc` | `JAL 4 G7 G8` | `16'h4BCC` |
+| `4'hD` | JRL | `pc + 2 ➜ rd` <br>`imm + rs1 + pc ➜ pc` | `JRL 4 G7 G8` | `16'h4BCD` |
+
 ##### 分岐命令
 
-- BEQ
-- BLT
+`MSB | imm[7:0] | rs2[1:0] | rs1[1:0] | opcode[3:0] | LSB`
 
+###### BEQ
+
+###### BLT
 
 ### ディジタルビルディングブロック
 
