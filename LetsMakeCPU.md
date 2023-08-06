@@ -1340,19 +1340,18 @@ module Z16DataMemory(
   input  wire   [15:0]  i_addr,
   input  wire           i_wen,
   input  wire   [15:0]  i_data,
-  output wire   [15:0]  o_data
+  output reg    [15:0]  o_data
 );
 
-  reg [7:0] mem[65535:0];
+  reg [15:0] mem[16383:0];
 
-  // Load
-  assign o_data = {mem[i_addr+16'h0001], mem[i_addr]};
-
-  // Store
   always @(posedge i_clk) begin
+    // Store
     if(i_wen) begin
-      {mem[i_addr+16'h0001], mem[i_addr]} <= i_data;
+      mem[i_addr[14:1]] <= i_data;
     end
+    // Load
+    o_data <= mem[i_addr[14:1]];
   end
 
 endmodule
@@ -1395,9 +1394,10 @@ module Z16DataMemory_tb;
     i_data  = 16'h5555;
     #2
     i_wen   = 1'b0;
+    i_addr  = 16'h0000;
     #2
     // ロード
-    i_addr  = 16'h0101;
+    i_addr  = 16'h0100;
     #2
     $finish;
   end
@@ -1413,13 +1413,16 @@ endmodule
 
 ```verilog
 module Z16InstrMemory(
+  input  wire           i_clk,
   input  wire   [15:0]  i_addr,
-  output wire   [15:0]  o_instr
+  output reg    [15:0]  o_instr
 );
 
   wire [15:0] mem[4:0];
 
-  assign o_instr = mem[i_addr];
+  always @(posedge i_clk) begin
+    o_instr <= mem[i_addr[15:1]];
+  end
 
   assign mem[0] = 16'h0A19;
   assign mem[1] = 16'h1220;
@@ -1429,6 +1432,47 @@ module Z16InstrMemory(
 
 endmodule
 ```
+
+#### ALU
+
+次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいてかまいません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/alu.png)
+
+```verilog
+module Z16ALU(
+  input  wire   [15:0]  i_data_a,
+  input  wire   [15:0]  i_data_b,
+  input  wire   [3:0]   i_ctrl,
+  output wire   [15:0]  o_data
+);
+
+  assign o_data = alu(i_data_a, i_data_b, i_ctrl);
+
+  function [15:0] alu(
+    input [15:0]    i_data_a,
+    input [15:0]    i_data_b,
+    input [3:0]     i_ctrl
+  );
+    begin
+      case(i_ctrl)
+        4'h0 : alu  = i_data_b + i_data_a;
+        4'h1 : alu  = i_data_b - i_data_a;
+        4'h2 : alu  = i_data_b * i_data_a;
+        4'h3 : alu  = i_data_b / i_data_a;
+        4'h4 : alu  = i_data_b | i_data_a;
+        4'h5 : alu  = i_data_b & i_data_a;
+        4'h6 : alu  = i_data_b ^ i_data_a;
+        4'h7 : alu  = i_data_a << i_data_a;
+        4'h8 : alu  = i_data_a >> i_data_a;
+        default: alu = 16'h0000;
+      endcase
+    end
+  endfunction
+
+endmodule
+```
+
 
 #### PC
 
@@ -1443,13 +1487,6 @@ endmodule
 PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から各種制御信号を生成します。具体的な動作の説明は他の部品の説明をしてから行いますので、とりあえず今は命令に応じて各部品を制御するモジュールだと認識しておいてください。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/decoder.png)
-
-#### ALU
-
-次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいてかまいません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/alu.png)
-
 
 ### マイクロアーキテクチャ
 
