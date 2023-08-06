@@ -1488,6 +1488,79 @@ PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/decoder.png)
 
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [3:0]   o_rd_addr,
+  output wire           o_rd_wen,
+  output wire   [15:0]  o_imm,
+  output wire   [3:0]   o_alu_ctrl,
+  output wire           o_mem_wen
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_imm      = get_imm(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+
+  // レジスタに書き込む場合にのみ1
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if((4'hA >= i_instr[3:0]) || (i_instr[3:0] >= 4'h0)) begin
+      get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  // いっぱい符号拡張
+  function get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hB  : get_imm   = {i_instr[7] ? 12'hFFF : 12'h000, i_instr[7:4]};
+      4'hC  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hD  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hE  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      4'hF  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_alu_ctrl(input [15:0] i_instr);
+  begin
+    if((4'h8 >= i_instr[3:0]) || (i_instr[3:0] >= 4'h0)) begin
+      get_alu_ctrl  = i_instr[3:0];
+    end else begin
+      get_alu_ctrl  = 4'h0;
+    end
+  end
+  endfunction
+
+  // STORE命令の場合にのみ1
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] == 4'hB) begin
+      get_mem_wen    = 1'b1;
+    end else begin
+      get_mem_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+endmodule
+```
+
 ### マイクロアーキテクチャ
 
 #### Load命令
