@@ -1570,9 +1570,469 @@ PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から
 
 ### マイクロアーキテクチャ
 
+さて、CPUの部品が一通り実装できましたね。本章では実装した部品を実際に組み立て、CPUとしての動作が出来るようにしていきましょう。
+
+たたき台となるコードを以下に用意しました。このたたき台には命令メモリとデータメモリが未接続の状態で置いてあります。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  Z16InstrMem InstrMem(
+    .i_addr     (),
+    .o_instr    ()
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (),
+    .i_addr (),
+    .i_wen  (),
+    .i_data (),
+    .o_data ()
+  );
+
+endmodule
+```
+
 #### Load命令
 
+最初に実装する命令はLOAD命令です。LOAD命令はメモリからデータを取り出してレジスタに保存する操作でしたね、このLOAD命令の動作を箇条書きにするとこのようになります。
+
+1. 命令メモリから命令をフェッチ
+2. デコーダが命令を解釈
+3. レジスタからRS1の値を取り出す
+4. ALUでアドレス計算
+5. データメモリからデータを取り出す
+6. レジスタにデータを書き込む
+
+かなり手順が多いですね、実際LOAD命令はZ16の命令の中で最もデータの流れが長い命令となっています。CPUを実装する際はこのLOAD命令のようなデータの流れ、つまりデータパスが最も長い命令を最初に実装した方が楽です。
+
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load.png)
+
+ではまずは命令メモリから命令をフェッチする機構を作りましょう。`Z16CPU.v`に書き込んでいきます。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+  wire  [15:0]  w_instr;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMem InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (),
+    .i_addr (),
+    .i_wen  (),
+    .i_data (),
+    .o_data ()
+  );
+
+endmodule
+```
+
+追加された部分を説明しますと、`r_pc`というレジスタが追加されましたね。これはプログラムカウンタです。リセット入力が有効な場合にはプログラムカウンタを0にし、通常時は2づつカウントアップさせています。このプログラムカウンタの値を命令メモリのアドレス入力に入れていますね。また`w_instr`という名前の信号線を定義し、命令メモリの出力に接続しています。
+
+これでフェッチ機構を実装できました。次はフェッチした命令を解釈するデコーダを作成していきましょう。
+
+LOAD命令のビットフィールドは以下のように、LSBから順にオペコード、RDのアドレス、RS1のアドレス、即値となっていましたね。
+
+`MSB | imm[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
+
+オペコードに加え、RDとRS1のアドレスはそのまま使えるのでスライスを使って取り出しましょう。`o_opcode`がオペコード、`o_rd_addr`がRDのアドレス、`o_rs1_addr`がRS1のアドレスとなっています。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+
+endmodule
+```
+
+次に即値のフィールドですが、これは符号付き4bitとなっていますがALUは符号付き16bitの値しか扱えませんので、符号付き4bitの値を符号付き16bitの値に符号拡張する必要があります。そこで命令のオペコードがLOAD命令のもの場合にのみ、符号拡張を行う関数を作成します。
+
+```verilog
+function get_imm(input [15:0] i_instr);
+begin
+  case(i_instr[3:0])
+    4'hA    : get_imm = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    default : get_imm = 16'h0000;
+  endcase
+end
+endfunction
+```
+
+(ここに符号拡張の説明を入力)
+
+こうして作成した関数を使い、即値のデコード結果を`o_imm`から出力しましょう。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [15:0]  o_imm
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_imm      = get_imm(i_instr);
+
+  // 符号拡張
+  function get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+endmodule
+```
+
+この次は各モジュールを制御する為の信号を作成していきます。
+
+LOAD命令はメモリから値を読み出し、レジスタファイルに値を書き込む命令でしたね。よってメモリは値を読み出す状態にし、レジスタファイルは値を書き込む状態にする必要があります。そのために、デコーダの出力信号にレジスタファイルの書き込み有効化信号である`o_rd_wen`とデータメモリの書き込み有効化信号である`o_mem_wen`を追加しましょう。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen
+);
+```
+
+LOAD命令の場合、`o_rd_wen`は`1`を出力し、`o_mem_wen`は`0`を出力する必要がありますね。そのための関数である`get_rd_wen()`と`get_mem_wen()`を作成しましょう。
+
+```verilog
+function get_rd_wen(input [15:0] i_instr);
+begin
+  if(4'hA == i_instr[3:0]) begin
+    get_rd_wen    = 1'b1;
+  end else begin
+    get_rd_wen    = 1'b0;
+  end
+end
+endfunction
+
+function get_mem_wen(input [15:0] i_instr);
+begin
+  if(4'hA == i_instr[3:0]) begin
+    get_mem_wen = 1'b0;
+  end else begin
+    get_mem_wen = 1'b0;
+  end
+end
+endfunction
+```
+
+こうして作成した関数をデコーダに追加すると以下の通りになります。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+
+  // 符号拡張
+  function get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(4'hA == i_instr[3:0]) begin
+     get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    if(4'hA == i_instr[3:0]) begin
+      get_mem_wen = 1'b0;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+endmodule
+```
+
+次はALUにアドレス計算を行わせる為に、ALUの制御信号を作成しましょう。まずはALUの制御信号である`o_alu_ctrl`を追加します。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+```
+
+LOAD命令では、即値とRS1の値を加算してアドレスを作っていましたね。
+
+$$
+\text{Memory}[\text{IMM} + \text{RS1}] \rightarrow \text{RD}
+$$
+
+よってALUには加算を行ってもらう必要があります。ALUの実装を見返すと`i_ctrl`に`4'h0`を入力すると加算を行ってくれるように実装してありますね。よってLOAD命令のオペコードの場合は`4'h0`を出力する関数を作成します。
+
+```verilog
+function [3:0] get_alu_ctrl(input [15:0] i_instr);
+begin
+  if(4'hA == i_instr[3:0]) begin
+    get_alu_ctrl  = 4'h0;
+  end else begin
+    get_alu_ctrl  = 4'h0;
+  end
+end
+endfunction
+```
+
+こうして作成した関数をデコーダに追加すると以下の通りになります。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  // 符号拡張
+  function get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(4'hA == i_instr[3:0]) begin
+     get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    if(4'hA == i_instr[3:0]) begin
+      get_mem_wen = 1'b0;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+  function [3:0] get_alu_ctrl(input [15:0] i_instr);
+  begin
+    if(4'hA == i_instr[3:0]) begin
+      get_alu_ctrl  = 4'h0;
+    end else begin
+      get_alu_ctrl  = 4'h0;
+    end
+  end
+  endfunction
+
+endmodule
+```
+
+これでデコーダが完成しました。CPUに設置し、各種信号線を接続します。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [15:0]   w_rd_addr;
+  wire [15:0]   w_rs1_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMem InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (i_instr    ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (o_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (),
+    .i_addr (),
+    .i_wen  (),
+    .i_data (),
+    .o_data ()
+  );
+
+endmodule
+```
+
+これで命令をフェッチし、デコーダに命令を入力する所まで実装できました。次はRS1の値をレジスタから取り出すデータパスを作成しましょう。
+
+以下ではCPUにレジスタファイルを設置し、デコーダが出力したRS1のアドレスである`w_rs1_addr`を接続しています。またRS1のデータの信号線である`w_rs1_data`を新たに定義し、レジスタファイルの出力に接続しています。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+
+  wire [15:0]   w_rs1_data;
+
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMem InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (i_instr    ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (o_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (),
+    .o_rs2_data (),
+    .i_rd_data  (),
+    .i_rd_addr  (),
+    .i_rd_wen   ()
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (),
+    .i_addr (),
+    .i_wen  (),
+    .i_data (),
+    .o_data ()
+  );
+
+endmodule
+```
+
+次はアドレス計算を行う部分を実装しましょう。
 
 #### Store命令
 
