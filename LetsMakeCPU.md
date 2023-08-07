@@ -1251,6 +1251,8 @@ endmodule
 
 入力として、クロック入力の`i_clk`、RS1のアドレス入力の`i_rs1_addr`、RS2のアドレス入力の`i_rs2_addr`、RDのアドレス入力の`i_rd_addr`、RDへの書き込み有効化信号の`i_rd_wen`、RDへの書き込みデータの`i_rd_data`が存在し、出力としてはRS1の読み出しデータの`o_rs1_data`、RS2の読み出しデータの`o_rs2_data`が存在しています。
 
+また常に値が0であるZRを実現するために、読み出し機構に入力されたアドレスが0なら0を出力するようにしています。
+
 これでレジスタファイルが完成しました。テストベンチで動作を確認しましょう。以下のテストベンチでは、`0xA`番目のレジスタに`16'h5555`を書き込んだ後、RS1とRS2両方のポートから読み出しています。
 
 ```verilog
@@ -1340,18 +1342,19 @@ module Z16DataMemory(
   input  wire   [15:0]  i_addr,
   input  wire           i_wen,
   input  wire   [15:0]  i_data,
-  output reg    [15:0]  o_data
+  output wire   [15:0]  o_data
 );
 
-  reg [15:0] mem[16383:0];
+  reg [15:0] mem[1023:0];
+
+    // Load
+  assign o_data = mem[i_addr[10:1]];
 
   always @(posedge i_clk) begin
     // Store
     if(i_wen) begin
-      mem[i_addr[14:1]] <= i_data;
+      mem[i_addr[10:1]] <= i_data;
     end
-    // Load
-    o_data <= mem[i_addr[14:1]];
   end
 
 endmodule
@@ -1411,18 +1414,17 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/instr_mem.png)
 
+以下が実際に命令メモリをVerilog HDLで実装したものです。ここでは初期値として1~10の総和を求めるプログラムを格納してあります。
+
 ```verilog
 module Z16InstrMemory(
-  input  wire           i_clk,
   input  wire   [15:0]  i_addr,
-  output reg    [15:0]  o_instr
+  output wire   [15:0]  o_instr
 );
 
   wire [15:0] mem[4:0];
 
-  always @(posedge i_clk) begin
-    o_instr <= mem[i_addr[15:1]];
-  end
+  assign o_instr = mem[i_addr[15:1]];
 
   assign mem[0] = 16'h0A19;
   assign mem[1] = 16'h1220;
@@ -1433,11 +1435,51 @@ module Z16InstrMemory(
 endmodule
 ```
 
+```verilog
+module Z16InstrMemory_tb;
+
+  reg [15:0]    i_addr;
+  wire [15:0]   o_instr;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16InstrMemory_tb);
+  end
+
+  Z16InstrMemory InstrMem(
+    .i_addr (i_addr ),
+    .o_instr(o_instr)
+  );
+
+  initial begin
+    #2
+    i_addr  = 16'h0000;
+    #2
+    i_addr  = 16'h0002;
+    #2
+    i_addr  = 16'h0004;
+    #2
+    i_addr  = 16'h0006;
+    #2
+    i_addr  = 16'h0008;
+    #2
+    i_addr  = 16'h000A;
+    #2
+    i_addr  = 16'h000C;
+    #2
+    $finish;
+  end
+
+endmodule
+```
+
 #### ALU
 
-次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいてかまいません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
+次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいて構いません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/alu.png)
+
+以下が実際にALUをVerilog HDLで実装したものです。このALUは入力として入力データ１の`i_data_a`、入力データ２の`i_data_b`、行う演算を制御する`i_ctrl`を持ち、出力として演算結果の`o_data`を持ちます。
 
 ```verilog
 module Z16ALU(
@@ -1473,6 +1515,44 @@ module Z16ALU(
 endmodule
 ```
 
+```verilog
+module Z16ALU_tb;
+
+  reg [15:0]    i_data_a;
+  reg [15:0]    i_data_b;
+  reg [3:0]     i_ctrl;
+  wire [15:0]   o_data;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16ALU_tb);
+  end
+
+  Z16ALU ALU(
+    .i_data_a   (i_data_a   ),
+    .i_data_b   (i_data_b   ),
+    .i_ctrl     (i_ctrl     ),
+    .o_data     (o_data     )
+  );
+
+  initial begin
+    i_data_a    = 16'h0004;
+    i_data_b    = 16'h0008;
+    i_ctrl      = 4'h0; // ADD
+    #2
+    i_ctrl      = 4'h1; // SUB
+    #2
+    i_ctrl      = 4'h2; // MUL
+    #2
+    i_ctrl      = 4'h3; // DIV
+    #2
+    i_ctrl      = 4'h4; // OR
+    #2
+    $finish;
+  end
+
+endmodule
+```
 
 #### PC
 
@@ -1487,79 +1567,6 @@ endmodule
 PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から各種制御信号を生成します。具体的な動作の説明は他の部品の説明をしてから行いますので、とりあえず今は命令に応じて各部品を制御するモジュールだと認識しておいてください。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/decoder.png)
-
-```verilog
-module Z16Decoder(
-  input  wire   [15:0]  i_instr,
-  output wire   [3:0]   o_opcode,
-  output wire   [3:0]   o_rs1_addr,
-  output wire   [3:0]   o_rs2_addr,
-  output wire   [3:0]   o_rd_addr,
-  output wire           o_rd_wen,
-  output wire   [15:0]  o_imm,
-  output wire   [3:0]   o_alu_ctrl,
-  output wire           o_mem_wen
-);
-
-  assign o_opcode   = i_instr[3:0];
-  assign o_rs1_addr = i_instr[11:8];
-  assign o_rs2_addr = i_instr[15:12];
-  assign o_rd_addr  = i_instr[7:4];
-  assign o_rd_wen   = get_rd_wen(i_instr);
-  assign o_imm      = get_imm(i_instr);
-  assign o_alu_ctrl = get_alu_ctrl(i_instr);
-  assign o_mem_wen  = get_mem_wen(i_instr);
-
-  // レジスタに書き込む場合にのみ1
-  function get_rd_wen(input [15:0] i_instr);
-  begin
-    if((4'hA >= i_instr[3:0]) || (i_instr[3:0] >= 4'h0)) begin
-      get_rd_wen    = 1'b1;
-    end else begin
-      get_rd_wen    = 1'b0;
-    end
-  end
-  endfunction
-
-  // いっぱい符号拡張
-  function get_imm(input [15:0] i_instr);
-  begin
-    case(i_instr[3:0])
-      4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
-      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
-      4'hB  : get_imm   = {i_instr[7] ? 12'hFFF : 12'h000, i_instr[7:4]};
-      4'hC  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
-      4'hD  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
-      4'hE  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
-      4'hF  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
-      default : get_imm = 16'h0000;
-    endcase
-  end
-  endfunction
-
-  function get_alu_ctrl(input [15:0] i_instr);
-  begin
-    if((4'h8 >= i_instr[3:0]) || (i_instr[3:0] >= 4'h0)) begin
-      get_alu_ctrl  = i_instr[3:0];
-    end else begin
-      get_alu_ctrl  = 4'h0;
-    end
-  end
-  endfunction
-
-  // STORE命令の場合にのみ1
-  function get_mem_wen(input [15:0] i_instr);
-  begin
-    if(i_instr[3:0] == 4'hB) begin
-      get_mem_wen    = 1'b1;
-    end else begin
-      get_mem_wen    = 1'b0;
-    end
-  end
-  endfunction
-
-endmodule
-```
 
 ### マイクロアーキテクチャ
 
