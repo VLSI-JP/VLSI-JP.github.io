@@ -2593,7 +2593,11 @@ endmodule
   );
 ```
 
-ここまででレジスタファイルからRS2の値を読み出すデータパスが実装できました。ここまでの改造内容をまとめたものが以下になります。
+ここまででレジスタファイルからRS2の値を読み出すデータパスが実装できました。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store_readreg.png)
+
+ここまでの改造内容をまとめたものが以下になります。
 
 ```verilog
 module Z16CPU(
@@ -2676,7 +2680,11 @@ endmodule
 
 ##### メモリへの値書き込み
 
-最後に、レジスタファイルのRS2のデータ出力をデータメモリの書き込みデータ入力に接続します。
+最後に、メモリへデータを書き込むデータパスを作成していきます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store.png)
+
+レジスタファイルのRS2のデータ出力をデータメモリの書き込みデータ入力に接続します。
 
 ```verilog
 module Z16CPU(
