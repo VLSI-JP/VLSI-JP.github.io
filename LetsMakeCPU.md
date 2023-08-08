@@ -1952,7 +1952,7 @@ module Z16CPU(
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
     .o_rd_wen   (w_rd_wen   ),
-    .o_mem_wen  (o_mem_wen  ),
+    .o_mem_wen  (w_mem_wen  ),
     .o_alu_ctrl (w_alu_ctrl )
   );
 
@@ -2012,7 +2012,7 @@ module Z16CPU(
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
     .o_rd_wen   (w_rd_wen   ),
-    .o_mem_wen  (o_mem_wen  ),
+    .o_mem_wen  (w_mem_wen  ),
     .o_alu_ctrl (w_alu_ctrl )
   );
 
@@ -2040,7 +2040,242 @@ endmodule
 
 ##### アドレス計算
 
-次はアドレス計算を行う部分を実装しましょう。
+次はアドレス計算を行う部分を実装しましょう。ALUを設置し、`w_rs1_data`、`w_imm`、`w_alu_ctrl`を接続します。またメモリアドレス信号である`w_mem_addr`を新たに定義し、ALUの出力データに接続します。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+
+  wire [15:0]   w_rs1_data;
+
+  wire [15:0]   w_mem_addr;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMem InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (i_instr    ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (),
+    .o_rs2_data (),
+    .i_rd_data  (),
+    .i_rd_addr  (),
+    .i_rd_wen   ()
+  );
+
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_imm      ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_mem_addr )
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (),
+    .i_addr (),
+    .i_wen  (),
+    .i_data (),
+    .o_data ()
+  );
+
+endmodule
+```
+
+##### メモリからのデータ読み出し
+
+アドレス計算のデータパスが完成したら、次はそのアドレスをメモリに入力し、データを取り出すデータパスを作りましょう。データメモリに計算したアドレスである`w_mem_addr`とデコーダからの書き込み有効化信号である`w_mem_wen`を接続します。また、メモリから読み出したデータの信号線である`w_mem_rdata`を新たに定義し、データメモリに接続します。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+
+  wire [15:0]   w_rs1_data;
+
+  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_mem_rdata;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMem InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (i_instr    ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (),
+    .o_rs2_data (),
+    .i_rd_data  (),
+    .i_rd_addr  (),
+    .i_rd_wen   ()
+  );
+
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_imm      ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_mem_addr )
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_mem_addr ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (),
+    .o_data (w_mem_rdata)
+  );
+
+endmodule
+```
+
+##### レジスタファイルへのデータ書き込み
+
+最後にメモリから読み出したデータをレジスタファイルに書き込むデータパスを作成しましょう。メモリから取り出したデータの信号線である`w_mem_rdata`をレジスタファイルのデータ書き込みポートに接続し、またデコーダからのRDのアドレスと書き込み有効化信号を接続します。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+
+  wire [15:0]   w_rs1_data;
+
+  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_mem_rdata;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMem InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (i_instr    ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (),
+    .o_rs2_data (),
+    .i_rd_data  (w_mem_rdata),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_imm      ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_mem_addr )
+  );
+
+  Z16DataMem DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_mem_addr ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (),
+    .o_data (w_mem_rdata)
+  );
+
+endmodule
+```
+
+これでLOAD命令のデータパスが完成しました。流石に大変でしたね、LOAD命令が一番データパスが長い命令ですので残りはもっと簡単に実装できます。気を楽にしてください。
+
+このCPUは現在LOAD命令のみを実行できます。シミュレーションで動作を確認してみましょう。
+
+##### 動作の確認
 
 #### Store命令
 
