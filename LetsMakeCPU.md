@@ -1613,7 +1613,11 @@ endmodule
 
 ##### 命令フェッチ
 
-ではまずは命令メモリから命令をフェッチする機構を作りましょう。`Z16CPU.v`に書き込んでいきます。
+ではまずは命令メモリから命令をフェッチする機構を作りましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_fetch.png)
+
+`Z16CPU.v`に書き込んでいきます。
 
 ```verilog
 module Z16CPU(
@@ -1649,7 +1653,7 @@ module Z16CPU(
 endmodule
 ```
 
-追加された部分を説明しますと、`r_pc`というレジスタが追加されましたね。これはプログラムカウンタです。リセット入力が有効な場合にはプログラムカウンタを0にし、通常時は2づつカウントアップさせています。このプログラムカウンタの値を命令メモリのアドレス入力に入れていますね。また`w_instr`という名前の信号線を定義し、命令メモリの出力に接続しています。
+追加された部分を説明しますと、`r_pc`というレジスタが追加されました。これはプログラムカウンタです。リセット入力が有効な場合にはプログラムカウンタを0にし、通常時は2づつカウントアップさせています。このプログラムカウンタの値を命令メモリのアドレス入力に入れていますね。また`w_instr`という名前の信号線を定義し、命令メモリの出力に接続しています。
 
 ##### デコーダの作成
 
@@ -1967,9 +1971,13 @@ module Z16CPU(
 endmodule
 ```
 
-これで命令をフェッチし、デコーダに命令を入力する所まで実装できました。次はRS1の値をレジスタから取り出すデータパスを作成しましょう。
+これで命令をフェッチし、デコーダに命令を入力する所まで実装できました。
 
 ##### レジスタファイルからの値読み出し
+
+次はRS1の値をレジスタから取り出すデータパスを作成しましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_readreg.png)
 
 以下ではCPUにレジスタファイルを設置し、デコーダが出力したRS1のアドレスである`w_rs1_addr`を接続しています。またRS1のデータの信号線である`w_rs1_data`を新たに定義し、レジスタファイルの出力に接続しています。
 
@@ -2040,7 +2048,11 @@ endmodule
 
 ##### アドレス計算
 
-次はアドレス計算を行う部分を実装しましょう。ALUを設置し、`w_rs1_data`、`w_imm`、`w_alu_ctrl`を接続します。またメモリアドレス信号である`w_mem_addr`を新たに定義し、ALUの出力データに接続します。
+次はアドレス計算を行うデータパスを実装しましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_caladdr.png)
+
+ALUを設置し、`w_rs1_data`、`w_imm`、`w_alu_ctrl`を接続します。またメモリアドレス信号である`w_mem_addr`を新たに定義し、ALUの出力データに接続します。
 
 ```verilog
 module Z16CPU(
@@ -2117,7 +2129,11 @@ endmodule
 
 ##### メモリからのデータ読み出し
 
-アドレス計算のデータパスが完成したら、次はそのアドレスをメモリに入力し、データを取り出すデータパスを作りましょう。データメモリに計算したアドレスである`w_mem_addr`とデコーダからの書き込み有効化信号である`w_mem_wen`を接続します。また、メモリから読み出したデータの信号線である`w_mem_rdata`を新たに定義し、データメモリに接続します。
+アドレス計算のデータパスが完成したら、次はそのアドレスをメモリに入力し、データを取り出すデータパスを作りましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_readmem.png)
+
+データメモリに計算したアドレスである`w_mem_addr`とデコーダからの書き込み有効化信号である`w_mem_wen`を接続します。また、メモリから読み出したデータの信号線である`w_mem_rdata`を新たに定義し、データメモリに接続します。
 
 ```verilog
 module Z16CPU(
@@ -2195,7 +2211,11 @@ endmodule
 
 ##### レジスタファイルへのデータ書き込み
 
-最後にメモリから読み出したデータをレジスタファイルに書き込むデータパスを作成しましょう。メモリから取り出したデータの信号線である`w_mem_rdata`をレジスタファイルのデータ書き込みポートに接続し、またデコーダからのRDのアドレスと書き込み有効化信号を接続します。
+最後にメモリから読み出したデータをレジスタファイルに書き込むデータパスを作成しましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_writereg.png)
+
+メモリから取り出したデータの信号線である`w_mem_rdata`をレジスタファイルのデータ書き込みポートに接続し、またデコーダからのRDのアドレスと書き込み有効化信号を接続します。
 
 ```verilog
 module Z16CPU(
