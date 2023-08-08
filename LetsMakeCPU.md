@@ -2299,6 +2299,57 @@ module Z16InstrMemory(
 endmodule
 ```
 
+またテストベンチも適当に作成します。最初はリセットをオンにし、2単位時間後にリセットを落としてプログラムの実行を開始するようにしています。
+
+```verilog
+module Z16CPU_tb;
+
+  reg i_clk = 1'b0;
+  reg i_rst = 1'b0;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16CPU_tb);
+  end
+
+  Z16CPU CPU(
+    .i_clk  (i_clk  ),
+    .i_rst  (i_rst  )
+  );
+
+  initial begin
+    // リセット
+    i_rst   = 1'b1;
+    #2
+    // リセットを落とし、実行開始
+    i_rst   = 1'b0;
+    #100
+    $finish;
+  end
+
+endmodule
+```
+
+以下のコマンドでシミュレーションを実行します。
+
+```bash
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+実際にシミュレーションをした結果が以下の波形です。命令メモリから命令をフェッチ、デコーダが各種制御信号を生成、レジスタからの値取り出し、ALUによるアドレス計算、データメモリからの値のロード、レジスタへの値書き込みを行っている様子が分かります。
+
+ただし、値が何も書き込まれていないメモリからデータをロードしているので、レジスタには不定値`16'hxxxx`が書き込まれている事に注意してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_load.png)
+
+これで、LOAD命令のデータパスが完成した事が確認できました。
+
 #### Store命令
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store.png)
