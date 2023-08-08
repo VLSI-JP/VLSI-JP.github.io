@@ -2372,7 +2372,165 @@ gtkwave wave.vcd
 
 #### Store命令
 
+次はSTORE命令のデータパスを作成し、CPUがSTORE命令を実行できるようにしましょう。
+
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store.png)
+
+STORE命令の動作を箇条書きすると以下の通りになります。
+
+1. 命令メモリから命令をフェッチ
+2. デコーダが命令を解釈
+3. レジスタからRS1, RS2の値を取り出す
+4. ALUでアドレス計算
+5. データメモリにRS2の値を書き込む
+
+1の命令フェッチの機構はLOAD命令を実装した時に作りましたね。2のデコーダには少し手を加える必要があります。
+
+##### デコーダを改造
+
+STORE命令のビットフィールドは以下のように、LSBから順にオペコード、即値、RS1のアドレス、RS2のアドレスとなっていましたね。
+
+`MSB | rs2[3:0] | rs1[3:0] | imm[3:0] | opcode[3:0] | LSB`
+
+LOAD命令のビットフィールドと比較すると、RS1のフィールドは共通ですが、RDのフィールドが即値になり、即値のフィールドがRS2になりました。
+
+RS2のアドレスはそのまま使えるのでスライスを使って取り出しましょう。デコーダの出力として新たに`o_rs2_addr`を定義し、STORE命令のRS2のアドレスを出力します。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+```
+
+次に即値に対処しましょう。LOAD命令では`i_instr`の`[15:12]`の4bitを取り出し16bitに符号拡張していましたが、STORE命令では`i_instr`の`[7:4]`の4bitが即値となっています。そこで`get_imm`を改造してオペコードがSTORE命令の`4'hB`の場合は`i_instr[7:4]`の4bitを取り出して符号拡張するように改造します。
+
+```verilog
+// 符号拡張
+function [15:0] get_imm(input [15:0] i_instr);
+begin
+  case(i_instr[3:0])
+    4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+    default : get_imm = 16'h0000;
+  endcase
+end
+endfunction
+```
+
+次にSTORE命令はメモリに値を書き込む命令ですので、STORE命令が来た時はメモリ書き込み有効化信号である`o_mem_wen`を1にする必要があります。Z16において、メモリに値を書き込むのはSTORE命令の場合のみですので、`get_mem_wen`を改造し、オペコードがSTORE命令の`4'hB`の場合にのみ1になるようにします。
+
+```verilog
+function get_mem_wen(input [15:0] i_instr);
+begin
+  // STORE命令の場合にのみ1
+  if(4'hB == i_instr[3:0]) begin
+    get_mem_wen = 1'b1;
+  end else begin
+    get_mem_wen = 1'b0;
+  end
+end
+endfunction
+```
+
+次にALUの制御信号ですが、STORE命令のアドレス計算もRS1と即値の加算ですので、ALUには加算をしてもらう必要があります。
+
+$$
+\text{RS2} \rightarrow \text{Memory}[\text{RS1} + \text{IMM}]
+$$
+
+これはLOAD命令と同じですので、とりあえず今はALUには常に加算をやってもらうように改造します。
+
+```verilog
+function [3:0] get_alu_ctrl(input [15:0] i_instr);
+begin
+  get_alu_ctrl  = 4'h0;
+end
+endfunction
+```
+
+改造が完了したデコーダは以下の通りです。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  // 符号拡張
+  function [15:0] get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(4'hA == i_instr[3:0]) begin
+      get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    // STORE命令の場合にのみ1
+    if(4'hB == i_instr[3:0]) begin
+      get_mem_wen = 1'b1;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+  function [3:0] get_alu_ctrl(input [15:0] i_instr);
+  begin
+    get_alu_ctrl  = 4'h0;
+  end
+  endfunction
+
+endmodule
+```
+
+デコーダの改造が完了しましたら、`Z16CPU.v`に
 
 #### 算術命令
 
