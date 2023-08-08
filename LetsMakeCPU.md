@@ -1679,7 +1679,7 @@ endmodule
 次に即値のフィールドですが、これは符号付き4bitとなっていますがALUは符号付き16bitの値しか扱えませんので、符号付き4bitの値を符号付き16bitの値に符号拡張する必要があります。そこで命令のオペコードがLOAD命令のもの場合にのみ、符号拡張を行う関数を作成します。
 
 ```verilog
-function get_imm(input [15:0] i_instr);
+function [15:0] get_imm(input [15:0] i_instr);
 begin
   case(i_instr[3:0])
     4'hA    : get_imm = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
@@ -1708,7 +1708,7 @@ module Z16Decoder(
   assign o_imm      = get_imm(i_instr);
 
   // 符号拡張
-  function get_imm(input [15:0] i_instr);
+  function [15:0] get_imm(input [15:0] i_instr);
   begin
     case(i_instr[3:0])
       4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
@@ -1781,7 +1781,7 @@ module Z16Decoder(
   assign o_mem_wen  = get_mem_wen(i_instr);
 
   // 符号拡張
-  function get_imm(input [15:0] i_instr);
+  function [15:0] get_imm(input [15:0] i_instr);
   begin
     case(i_instr[3:0])
       4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
@@ -1871,7 +1871,7 @@ module Z16Decoder(
   assign o_alu_ctrl = get_alu_ctrl(i_instr);
 
   // 符号拡張
-  function get_imm(input [15:0] i_instr);
+  function [15:0] get_imm(input [15:0] i_instr);
   begin
     case(i_instr[3:0])
       4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
@@ -1941,13 +1941,13 @@ module Z16CPU(
     end
   end
 
-  Z16InstrMem InstrMem(
+  Z16InstrMemory InstrMem(
     .i_addr     (r_pc   ),
     .o_instr    (w_instr)
   );
 
   Z16Decoder Decoder(
-    .i_instr    (i_instr    ),
+    .i_instr    (w_instr    ),
     .o_rd_addr  (w_rd_addr  ),
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
@@ -1956,7 +1956,7 @@ module Z16CPU(
     .o_alu_ctrl (w_alu_ctrl )
   );
 
-  Z16DataMem DataMem(
+  Z16DataMemory DataMem(
     .i_clk  (),
     .i_addr (),
     .i_wen  (),
@@ -2001,13 +2001,13 @@ module Z16CPU(
     end
   end
 
-  Z16InstrMem InstrMem(
+  Z16InstrMemory InstrMem(
     .i_addr     (r_pc   ),
     .o_instr    (w_instr)
   );
 
   Z16Decoder Decoder(
-    .i_instr    (i_instr    ),
+    .i_instr    (w_instr    ),
     .o_rd_addr  (w_rd_addr  ),
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
@@ -2027,7 +2027,7 @@ module Z16CPU(
     .i_rd_wen   ()
   );
 
-  Z16DataMem DataMem(
+  Z16DataMemory DataMem(
     .i_clk  (),
     .i_addr (),
     .i_wen  (),
@@ -2071,13 +2071,13 @@ module Z16CPU(
     end
   end
 
-  Z16InstrMem InstrMem(
+  Z16InstrMemory InstrMem(
     .i_addr     (r_pc   ),
     .o_instr    (w_instr)
   );
 
   Z16Decoder Decoder(
-    .i_instr    (i_instr    ),
+    .i_instr    (w_instr    ),
     .o_rd_addr  (w_rd_addr  ),
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
@@ -2104,7 +2104,7 @@ module Z16CPU(
     .o_data     (w_mem_addr )
   );
 
-  Z16DataMem DataMem(
+  Z16DataMemory DataMem(
     .i_clk  (),
     .i_addr (),
     .i_wen  (),
@@ -2149,13 +2149,13 @@ module Z16CPU(
     end
   end
 
-  Z16InstrMem InstrMem(
+  Z16InstrMemory InstrMem(
     .i_addr     (r_pc   ),
     .o_instr    (w_instr)
   );
 
   Z16Decoder Decoder(
-    .i_instr    (i_instr    ),
+    .i_instr    (w_instr    ),
     .o_rd_addr  (w_rd_addr  ),
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
@@ -2182,7 +2182,7 @@ module Z16CPU(
     .o_data     (w_mem_addr )
   );
 
-  Z16DataMem DataMem(
+  Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
     .i_addr (w_mem_addr ),
     .i_wen  (w_mem_wen  ),
@@ -2227,13 +2227,13 @@ module Z16CPU(
     end
   end
 
-  Z16InstrMem InstrMem(
+  Z16InstrMemory InstrMem(
     .i_addr     (r_pc   ),
     .o_instr    (w_instr)
   );
 
   Z16Decoder Decoder(
-    .i_instr    (i_instr    ),
+    .i_instr    (w_instr    ),
     .o_rd_addr  (w_rd_addr  ),
     .o_rs1_addr (w_rs1_addr ),
     .o_imm      (w_imm      ),
@@ -2260,7 +2260,7 @@ module Z16CPU(
     .o_data     (w_mem_addr )
   );
 
-  Z16DataMem DataMem(
+  Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
     .i_addr (w_mem_addr ),
     .i_wen  (w_mem_wen  ),
@@ -2276,6 +2276,28 @@ endmodule
 このCPUは現在LOAD命令のみを実行できます。シミュレーションで動作を確認してみましょう。
 
 ##### 動作の確認
+
+動作を確認するために、まずは命令メモリにLOAD命令を書き込みましょう。以下では命令メモリのアドレス0とアドレス3(正しくは6)にLOAD命令を書き込んであります。それ以外は適当に0で埋めておきましょう。
+
+```verilog
+module Z16InstrMemory(
+  input  wire           i_clk,
+  input  wire   [15:0]  i_addr,
+  output wire   [15:0]  o_instr
+);
+
+  wire [15:0] mem[4:0];
+
+  assign o_instr = mem[i_addr[15:1]];
+
+  assign mem[0] = 16'h406A; // LOAD 4 ZR G2 
+  assign mem[1] = 16'h0000;
+  assign mem[2] = 16'h0000;
+  assign mem[3] = 16'h008A; // LOAD 0 ZR G4
+  assign mem[4] = 16'h0000;
+
+endmodule
+```
 
 #### Store命令
 
