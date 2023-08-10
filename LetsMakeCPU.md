@@ -2939,9 +2939,68 @@ endmodule
 verilog
 ```
 
+##### ALUで演算
+
+デコーダの改造が完了したら次はALUで演算を行うデータパスを実装しましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_exe_alu.png)
+
+現状の`Z16CPU.v`の実装を見てみると、ALUのデータ入力には`w_rs1_data`と`w_imm`が入力されています。演算命令は`w_rs1_data`と`w_rs2_data`の値で演算を行う命令ですので、ALUに`w_rs2_data`を接続する必要があります。しかしながら`w_imm`を`w_rs2_data`に置き換えるだけでは先程実装したLOAD命令とSTORE命令が実行できなくなります。そこで、フェッチされた命令によってALUの`i_data_b`に入力される信号が変わるようにしましょう。
+
+```verilog
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_imm      ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_alu_data )
+  );
+```
+
+まずは`w_opcode`と`w_data_b`という信号線を`Z16CPU.v`に新たに定義します。
+
+```verilog
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+  wire [3:0]    w_opcode;
+
+  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs2_data;
+  
+  wire [15:0]   w_data_b;
+  wire [15:0]   w_alu_data;
+```
+
+そしてデコーダにある今まで使ってこなかった信号線である`o_opcode`の出力信号を`w_opcode`に接続します。
+
+```verilog
+  Z16Decoder Decoder(
+    .i_instr    (w_instr    ),
+    .o_opcode   (w_opcode   ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_rs2_addr (w_rs2_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+```
+
+そして`w_opcode`の値を利用して、`w_opcode`が演算命令の場合は`w_data_b`に`w_rs2_data`値が入力され、それ以外の場合は`w_imm`の値が入力されるようにします。
+
+```verilog
+  assign w_data_b = (w_opcode <= 8'h8) ? w_rs2_data : w_imm;
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_data_b   ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_alu_data )
+  );
+```
+
 ##### レジスタへの演算結果書き込み
 
-デコーダの改造が完了した時点でやるべき事は殆ど残っていません。レジスタからの値読み出しも、ALUで演算も、どちらもデコーダを改造するだけでデータバスが出来ています。あと残っているのはレジスタファイルへの演算結果の書き込みのデータパスです。やっていきましょう。
+あと残っているのはレジスタファイルへの演算結果の書き込みのデータパスです。やっていきましょう。
 
 レジスタファイルへの値書き込みですが、現状の`Z16CPU.v`の実装を見てみると、レジスタファイルのデータ入力である`i_rd_data`にはメモリからのデータ信号である`w_mem_rdata`が直接接続されていますね。これではALUの演算結果をレジスタに書き込めません。
 
@@ -2965,26 +3024,14 @@ verilog
   wire [15:0]   w_rs2_data;
   wire [15:0]   w_rd_data;
   
+  wire [15:0]   w_data_b;
   wire [15:0]   w_alu_data;
-
-  --- 中略 ---
-
-  Z16RegisterFile RegFile(
-    .i_clk      (i_clk      ),
-    .i_rs1_addr (w_rs1_addr ),
-    .o_rs1_data (w_rs1_data ),
-    .i_rs2_addr (w_rs2_addr ),
-    .o_rs2_data (w_rs2_data ),
-    .i_rd_data  (w_rd_data  ),
-    .i_rd_addr  (w_rd_addr  ),
-    .i_rd_wen   (w_rd_wen   )
-  );
 ```
 
-そしたら以下のように、フェッチされた命令がLOAD命令の場合は`w_mem_rdata`が`w_rd_addr`に接続され、それ以外の場合は`w_alu_data`が接続されるようにします。
+そしたら以下のように`i_rd_data`に`w_rd_data`を接続し、フェッチされた命令がLOAD命令の場合は`w_mem_rdata`が`w_rd_addr`に入力され、それ以外の場合は`w_alu_data`が入力されるようにします。
 
 ```verilog
-  assign w_rd_data = (w_instr[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
+  assign w_rd_data = (w_opcode[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
   Z16RegisterFile RegFile(
     .i_clk      (i_clk      ),
     .i_rs1_addr (w_rs1_addr ),
@@ -3016,11 +3063,13 @@ module Z16CPU(
   wire          w_rd_wen;
   wire          w_mem_wen;
   wire [3:0]    w_alu_ctrl;
+  wire [3:0]    w_opcode;
 
   wire [15:0]   w_rs1_data;
   wire [15:0]   w_rs2_data;
   wire [15:0]   w_rd_data;
   
+  wire [15:0]   w_data_b;
   wire [15:0]   w_alu_data;
 
   wire [15:0]   w_mem_rdata;
@@ -3040,6 +3089,7 @@ module Z16CPU(
 
   Z16Decoder Decoder(
     .i_instr    (w_instr    ),
+    .o_opcode   (w_opcode   ),
     .o_rd_addr  (w_rd_addr  ),
     .o_rs1_addr (w_rs1_addr ),
     .o_rs2_addr (w_rs2_addr ),
@@ -3049,7 +3099,7 @@ module Z16CPU(
     .o_alu_ctrl (w_alu_ctrl )
   );
 
-  assign w_rd_data = (w_instr[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
+  assign w_rd_data = (w_opcode[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
   Z16RegisterFile RegFile(
     .i_clk      (i_clk      ),
     .i_rs1_addr (w_rs1_addr ),
@@ -3061,9 +3111,10 @@ module Z16CPU(
     .i_rd_wen   (w_rd_wen   )
   );
 
+  assign w_data_b = (w_opcode <= 8'h8) ? w_rs2_data : w_imm;
   Z16ALU ALU(
     .i_data_a   (w_rs1_data ),
-    .i_data_b   (w_imm      ),
+    .i_data_b   (w_data_b   ),
     .i_ctrl     (w_alu_ctrl ),
     .o_data     (w_alu_data )
   );
@@ -3080,6 +3131,15 @@ endmodule
 ```
 
 動作の確認は次の即値命令を実装してからにしましょう
+
+#### 即値命令
+
+続いて即値命令のデータパスを実装しましょう。Z16では即値命令としてADDIを持っており、ビットフィールドの`[15:8]`に符号付き8bitの即値が存在していました。
+
+`MSB | imm[7:0] | rd[3:0] | opcode[3:0] | LSB`
+
+
+
 
 #### ジャンプ命令
 #### 分岐命令
