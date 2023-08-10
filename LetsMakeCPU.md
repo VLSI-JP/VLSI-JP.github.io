@@ -2936,7 +2936,6 @@ module Z16Decoder(
   endfunction
 
 endmodule
-verilog
 ```
 
 ##### ALUで演算
@@ -3031,7 +3030,7 @@ verilog
 そしたら以下のように`i_rd_data`に`w_rd_data`を接続し、フェッチされた命令がLOAD命令の場合は`w_mem_rdata`が`w_rd_addr`に入力され、それ以外の場合は`w_alu_data`が入力されるようにします。
 
 ```verilog
-  assign w_rd_data = (w_opcode[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
+  assign w_rd_data = (w_opcode[3:0] == 4'hA) ? w_mem_rdata : w_alu_data;
   Z16RegisterFile RegFile(
     .i_clk      (i_clk      ),
     .i_rs1_addr (w_rs1_addr ),
@@ -3099,7 +3098,7 @@ module Z16CPU(
     .o_alu_ctrl (w_alu_ctrl )
   );
 
-  assign w_rd_data = (w_opcode[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
+  assign w_rd_data = (w_opcode[3:0] == 4'hA) ? w_mem_rdata : w_alu_data;
   Z16RegisterFile RegFile(
     .i_clk      (i_clk      ),
     .i_rs1_addr (w_rs1_addr ),
@@ -3134,12 +3133,271 @@ endmodule
 
 #### 即値命令
 
-続いて即値命令のデータパスを実装しましょう。Z16では即値命令としてADDIを持っており、ビットフィールドの`[15:8]`に符号付き8bitの即値が存在していました。
+続いて即値命令のデータパスを実装しましょう。
+
+即値命令の動作を箇条書きすると以下の通りになります。
+
+1. 命令メモリから命令をフェッチ
+2. デコーダが命令を解釈
+3. レジスタからRDの値を取り出す
+4. ALUで演算
+5. レジスタに演算結果を書き込む
+
+ではまずデコーダを改造していきます。
+
+##### デコーダを改造
+
+Z16の即値命令であるADDIは、RDの値に即値を加算してRDに格納する命令でした。
+
+$$
+\text{IMM} + \text{RD} \rightarrow \text{RD}
+$$
+
+現状、レジスタファイルから値を読み出すには`o_rs1_addr`か`o_rs2_addr`にアドレスを入力する必要があります。そこで今回はRDの値をRS1のポートから取り出す事にします。
+
+そのため、`get_rs1_addr()`という関数を新たに定義し、即値命令のオペコードの場合は`o_rs1_addr`にRDのアドレスを入力し、それ以外の場合はRS1のアドレスを入力するようにします。
+
+```verilog
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = get_rs1_addr(i_instr);
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  function [3:0] get_rs1_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  :   get_rs1_addr    = i_instr[7:4];
+      default : get_rs1_addr    = i_instr[11:8];
+    endcase
+  end
+  endfunction
+```
+
+次に即値に対処します。ADDIのビットフィールドには、`[15:8]`に符号付き8bitの即値が存在していました。
 
 `MSB | imm[7:0] | rd[3:0] | opcode[3:0] | LSB`
 
+デコーダの`get_imm()`を改造し、ADDI命令の場合は符号付き8bitの即値を16bitに符号拡張するようにしましょう。
 
+```verilog
+// 符号拡張
+function [15:0] get_imm(input [15:0] i_instr);
+begin
+  case(i_instr[3:0])
+    4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+    4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+    default : get_imm = 16'h0000;
+  endcase
+end
+endfunction
+```
 
+そして、ADDI命令は演算命令と同じくレジスタファイルに値を書き込む命令ですので、`get_rd_wen()`を改造し、ADDI命令の場合は`o_rd_wen`を1にするようにします。
+
+```verilog
+function get_rd_wen(input [15:0] i_instr);
+begin
+  if(i_instr[3:0] <= 4'h8) begin
+    get_rd_wen    = 1'b1;
+  end else if(4'h9 == i_instr[3:0]) begin
+    get_rd_wen    = 1'b1;
+  end else if(4'hA == i_instr[3:0]) begin
+    get_rd_wen    = 1'b1;
+  end else begin
+    get_rd_wen    = 1'b0;
+  end
+end
+endfunction
+```
+
+上記の記述だと冗長ですので、以下のように纏めてしまいましょう。
+
+```verilog
+function get_rd_wen(input [15:0] i_instr);
+begin
+  if(i_instr[3:0] <= 4'hA) begin
+    get_rd_wen    = 1'b1;
+  end else begin
+    get_rd_wen    = 1'b0;
+  end
+end
+endfunction
+```
+
+またALUの制御信号ですが、即値命令はADDIだけであり、既に演算命令以外ではALUに加算を行わせるようにしていますので、`get_alu_ctrl()`の改造の必要はありません。
+
+```verilog
+function [3:0] get_alu_ctrl(input [15:0] i_instr);
+begin
+  if(i_instr[3:0] <= 4'h8) begin
+    get_alu_ctrl  = i_instr[3:0];
+  end else begin
+    get_alu_ctrl  = 4'h0;
+  end
+end
+endfunction
+```
+
+これでデコーダの改造が完了しました。改造が完了したデコーダを以下に載せておきます。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = get_rs1_addr(i_instr);
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  function [3:0] get_rs1_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  :   get_rs1_addr    = i_instr[7:4];
+      default : get_rs1_addr    = i_instr[11:8];
+    endcase
+  end
+  endfunction
+
+  // 符号拡張
+  function [15:0] get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'hA) begin
+      get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    // STORE命令の場合にのみ1
+    if(4'hB == i_instr[3:0]) begin
+      get_mem_wen = 1'b1;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+  function [3:0] get_alu_ctrl(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'h8) begin
+      get_alu_ctrl  = i_instr[3:0];
+    end else begin
+      get_alu_ctrl  = 4'h0;
+    end
+  end
+  endfunction
+
+endmodule
+```
+
+実はデコーダの改造が完了した時点で、即値命令のデータパスの実装は完了しています。今までの実装が生きましたね。
+
+##### 動作の確認
+
+それでは先程実装した演算命令と即値命令の動作確認を行っていきましょう。
+
+動作確認用のプログラムとして、ADDIの説明の際に用いたサンプルプログラムを改造して使いましょう。
+
+$$
+\begin{align}
+x &= 120 \\
+y &= 87 \\
+f(x, y) &= 3\times x + 100 + y
+\end{align}
+$$
+
+以下のプログラムはG0とG1とG4を0で初期化した後、G0に120を格納、G1に87を格納して計算を行い、計算結果をメモリのアドレス0に格納しています。
+
+```
+ADD ZR ZR G0
+ADD ZR ZR G1
+ADD ZR ZR G4
+ADDI 120 G0
+ADDI 87 G1
+ADDI 3 G4
+MUL G4 G0 G2
+ADDI 100 G1
+ADD G2 G1 G7
+STORE G7 ZR 0
+```
+
+このプログラムをアセンブルしてバイナリを命令メモリに格納します。
+
+```verilog
+module Z16InstrMemory(
+  input  wire           i_clk,
+  input  wire   [15:0]  i_addr,
+  output wire   [15:0]  o_instr
+);
+
+  wire [15:0] mem[10:0];
+
+  assign o_instr = mem[i_addr[15:1]];
+
+  assign mem[0] = 16'h0040; // ADD ZR ZR G0
+  assign mem[1] = 16'h0050; // ADD ZR ZR G1
+  assign mem[2] = 16'h0080; // ADD ZR ZR G4
+  assign mem[3] = 16'h7849; // ADDI 120 G0
+  assign mem[4] = 16'h5759; // ADDI 87 G1
+  assign mem[5] = 16'h0389; // ADDI 3 G4
+  assign mem[6] = 16'h8462; // MUL G4 G0 G2
+  assign mem[7] = 16'h6459; // ADDI 100 G1
+  assign mem[8] = 16'h65B0; // ADD G2 G1 G7
+  assign mem[9] = 16'hB00B; // STORE G7 ZR 0
+  assign mem[10] = 16'h0000; 
+
+endmodule
+```
+
+テストベンチに変更を行う必要はありません。以下のコマンドでシミュレーションを行い、波形を見ることが出来ます。
+
+```bash
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+以下の波形が実際にシミュレーションを行った結果です。データメモリの信号を見てみると、後半にメモリのアドレス0に16進数で`16'h0223`が書き込まれています。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_imm.png)
+
+これを10進数に直すと547であり、上記の数式の計算結果と一致しています。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/cal_imm.png)
+
+これで我々のCPUは演算命令と即値命令を実行できることが確認できました。
 
 #### ジャンプ命令
 #### 分岐命令
