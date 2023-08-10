@@ -2052,7 +2052,7 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_caladdr.png)
 
-ALUを設置し、`w_rs1_data`、`w_imm`、`w_alu_ctrl`を接続します。またメモリアドレス信号である`w_mem_addr`を新たに定義し、ALUの出力データに接続します。
+ALUを設置し、`w_rs1_data`、`w_imm`、`w_alu_ctrl`を接続します。またALUの演算結果の信号である`w_alu_data`を新たに定義し、ALUの演算結果出力に接続します。
 
 ```verilog
 module Z16CPU(
@@ -2073,7 +2073,7 @@ module Z16CPU(
 
   wire [15:0]   w_rs1_data;
 
-  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_alu_data;
 
   always @(posedge i_clk) begin
     if(i_rst) begin
@@ -2113,7 +2113,7 @@ module Z16CPU(
     .i_data_a   (w_rs1_data ),
     .i_data_b   (w_imm      ),
     .i_ctrl     (w_alu_ctrl ),
-    .o_data     (w_mem_addr )
+    .o_data     (w_alu_data )
   );
 
   Z16DataMemory DataMem(
@@ -2133,7 +2133,7 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_readmem.png)
 
-データメモリに計算したアドレスである`w_mem_addr`とデコーダからの書き込み有効化信号である`w_mem_wen`を接続します。また、メモリから読み出したデータの信号線である`w_mem_rdata`を新たに定義し、データメモリに接続します。
+データメモリにALUが計算したアドレスである`w_alu_data`とデコーダからの書き込み有効化信号である`w_mem_wen`を接続します。また、メモリから読み出したデータの信号線である`w_mem_rdata`を新たに定義し、データメモリに接続します。
 
 ```verilog
 module Z16CPU(
@@ -2154,7 +2154,7 @@ module Z16CPU(
 
   wire [15:0]   w_rs1_data;
 
-  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_alu_data;
   wire [15:0]   w_mem_rdata;
 
   always @(posedge i_clk) begin
@@ -2195,12 +2195,12 @@ module Z16CPU(
     .i_data_a   (w_rs1_data ),
     .i_data_b   (w_imm      ),
     .i_ctrl     (w_alu_ctrl ),
-    .o_data     (w_mem_addr )
+    .o_data     (w_alu_data )
   );
 
   Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
-    .i_addr (w_mem_addr ),
+    .i_addr (w_alu_data ),
     .i_wen  (w_mem_wen  ),
     .i_data (),
     .o_data (w_mem_rdata)
@@ -2236,7 +2236,7 @@ module Z16CPU(
 
   wire [15:0]   w_rs1_data;
 
-  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_alu_data;
   wire [15:0]   w_mem_rdata;
 
   always @(posedge i_clk) begin
@@ -2277,12 +2277,12 @@ module Z16CPU(
     .i_data_a   (w_rs1_data ),
     .i_data_b   (w_imm      ),
     .i_ctrl     (w_alu_ctrl ),
-    .o_data     (w_mem_addr )
+    .o_data     (w_alu_data )
   );
 
   Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
-    .i_addr (w_mem_addr ),
+    .i_addr (w_alu_data ),
     .i_wen  (w_mem_wen  ),
     .i_data (),
     .o_data (w_mem_rdata)
@@ -2576,7 +2576,7 @@ endmodule
   wire [15:0]   w_rs1_data;
   wire [15:0]   w_rs2_data;
 
-  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_alu_data;
   wire [15:0]   w_mem_rdata;
 ```
 
@@ -2618,7 +2618,7 @@ module Z16CPU(
   wire [15:0]   w_rs1_data;
   wire [15:0]   w_rs2_data;
 
-  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_alu_data;
   wire [15:0]   w_mem_rdata;
 
   always @(posedge i_clk) begin
@@ -2660,12 +2660,12 @@ module Z16CPU(
     .i_data_a   (w_rs1_data ),
     .i_data_b   (w_imm      ),
     .i_ctrl     (w_alu_ctrl ),
-    .o_data     (w_mem_addr )
+    .o_data     (w_alu_data )
   );
 
   Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
-    .i_addr (w_mem_addr ),
+    .i_addr (w_alu_data ),
     .i_wen  (w_mem_wen  ),
     .i_data (),
     .o_data (w_mem_rdata)
@@ -2696,7 +2696,7 @@ module Z16CPU(
   wire  [15:0]  w_instr;
   wire [3:0]    w_rd_addr;
   wire [3:0]    w_rs1_addr;
-  wire [3:0]    w_rs2_addr;
+  wire [3:0]    w_rd_addr;
   wire [15:0]   w_imm;
   wire          w_rd_wen;
   wire          w_mem_wen;
@@ -2705,7 +2705,7 @@ module Z16CPU(
   wire [15:0]   w_rs1_data;
   wire [15:0]   w_rs2_data;
 
-  wire [15:0]   w_mem_addr;
+  wire [15:0]   w_alu_data;
   wire [15:0]   w_mem_rdata;
 
   always @(posedge i_clk) begin
@@ -2747,12 +2747,12 @@ module Z16CPU(
     .i_data_a   (w_rs1_data ),
     .i_data_b   (w_imm      ),
     .i_ctrl     (w_alu_ctrl ),
-    .o_data     (w_mem_addr )
+    .o_data     (w_alu_data )
   );
 
   Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
-    .i_addr (w_mem_addr ),
+    .i_addr (w_alu_data ),
     .i_wen  (w_mem_wen  ),
     .i_data (w_rs2_data ),
     .o_data (w_mem_rdata)
@@ -2801,9 +2801,284 @@ gtkwave wave.vcd
 
 これで、STORE命令のデータパスが完成した事が確認できました。
 
-#### 算術命令
+#### 演算命令
+
+さて、次は演算命令のデータパスを実装し、ADDやSUB、MUL命令などを実行できるようにしましょう。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_exe.png)
+
+演算命令の動作を箇条書すると以下の通りになります。
+
+1. 命令メモリから命令をフェッチ
+2. デコーダが命令を解釈
+3. レジスタからRS1, RS2の値を取り出す
+4. ALUで演算
+5. レジスタに演算結果を書き込む
+
+命令フェッチは既に実装してありますので、デコーダの改造に着手しましょう。
+
+##### デコーダを改造
+
+以下はデコーダの入出力信号です。演算命令を実行するにあたり、変更を加える必要がある信号はレジスタファイルへの書き込み制御信号である`o_rd_wen`とALUの制御信号である`o_alu_ctrl`です。改造していきましょう。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+```
+
+まずは`o_rd_wen`に手を加えてきます。Z16において、演算命令が割り当てられているオペコードは`4'h0`~`4'h8`でしたね。よってオペコードがこの範囲である場合も`o_rd_wen`が1になっていればよいという事です。`get_rd_wen()`を以下のように改造します。
+
+```verilog
+function get_rd_wen(input [15:0] i_instr);
+begin
+  if(i_instr[3:0] <= 4'h8) begin
+    get_rd_wen    = 1'b1;
+  end else if(4'hA == i_instr[3:0]) begin
+    get_rd_wen    = 1'b1;
+  end else begin
+    get_rd_wen    = 1'b0;
+  end
+end
+endfunction
+```
+
+次はALUの制御信号である`o_alu_ctrl`に手を加えます。ALUの実装を覚えていますでしょうか。本実装では、Z16の演算命令のオペコードとALUの制御信号の値を一致さています。つまり演算命令をALUに実行させたい場合はオペコードをALUに入力すればよいという事です。よって`get_alu_ctrl()`を改造し、オペコードが演算命令のものの場合は`o_alu_ctrl`にオペコードの値をそのまま入力するようにします。
+
+```verilog
+function [3:0] get_alu_ctrl(input [15:0] i_instr);
+begin
+  if(i_instr[3:0] <= 4'h8) begin
+    get_alu_ctrl  = i_instr[3:0];
+  end else begin
+    get_alu_ctrl  = 4'h0;
+  end
+end
+endfunction
+```
+
+以上でデコーダの改造は終わりです。RS1, RS2, RDのアドレスを取り出す機構もLOAD命令とSTORE命令を実装する際に実装できていますので、少しの改造で済みましたね。
+
+以下に改造が完了したデコーダを載せておきます。
+
+```module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = i_instr[11:8];
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  // 符号拡張
+  function [15:0] get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'h8) begin
+      get_rd_wen    = 1'b1;
+    end else if(4'hA == i_instr[3:0]) begin
+      get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    // STORE命令の場合にのみ1
+    if(4'hB == i_instr[3:0]) begin
+      get_mem_wen = 1'b1;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+  function [3:0] get_alu_ctrl(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'h8) begin
+      get_alu_ctrl  = i_instr[3:0];
+    end else begin
+      get_alu_ctrl  = 4'h0;
+    end
+  end
+  endfunction
+
+endmodule
+verilog
+```
+
+##### レジスタへの演算結果書き込み
+
+デコーダの改造が完了した時点でやるべき事は殆ど残っていません。レジスタからの値読み出しも、ALUで演算も、どちらもデコーダを改造するだけでデータバスが出来ています。あと残っているのはレジスタファイルへの演算結果の書き込みのデータパスです。やっていきましょう。
+
+レジスタファイルへの値書き込みですが、現状の`Z16CPU.v`の実装を見てみると、レジスタファイルのデータ入力である`i_rd_data`にはメモリからのデータ信号である`w_mem_rdata`が直接接続されていますね。これではALUの演算結果をレジスタに書き込めません。
+
+```verilog
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_mem_rdata),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+```
+
+よって対応が必要になります。まずはレジスタファイルへの書き込みデータ信号線である`w_rd_data`を新たに定義し、レジスタファイルのデータ書き込みに接続しましょう。
+
+```verilog
+  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs2_data;
+  wire [15:0]   w_rd_data;
+  
+  wire [15:0]   w_alu_data;
+
+  --- 中略 ---
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+```
+
+そしたら以下のように、フェッチされた命令がLOAD命令の場合は`w_mem_rdata`が`w_rd_addr`に接続され、それ以外の場合は`w_alu_data`が接続されるようにします。
+
+```verilog
+  assign w_rd_data = (w_instr[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+```
+
+これで演算命令のデータバスの実装が完了しました。全体のコードが以下の通りです。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [3:0]    w_rs2_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+
+  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs2_data;
+  wire [15:0]   w_rd_data;
+  
+  wire [15:0]   w_alu_data;
+
+  wire [15:0]   w_mem_rdata;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMemory InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (w_instr    ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_rs2_addr (w_rs2_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  assign w_rd_data = (w_instr[3:0] == 4'hA) ? w_mem_rdata ? w_alu_data;
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_imm      ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_alu_data )
+  );
+
+  Z16DataMemory DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_alu_data ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (w_rs2_data ),
+    .o_data (w_mem_rdata)
+  );
+
+endmodule
+```
+
+動作の確認は次の即値命令を実装してからにします。
 
 #### ジャンプ命令
 #### 分岐命令
