@@ -2869,7 +2869,8 @@ endfunction
 
 以下に改造が完了したデコーダを載せておきます。
 
-```module Z16Decoder(
+```verilog
+module Z16Decoder(
   input  wire   [15:0]  i_instr,
   output wire   [3:0]   o_opcode,
   output wire   [3:0]   o_rd_addr,
@@ -3078,7 +3079,7 @@ module Z16CPU(
 endmodule
 ```
 
-動作の確認は次の即値命令を実装してからにします。
+動作の確認は次の即値命令を実装してからにしましょう
 
 #### ジャンプ命令
 #### 分岐命令
