@@ -3478,11 +3478,331 @@ endfunction
 
 `get_mem_wen()`に関しては、ジャンプ命令はメモリに値を書き込みませんので手を加える必要はありません。また`get_alu_ctrl()`に関しては、ジャンプ命令先のアドレス計算には加算しか用いませんので、従来の演算命令以外は0を返す実装に手を加える必要はありません。
 
+よってALUでジャンプ先のアドレスを計算するデータパスまでは完成しました。
+
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump_caladdr.png)
+
+以下に改造が完了したデコーダの全体を載せておきます。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = get_rs1_addr(i_instr);
+  assign o_rs2_addr = i_instr[15:12];
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  function [3:0] get_rs1_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  :   get_rs1_addr    = i_instr[7:4];
+      default : get_rs1_addr    = i_instr[11:8];
+    endcase
+  end
+  endfunction
+
+  // 符号拡張
+  function [15:0] get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+      4'hC  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hD  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'hA) begin
+      get_rd_wen    = 1'b1;
+    end else if((i_instr[3:0] == 4'hC) || (i_instr[3:0] == 4'hD)) begin
+      get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    // STORE命令の場合にのみ1
+    if(4'hB == i_instr[3:0]) begin
+      get_mem_wen = 1'b1;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+  function [3:0] get_alu_ctrl(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'h8) begin
+      get_alu_ctrl  = i_instr[3:0];
+    end else begin
+      get_alu_ctrl  = 4'h0;
+    end
+  end
+  endfunction
+
+endmodule
+```
 
 ##### レジスタにPC + 2の値を格納
 
+次はレジスタのRDにPC + 2の値を格納するデータパスを実装しましょう。
+
+従来のデータパスでは、RDに格納する値はLOAD命令でメモリから読み出したデータの`w_mem_rdata`か、演算命令か即値命令で計算した`w_alu_data`でした。ここにジャンプ命令のオペコードの場合はPC + 2の値を格納するようにする必要があります。
+
+```verilog
+  assign w_rd_data = (w_opcode == 4'hA) ? w_mem_rdata : w_alu_data;
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+```
+
+そこで新たな関数である`select_rd_data()`を定義し、オペコードによってRDに格納するデータを決められるようにしましょう。
+
+オペコードがLOAD命令の場合は`w_mem_rdata`を入力し、ジャンプ命令の場合は`r_pc + 16'h0002`の値を入力し、それ以外の場合は`w_alu_data`の値を入力するようにします。
+
+```verilog
+  assign w_rd_data = select_rd_data(w_opcode, w_mem_rdata, r_pc, w_alu_data);
+
+  function [15:0] select_rd_data(
+    input   [3:0]   i_opcode,
+    input   [15:0]  i_mem_rdata,
+    input   [15:0]  i_pc,
+    input   [15:0]  i_alu_data
+  );
+  begin
+    case(i_opcode)
+      4'hA  : select_rd_data    = i_mem_rdata;
+      4'hC  : select_rd_data    = i_pc + 16'h0002;
+      4'hD  : select_rd_data    = i_pc + 16'h0002;
+      default : select_rd_data  = i_alu_data;
+    endcase
+  end
+  endfunction
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+```
+
 ##### PCにジャンプ先のアドレス書き込み
+
+次にプログラムカウンタにジャンプ先のアドレスを書き込む機構を実装します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump.png)
+
+今までは`r_pc`に対してリセット時以外はひたすらカウントアップしていく機構が組まれていましたが、ここにジャンプ命令のオペコードに対応して`r_pc`の値を変更する機構を追加します。
+
+```verilog
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else if(w_opcode == 4'hC) begin // JAL
+      r_pc  <= w_alu_data;
+    end else if(w_opcode == 4'hD) begin // JRL
+      r_pc  <= r_pc + w_alu_data;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+```
+
+JALの倍は絶対ジャンプなのでALUの計算結果を直接入力し、JRLは相対ジャンプなのでALUの計算結果をPCの値に加算しています。
+
+これでジャンプ命令のデータパスの実装が完了しました。全体のコードを以下に載せておきます。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [3:0]    w_rs2_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+  wire [3:0]    w_opcode;
+
+  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs2_data;
+  wire [15:0]   w_rd_data;
+  
+  wire [15:0]   w_data_b;
+  wire [15:0]   w_alu_data;
+
+  wire [15:0]   w_mem_rdata;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else if(w_opcode == 4'hC) begin // JAL
+      r_pc  <= w_alu_data;
+    end else if(w_opcode == 4'hD) begin // JRL
+      r_pc  <= r_pc + w_alu_data;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMemory InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (w_instr    ),
+    .o_opcode   (w_opcode   ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_rs2_addr (w_rs2_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  assign w_rd_data = select_rd_data(w_opcode, w_mem_rdata, r_pc, w_alu_data);
+
+  function [15:0] select_rd_data(
+    input   [3:0]   i_opcode,
+    input   [15:0]  i_mem_rdata,
+    input   [15:0]  i_pc,
+    input   [15:0]  i_alu_data
+  );
+  begin
+    case(i_opcode)
+      4'hA  : select_rd_data    = i_mem_rdata;
+      4'hC  : select_rd_data    = r_pc + 16'h0002;
+      4'hD  : select_rd_data    = r_pc + 16'h0002;
+      default : select_rd_data  = i_alu_data;
+    endcase
+  end
+  endfunction
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+
+  assign w_data_b = (w_opcode <= 8'h8) ? w_rs2_data : w_imm;
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_data_b   ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_alu_data )
+  );
+
+  Z16DataMemory DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_alu_data ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (w_rs2_data ),
+    .o_data (w_mem_rdata)
+  );
+
+endmodule
+```
+
+動作の確認に移りましょう。
+
+##### 動作の確認
+
+動作の確認を行うための以下のテストプログラムを使います。
+
+```
+0: ADD ZR ZR G0
+2: JRL 6 ZR G1
+4: ADD ZR ZR ZR
+6: ADD ZR ZR ZR
+8: JAL 0 ZR G2
+```
+
+このプログラムではアドレス2の相対ジャンプでアドレス8の命令にジャンプし、アドレス8の絶対ジャンプでアドレス0の命令にジャンプします。つまりPCの値が0 -> 2 -> 8 -> 0とループすれば理想の動作ということです。
+このプログラムをアセンブルし、実際に動かしてみましょう。
+
+まずは命令メモリにアセンブルしたバイナリを格納します。
+
+```verilog
+module Z16InstrMemory(
+  input  wire           i_clk,
+  input  wire   [15:0]  i_addr,
+  output wire   [15:0]  o_instr
+);
+
+  wire [15:0] mem[10:0];
+
+  assign o_instr = mem[i_addr[15:1]];
+
+  assign mem[0] = 16'h0040; // ADD ZR ZR G0
+  assign mem[1] = 16'h605D; // JRL 6 ZR G1
+  assign mem[2] = 16'h0000; // ADD ZR ZR ZR
+  assign mem[3] = 16'h0000; // ADD ZR ZR ZR
+  assign mem[4] = 16'h006C; // JAL 0 ZR G2
+
+endmodule
+```
+
+そして以下のコマンドでシミュレーションを走らせます。
+
+```bash
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+以下の波形が実際にシミュレーションを行った結果です。`r_pc`の値を見てみると0 -> 2 -> 8 -> 0とループしており、またレジスタにはジャンプ命令の次の命令のアドレスが格納されている事が確認できます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_jump.png)
+
+これでジャンプ命令のデータパスが完成しました。
 
 #### 分岐命令
 
