@@ -3397,9 +3397,93 @@ gtkwave wave.vcd
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/cal_imm.png)
 
-これで我々のCPUは演算命令と即値命令を実行できることが確認できました。
+これで我々のCPUは演算命令と即値命令を実行できることが確認できました。やったね。
 
 #### ジャンプ命令
+
+どんどん行きましょう。次はジャンプ命令のデータパスを作成していきます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump.png)
+
+ジャンプ命令の動作を箇条書すると以下の通りになります。
+
+1. 命令メモリから命令をフェッチ
+2. デコーダが命令を解釈
+3. レジスタからRS1の値を読み出し
+4. ALUでジャンプ先アドレスを計算
+5. レジスタにPC + 2の値を書き込み
+6. PCに書き込み
+
+やることは変わりません。まずはデコーダを改造しましょう。
+
+##### デコーダの改造
+
+ジャンプ命令のビットフィールドは以下のように、MSBから4bitに符号付き4bit即値が存在しています。
+
+`MSB | imm[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
+
+この符号付き4bitを符号付き16bitに符号拡張してやる必要があります。という訳でデコーダの`get_imm()`を改造してジャンプ命令の場合に`w_instr[15:12]`を符号拡張するようにしましょう。
+
+```verilog
+// 符号拡張
+function [15:0] get_imm(input [15:0] i_instr);
+begin
+  case(i_instr[3:0])
+    4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+    4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+    4'hC  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hD  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    default : get_imm = 16'h0000;
+  endcase
+end
+endfunction
+```
+
+ジャンプ命令のJALとJRLの両方ともRDにPC + 2の値を格納する動作をしますので、ジャンプ命令のオペコードの場合は`w_rd_wen`を1にする必要があります。
+
+JAL
+
+$$
+\begin{align}
+\text{PC} + 2 &\rightarrow \text{RD} \\
+\text{IMM} + \text{RS1} &\rightarrow \text{PC}
+\end{align}
+$$
+
+JRL
+
+$$
+\begin{align}
+\text{PC} + 2 &\rightarrow \text{RD} \\
+\text{IMM} + \text{RS1} + \text{PC} &\rightarrow \text{PC}
+\end{align}
+$$
+
+よって`get_rd_wen()`を改造して対応します。
+
+```verilog
+function get_rd_wen(input [15:0] i_instr);
+begin
+  if(i_instr[3:0] <= 4'hA) begin
+    get_rd_wen    = 1'b1;
+  end else if((i_instr[3:0] == 4'hC) || (i_instr[3:0] == 4'hD)) begin
+    get_rd_wen    = 1'b1;
+  end else begin
+    get_rd_wen    = 1'b0;
+  end
+end
+endfunction
+```
+
+`get_mem_wen()`に関しては、ジャンプ命令はメモリに値を書き込みませんので手を加える必要はありません。また`get_alu_ctrl()`に関しては、ジャンプ命令先のアドレス計算には加算しか用いませんので、従来の演算命令以外は0を返す実装に手を加える必要はありません。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump_caladdr.png)
+
+##### レジスタにPC + 2の値を格納
+
+##### PCにジャンプ先のアドレス書き込み
+
 #### 分岐命令
 
 
