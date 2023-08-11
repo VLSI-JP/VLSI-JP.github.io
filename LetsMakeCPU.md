@@ -3798,14 +3798,350 @@ vvp a.out
 gtkwave wave.vcd
 ```
 
-以下の波形が実際にシミュレーションを行った結果です。`r_pc`の値を見てみると0 -> 2 -> 8 -> 0とループしており、またレジスタにはジャンプ命令の次の命令のアドレスが格納されている事が確認できます。
+以下の波形が実際にシミュレーションを行った結果です。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_jump.png)
+
+`r_pc`の値を見てみると0 -> 2 -> 8 -> 0とループしており、またレジスタにはジャンプ命令の次の命令のアドレスが格納されている事が確認できます。
 
 これでジャンプ命令のデータパスが完成しました。
 
 #### 分岐命令
 
+さて最後です。分岐命令のデータパスを実装しましょう。
+
+分岐命令の動作を箇条書すると以下の通りになります。
+
+1. 命令メモリから命令をフェッチ
+2. デコーダが命令を解釈
+3. レジスタからRS1, RS2の値を読み出し
+4. 条件に合致する場合はPCに書き込み
+
+意外と少ないですね。ご多分に漏れずまずはデコーダの改造に着手しましょう。
+
+##### デコーダの改造
+
+分岐命令のビットフィールドは他の命令と比べてかなり特異なものでした。
+
+`MSB | imm[7:0] | rs2[1:0] | rs1[1:0] | opcode[3:0] | LSB`
+
+RS1とRS2のアドレスが2bitづつしか割り当てられていません。よって分岐命令のオペコードの場合はこの2bitからレジスタの抜き出す必要があります。そこで、関数`get_rs1_addr()`に手を加えると同時に、RS2のアドレスを抜き出す関数である`get_rs2_addr()`を新たに定義します。
+
+そしてそれぞれの関数では、分岐命令の場合は抜き出した2bitのアドレスに`2'b00`を結合し、4bitのアドレスを返すようにします。新たに定義した`get_rs2_addr()`の結果を`o_rs2_addr`に入力するのを忘れないようにしましょう。
+
+```verilog
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = get_rs1_addr(i_instr);
+  assign o_rs2_addr = get_rs2_addr(i_instr);
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  function [3:0] get_rs1_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  :   get_rs1_addr    = i_instr[7:4];
+      4'hE  :   get_rs1_addr    = {2'b00, i_instr[5:4]};
+      4'hF  :   get_rs1_addr    = {2'b00, i_instr[5:4]};
+      default : get_rs1_addr    = i_instr[11:8];
+    endcase
+  end
+  endfunction
+
+  function [3:0] get_rs2_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hE  :   get_rs2_addr    = {2'b00, i_instr[7:6]};
+      4'hF  :   get_rs2_addr    = {2'b00, i_instr[7:6]};
+      default : get_rs2_addr    = i_instr[15:12];
+    endcase
+  end
+  endfunction
+```
+
+次にPCに加算する為の即値を命令から取り出すために、`get_imm()`に手を加えます。
+
+分岐命令のビットフィールドでは`i_instr[15:8]`の8bitが即値ですので、これを符号付き16bitに符号拡張します。
+
+```verilog
+  // 符号拡張
+function [15:0] get_imm(input [15:0] i_instr);
+begin
+  case(i_instr[3:0])
+    4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+    4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+    4'hC  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hD  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+    4'hE  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+    4'hF  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+    default : get_imm = 16'h0000;
+  endcase
+end
+endfunction
+```
+
+分岐命令ではレジスタにもメモリにも値を書き込みませんし、ALUも利用しませんので他の関数に手を加える必要はありません。これでデコーダの改造は完了です、
+
+デコーダの全体を以下に載せておきます。
+
+```verilog
+module Z16Decoder(
+  input  wire   [15:0]  i_instr,
+  output wire   [3:0]   o_opcode,
+  output wire   [3:0]   o_rd_addr,
+  output wire   [3:0]   o_rs1_addr,
+  output wire   [3:0]   o_rs2_addr,
+  output wire   [15:0]  o_imm,
+  output wire           o_rd_wen,
+  output wire           o_mem_wen,
+  output wire   [3:0]   o_alu_ctrl
+);
+
+  assign o_opcode   = i_instr[3:0];
+  assign o_rd_addr  = i_instr[7:4];
+  assign o_rs1_addr = get_rs1_addr(i_instr);
+  assign o_rs2_addr = get_rs2_addr(i_instr);
+  assign o_imm      = get_imm(i_instr);
+  assign o_rd_wen   = get_rd_wen(i_instr);
+  assign o_mem_wen  = get_mem_wen(i_instr);
+  assign o_alu_ctrl = get_alu_ctrl(i_instr);
+
+  function [3:0] get_rs1_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  :   get_rs1_addr    = i_instr[7:4];
+      4'hE  :   get_rs1_addr    = {2'b00, i_instr[5:4]};
+      4'hF  :   get_rs1_addr    = {2'b00, i_instr[5:4]};
+      default : get_rs1_addr    = i_instr[11:8];
+    endcase
+  end
+  endfunction
+
+  function [3:0] get_rs2_addr(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'hE  :   get_rs2_addr    = {2'b00, i_instr[7:6]};
+      4'hF  :   get_rs2_addr    = {2'b00, i_instr[7:6]};
+      default : get_rs2_addr    = i_instr[15:12];
+    endcase
+  end
+  endfunction
+
+  // 符号拡張
+  function [15:0] get_imm(input [15:0] i_instr);
+  begin
+    case(i_instr[3:0])
+      4'h9  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      4'hA  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hB  : get_imm   = {i_instr[7]  ? 12'hFFF : 12'h000, i_instr[7:4]};
+      4'hC  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hD  : get_imm   = {i_instr[15] ? 12'hFFF : 12'h000, i_instr[15:12]};
+      4'hE  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      4'hF  : get_imm   = {i_instr[15] ? 8'hFF : 8'h00, i_instr[15:8]};
+      default : get_imm = 16'h0000;
+    endcase
+  end
+  endfunction
+
+  function get_rd_wen(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'hA) begin
+      get_rd_wen    = 1'b1;
+    end else if((i_instr[3:0] == 4'hC) || (i_instr[3:0] == 4'hD)) begin
+      get_rd_wen    = 1'b1;
+    end else begin
+      get_rd_wen    = 1'b0;
+    end
+  end
+  endfunction
+
+  function get_mem_wen(input [15:0] i_instr);
+  begin
+    // STORE命令の場合にのみ1
+    if(4'hB == i_instr[3:0]) begin
+      get_mem_wen = 1'b1;
+    end else begin
+      get_mem_wen = 1'b0;
+    end
+  end
+  endfunction
+
+  function [3:0] get_alu_ctrl(input [15:0] i_instr);
+  begin
+    if(i_instr[3:0] <= 4'h8) begin
+      get_alu_ctrl  = i_instr[3:0];
+    end else begin
+      get_alu_ctrl  = 4'h0;
+    end
+  end
+  endfunction
+
+endmodule
+```
+
+##### 条件に合致する場合はPCに書き込み
+
+デコーダが完成しましたら、次はPCの機構に手を加えていきます。
+
+以下のように分岐命令のオペコードの場合はRS1とRS2の値を比較し、条件に合致する場合はプログラムカウンタに即値の値を加算します。
+
+```verilog
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else if(w_opcode == 4'hC) begin // JAL
+      r_pc  <= w_alu_data;
+    end else if(w_opcode == 4'hD) begin // JRL
+      r_pc  <= r_pc + w_alu_data;
+    end else if((w_opcode == 4'hE) && (w_rs2_data == w_rs1_data)) begin // BEQ
+      r_pc  <= r_pc + w_imm;
+    end else if((w_opcode == 4'hF) && (w_rs2_data > w_rs1_data)) begin // BLT
+      r_pc  <= r_pc + w_imm;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+```
+
+やることは以上です。完成したCPUのコードを以下に載せておきます。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [3:0]    w_rs2_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+  wire [3:0]    w_opcode;
+
+  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs2_data;
+  wire [15:0]   w_rd_data;
+  
+  wire [15:0]   w_data_b;
+  wire [15:0]   w_alu_data;
+
+  wire [15:0]   w_mem_rdata;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else if(w_opcode == 4'hC) begin // JAL
+      r_pc  <= w_alu_data;
+    end else if(w_opcode == 4'hD) begin // JRL
+      r_pc  <= r_pc + w_alu_data;
+    end else if((w_opcode == 4'hE) && (w_rs2_data == w_rs1_data)) begin // BEQ
+      r_pc  <= r_pc + w_imm;
+    end else if((w_opcode == 4'hF) && (w_rs2_data > w_rs1_data)) begin // BLT
+      r_pc  <= r_pc + w_imm;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMemory InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (w_instr    ),
+    .o_opcode   (w_opcode   ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_rs2_addr (w_rs2_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  assign w_rd_data = select_rd_data(w_opcode, w_mem_rdata, r_pc, w_alu_data);
+
+  function [15:0] select_rd_data(
+    input   [3:0]   i_opcode,
+    input   [15:0]  i_mem_rdata,
+    input   [15:0]  i_pc,
+    input   [15:0]  i_alu_data
+  );
+  begin
+    case(i_opcode)
+      4'hA  : select_rd_data    = i_mem_rdata;
+      4'hC  : select_rd_data    = r_pc + 16'h0002;
+      4'hD  : select_rd_data    = r_pc + 16'h0002;
+      default : select_rd_data  = i_alu_data;
+    endcase
+  end
+  endfunction
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+
+  assign w_data_b = (w_opcode <= 8'h8) ? w_rs2_data : w_imm;
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_data_b   ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_alu_data )
+  );
+
+  Z16DataMemory DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_alu_data ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (w_rs2_data ),
+    .o_data (w_mem_rdata)
+  );
+
+endmodule
+```
+
+これでZ16のCPUは完成しました。しかしながら安心してはいけません。動作の確認が完了して初めて完成と言えます。検証してきましょう。
+
+##### 動作の確認
+
+分岐命令の動作の確認の為に、以下の1~10の総和を求めるプログラムを用いましょう。
+
+以下のプログラムでは、最初にB1とB2を0で初期化し、総和を求めた後アドレスCでジャンプ命令を用いて停止します。
+
+```
+0: ADD ZR ZR B1
+2: ADD ZR ZR B2
+4: ADDI 10 B1
+6: ADD B1 B2 B2
+8: ADDI -1 B1
+A: BLT B1 ZR -4
+C: JRL 0 ZR G11
+```
+
+以下の波形が実際にシミュレーションを行った結果です。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_branch.png)
+
+波形を見てみると、最後の方にアドレス2のレジスタB2に、16進数で`16'h0037`の値が格納されています。これは10進数で55です。そして最終的に`r_pc`の値が更新されなくなっています。これはJRLによってCPUを停止出来たという事です。
+
+**おめでとうございます！** 分岐命令の実装が完了しました！これにてZ16のCPUは完成です。お疲れ様でした。これにてあなたは友達に「俺はCPU自作したけど、お前は？」と言えるようになりましたね。言いましょう。
 
 ## 自作CPUでプログラムを動かそう
 
@@ -3819,3 +4155,7 @@ gtkwave wave.vcd
 ### より高度なアーキテクチャ
 
 ## この先へ
+
+---
+
+Copyright (C) Cra2yPierr0t, ALL RIGHTS RESERVED
