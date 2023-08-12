@@ -21,6 +21,12 @@
   date: 2023/06/29
   link: shamiko.html
 
+- title: 無から始める自作CPU(作成中)
+  author: Cra2yPierr0t
+  date: 2023/08/12
+  link: LetsMakeCPU.html#無から始める自作cpu作成中
+  icon: dir
+
 - title: RgGen ✕ OpenMPWでLSIを焼こう！
   author: Cra2yPierr0t
   date: 2022/12/14
@@ -31,12 +37,6 @@
   author: Cra2yPierr0t
   date: 2022/12/14
   link: RgGenxOpenMPW_eng.html#rggen--openmpw-walkthrough
-  icon: dir
-
-- title: 無から始める自作CPU(作成中)
-  author: Cra2yPierr0t
-  date: 2023/07/15
-  link: LetsMakeCPU.html#無から始める自作cpu作成中
   icon: dir
 
 - title: ダーリン！OpenRAMを使うっちゃ！
