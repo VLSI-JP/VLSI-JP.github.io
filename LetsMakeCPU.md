@@ -700,23 +700,44 @@ endmoudle
 
 #### if文
 
-if文は順序回路及び後述するfunction文で記述可能であり、`begin`~`end`で処理を囲う。
+if文とは条件に応じて処理を変える文法であり、always文と後述するfunction文で記述可能です。
+
+if文の構文は以下の通りです。`if(条件1) begin ~ end`とすると条件1が真の場合に`begin ~ end`で囲まれた部分が実行されます。またこの後ろに`else if(条件2) begin ~ end`を加えると条件1が偽で条件2が真の場合に、`begin ~ end`で囲まれた部分が実行されます。そして`else begin ~ end`を付け加えると、どの条件にも合致しない場合に`else begin ~ end`で囲まれた部分が実行されます。
+
+```verilog
+if(条件1) begin
+  処理
+end else if(条件2) begin
+  処理
+end else begin
+  処理
+end
+```
+
+実際にif文を使った例が以下になります。以下の例では`i_condition`の値が`4'h1`の場合は加算が実行され、`4'hE`の場合は減算が実行され、それ以外の場合はOR演算が実行されます。
+
 ```verilog
 module test_module(
-    // 省略
+  input [3:0] i_condition,
+  input [7:0] i_data_a,
+  input [7:0] i_data_b,
+  output reg [7:0] o_data
 );
-    // 省略
 
-    always @(posedge clk) begin
-        if (test_wire) begin
-            test_output <= 1;
-        end else begin
-            test_output <= 0;
-        end
+  always @(posedge clk) begin
+    if(i_condition == 4'h1) begin
+      o_data <= i_data_a + i_data_b;
+    end else if(i_condition == 4'hE) begin
+      o_data <= i_data_a - i_data_b;
+    end else begin
+      o_data <= i_data_a | i_data_b;
     end
+  end
+
 endmodule
 ```
 
+if文は非常によく構文ですので覚えておきましょう。
 
 #### function文
 
