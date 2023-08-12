@@ -855,24 +855,36 @@ endmodule
 
 #### モジュール呼び出し
 
-作成したモジュールは`モジュール名 インスタンス名`で生成する。またIOは`.IO名(信号線|変数)`で接続する。
-※インスタンスは他言語でいうオブジェクトだと理解すればよい(これ説明いらない感じ？)(気になる人もいるだろうし残しとこう)
+Verilogを用いて作成したモジュールは`モジュール名 インスタンス名`で利用する事が可能です。またインターフェイスは`.インターフェイス名(信号線名)`で接続します。
+
+また１つのモジュールから複数の回路を生成できます。
+
 ```verilog
 
 module test_module(
     // 省略
 );
-    wire [5:0] w1;
-    reg  [5:0] r1;
-    wire [5:0] w2;
+
+  wire [7:0] w_data1;
+  wire [7:0] w_data2;
+  wire [7:0] w_data3;
+  wire [7:0] w_data4;
+
+  wire [7:0] w_out1;
+  wire [7:0] w_out2;
     
-    small_module sm(
-        .in1    (w1    ),
-        .in2    (r1    ),
-        .out1   (w2    )
-    );
+  small_module sm1(
+    .in1    (w_data1    ),
+    .in2    (w_data2    ),
+    .out1   (w_out1     )
+  );
     
-    small_module sm_danger(w1, r1, w2); //こうも書ける(危険)
+  small_module sm2(
+    .in1    (w_data3    ),
+    .in2    (w_data4    ),
+    .out1   (w_out2     )
+  );
+    
 endmodule
 ```
 
