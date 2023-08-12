@@ -627,10 +627,18 @@ module problem3(
 endmodule
 ```
 
+お疲れ様です。
+
 ### Verilogの文法を学ぼう(基礎２)
 
+さて、少し進んだ回路を作るための文法を学んでいきましょう。
+
 #### 定数
-Verilogには定数として`define`と`parameter`が存在するが、`define`は定数の利用時に定数名の前に｀が必要でキモいので`parameter`を使うことを推奨する。
+
+Verilogでもプログラミング言語と同じように、数値に別名を付けたい場合が存在します。そこで使うのが定数です。Verilogには定数として`define`と`parameter`という２つの方法が存在しますが、`define`はキモいので`parameter`を使うことを推奨します。
+
+`parameter`は`parameter 定数名 = 数値;`のように使います。
+
 ```verilog
 module test_module(
     // 省略
@@ -645,23 +653,51 @@ endmodule
 ```
 
 #### reg型
+
+`wire`は信号線を作成するためのキーワードでしたが、信号線はデータを保持する事が出来ません。基礎知識でも書きましたが、ディジタル回路がデータを保持するためには**フリップフロップ**(以後レジスタ)が必要でしたね。
+
+Verilogでは`reg`というキーワードでレジスタを生成することが可能です。`reg`の使い方は以下のように。`reg サイズ レジスタ名;`の順で記述します。
+
+```verilog
+reg [31:0] test_32reg;
+```
+
+また以下のようにサイズの記述を省略すると1bitの幅を持ったレジスタになります。
+
+```verilog
+reg test_1reg;
+```
+
 #### always文
 
-過去及び現在の値から出力を決定する回路である**順序回路**を書く際には`always`文を用いる。型が`reg`の変数にはこの`always`文内でのみ入力が可能である。`@(posedge clk)`は信号`clk`が0から1に立ち上がった時のみ`always`文内の記述を実行する、という意味である。`negedge`の場合は1から0に立ち下がった場合という意味になる。
-後述するが、`reg`変数に入力する際は`<=`と`=`で意味が変わってくるので注意。
-接続するときは<=というイメージ
-(多分out(t)=out(t-1)のように、代入先と元に時間差がある時には<=するのかな？)
+`reg`で作られたレジスタにはalways文というものを用いて信号を入力することが可能です。
+
+基礎知識で述べたように、情報の記録とはクロックという信号に密接に関係してします。そこでalways文は殆どの場合においてクロック信号と一緒に用います。
+
+always文は`always @(posedge クロック信号) begin ~ end`または`always @(negedge クロック信号) begin ~ end`という文法で記述し、`begin ~ end`の間に回路を記述します。`posedge`の場合はクロック信号が立ち上がりエッジのタイミングで処理が実行され、`negedge`の場合はクロック信号の立ち下がりのタイミングで処理が実行されます。
+
+以下の例ではクロック信号として`i_clk`を定義し、`i_clk`の立ち上がりで`i_data_a`と`i_data_b`の加算結果がレジスタ`r_data`に格納されています。そして`r_data`の値を`o_data`に出力しています。
+
+ここで注目してほしいのがalways文内の`<=`です。Verilogではalways文内において、代入演算子として`=`と`<=`を使うことが可能であり、それぞれ異なった動作をします。
+
+`<=`はノンブロッキング代入と呼び、`=`はブロッキング代入と呼びます。なんか２種類ありますが混在させるとバグの温床になりますので本記事では`<=`のノンブロッキング代入しか用いません。always文で代入は`<=`です！そういう事にしましょう。
+
 ```verilog
-module test_module (
-    input  wire clk,    // 入出力の信号線も種類を定義できる
-    input  wire [4:0] test_input,
-    output reg  [4:0] test_output
+module test_module(
+  input i_clk,
+  input [31:0] i_data_a,
+  input [31:0] i_data_b,
+  output o_data
 );
-    
-    always @(posedge clk) begin // 順序回路の定義
-        test_output <= test_output + test_input;
-    end
-endmodule
+
+  reg [31:0] r_data;
+
+  always @(posedge i_clk) begin
+    r_data <= i_data_a + i_data_b;
+  end
+  assign o_data = r_data;
+
+endmoudle
 ```
 
 #### if文
