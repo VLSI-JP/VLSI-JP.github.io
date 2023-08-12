@@ -4641,7 +4641,7 @@ gtkwave wave.vcd
 
 以下の波形が実際にシミュレーションを行った結果です。実行開始してからLEDの値がカウントアップされていき、ボタンが押された途端にカウントが停止しました。自作CPU上でプログラムが意図した通りに動きましたね、最高の気分です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_branch.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_mmio_button.png)
 
 これで我々の自作CPUはボタン入力とLED出力を兼ね備えた物となりました。素晴らしい。
 
