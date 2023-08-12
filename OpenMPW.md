@@ -337,7 +337,11 @@ WRITEはMGMT Coreからデータを受け取る操作であり、同様に2サ�
 
 仕様書にはパイプライン化されたトランザクションとか色々書いてあるが、Caravelは**おそらく**連続したトランザクションを行わず、トランザクション同士の間隔は離れていると思われる。少なくともシミュレーションではそうだった。
 
-以下に筆者が作ったWishbone interfaceを置いておくので、実装の参考にしてほしい。(ライセンスフリー！)
+上記のプロトコルを満たすロジックを書くのは非常にダルいのでRgGenを使うと楽です。
+
+[RgGen ✕ OpenMPWでLSIを焼こう！](https://vlsi.jp/RgGenxOpenMPW.html)
+
+一応、以下に筆者が作ったWishbone interfaceを置いておくので、RgGenを使わない場合は実装の参考にしてほしい。(ライセンスフリー！)
 
 ```verilog
 module wb_interface #(
