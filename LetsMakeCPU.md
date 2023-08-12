@@ -739,9 +739,35 @@ endmodule
 
 if文は非常によく構文ですので覚えておきましょう。
 
+#### case文
+
+case文は便利なif文のような構文であり、always文と後述するfunction文内で記述可能です。`case()`の中に条件分岐に利用する信号名を記述し、`case() ~ endcase`で囲んで利用します。case文の内部では`数値 : 処理;`と記述し、`case(信号名)`の信号の値が数値と一致した場合にその処理が実行されます。また`default : 処理`と記述することで、どの数値にも当てはまらない場合はその処理が実行されるようになります。この`default`を記述していない場合、処理系によってはエラーが発生します。
+
+if文の説明で用いた回路をcase文で書き直したものが以下になります。
+
+```verilog
+module test_module(
+  input [3:0] i_condition,
+  input [7:0] i_data_a,
+  input [7:0] i_data_b,
+  output reg [7:0] o_data
+);
+
+  always @(posedge clk) begin
+    case(i_condition)
+      4'h1 : o_data <= i_data_a + i_data_b;
+      4'hE : o_data <= i_data_a - i_data_b;
+      default : o_data <= i_data_a | i_data_b;
+    endcase
+  end
+
+endmodule
+```
+
 #### function文
 
-assignで書けない複雑な組み合わせ回路の場合、function文を利用する。`function`~`endfunction`で回路の内容を囲み、`function 返り値のビット幅 回路名(input 入力信号)`と記述する。functionの返り値はfunction名に入力する形で記述する。
+always文では気軽にif文を使うことがassignで書けない複雑な組み合わせ回路の場合、function文を利用する。`function`~`endfunction`で回路の内容を囲み、`function 返り値のビット幅 回路名(input 入力信号)`と記述する。functionの返り値はfunction名に入力する形で記述する。
+
 ```verilog
     assign test_wire = test_function(test_input);
 
@@ -756,19 +782,6 @@ assignで書けない複雑な組み合わせ回路の場合、function文を利
     endfunction
 ```
 
-#### case文
-
-case文は、always文とfunction文内で記述可能であり、`case`~`endcase`で囲んで利用する。`case`の後に条件に利用する信号名を記述し、コロン`:`の後ろにマッチした場合の処理を記述する。どの条件にも当てはまらない場合の処理は`default`の後ろに記述する。`default`を記述していない場合、処理系に依るが警告かエラーが出る。
-```verilog
-always @(posedge clk) begin
-    case(test_input)
-        5'b0000 : test_out <= 5'b10101;
-        5'b0001 : test_out <= 5'b00110;
-        5'b0010 : test_out <= 5'b11001;
-        default : test_out <= 5'b11111;
-    endcase
-end
-```
 
 #### 三項演算子
 
