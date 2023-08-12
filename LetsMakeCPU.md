@@ -4171,15 +4171,481 @@ gtkwave wave.vcd
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_branch.png)
 
-波形を見てみると、最後の方にアドレス2のレジスタB2に、16進数で`16'h0037`が格納されています。これは10進数で55です。そして最終的に`r_pc`の値が更新されなくなっています。これはJRLによってCPUを停止出来たという事です。
+波形を見てみると、最後の方でレジスタB2に16進数で`16'h0037`が格納されています。これは10進数で55であり、1~10の総和です。そして最終的に`r_pc`の値が更新されなくなっています。これはJRLによってCPUを停止出来たという事です。理想通りの動作をしていますね。
 
-**おめでとうございます！** 分岐命令の実装が完了しました！これにてZ16のCPUは完成です。お疲れ様でした。これにてあなたは友達に「俺はCPU自作したけど、お前は？」と言えるようになりましたね。言いましょう。
+**おめでとうございます！** 分岐命令の実装が完了しました！これにてZ16のCPUは完成です。お疲れ様でした。これにてあなたは友達に「俺はCPU自作したけど、お前は？」と言えるようになりました。言いましょう。
 
-## 自作CPUでプログラムを動かそう
+### CPUを実用的にしよう
 
-## CPUを実用的にしよう
-### MMIO
-### 割り込み
+我々は動作するCPUを自作できたわけですが、現状ではお世辞にも「使える」CPUとは言い難いです。そこでこの自作CPUを実用的にするための努力をしてみましょう。
+
+#### MMIO
+
+先程1~10の総和を求めた際のように、現状では計算結果を確認するのにGTKWaveでレジスタファイルの内部信号を覗いてやる必要があります。これはあまりスマートとは言えません。そこでCPUの外部に信号を出力する仕組みを作りましょう。
+
+このような場合に使える仕組みが**MMIO**、メモリマップドIOです。MMIOとはデータメモリのアドレスの一部に外部入出力用のレジスタを割り当てる手法の事を指します。メモリアドレスに割り当てる事により、外部にデータを出力したい場合はSTORE命令を使い、外部からのデータを得たい場合はLOAD命令を用いてデータを得る事が可能となります。下図の例ではメモリの`0x007A`がLEDの出力に割り当てられており、ここに`0x0013`をストアすると1番目と2番目と5番目のLEDが点灯します。また`0x007C`がボタンの入力に割り当てられており、ここから値をロードした際に1が得られた場合はボタンが押されており、0の場合はボタンが押されていない事を情報として得られます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_mmio.png)
+
+では実際にMMIOを実装してみましょう。今回はLEDとButtonをMMIOに割り当ててみます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/cpu_mmio.png)
+
+##### LED
+
+まず仕様を決めます。LEDをメモリアドレスの`0x007A`に割り当て、書き込む16bitのデータの内訳を以下のように下位6bitをLED、上位10bitを未使用とします。
+
+`0x007A : [MSB | 未使用[9:0] | LED[5:0] | LSB]`
+
+実装に移りましょう。まずは`Z16CPU.v`のインターフェイスに新たに`o_led`を追加します。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst,
+  output reg    [5:0]   o_led
+);
+```
+
+そして`o_led`の値を制御する新たな機構を追加します。これはメモリの書き込み制御信号`w_mem_wen`が1になっているかつ書き込み先のアドレスが`16'h007A`の場合に、`o_led`の値を更新する機構になっています。
+
+```verilog
+  Z16DataMemory DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_alu_data ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (w_rs2_data ),
+    .o_data (w_mem_rdata)
+  );
+
+  // MMIO
+  always @(posedge i_clk) begin
+    // LED
+    if(i_rst) begin
+      o_led <= 6'b000000;
+    end else if(w_mem_wen && (w_alu_data == 16'h007A)) begin
+      o_led <= w_rs2_data[5:0];
+    end else begin
+      o_led <= o_led;
+    end
+  end
+```
+
+これでLEDのMMIOの実装が完了しました。Buttonの実装に移りましょう。
+
+##### Button
+
+まず仕様を決定します。ボタンのMMIOをメモリアドレスの`0x007C`に割り当て、読み出す16bitのデータの内訳を以下のように下位1bitをボタン、上位15bitを未使用とします。
+
+`0x007C : [MSB | 未使用[14:0] | Button[0] | LSB]`
+
+実装に移りましょう。まずは`Z16CPU.v`のインターフェイスに新たに`i_button`を追加します。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst,
+  input  wire   i_button,
+  output reg    [5:0]   o_led
+);
+```
+
+そして`select_rd_data()`を改造します。MMIOで値を読み込む場合はLOAD命令を用いますので、読み込んだデータの書き込み先はレジスタファイルになります。そこでレジスタファイルに書き込むデータを選択する関数である`select_rd_data()`を改造すればよいという事です。
+
+ここではオペコードがLOAD命令の場合で、かつ計算されたアドレス`w_alu_data`の値が`16'h007C`の場合に`i_button`の値を`w_rd_data`に接続するようにしています。また`i_button`のビット幅は1bitですので、15bitの0を結合して16bitにしています。
+
+```verilog
+  assign w_rd_data = select_rd_data(w_opcode, i_button, w_mem_rdata, r_pc, w_alu_data);
+
+  function [15:0] select_rd_data(
+    input   [3:0]   i_opcode,
+    input           i_button,
+    input   [15:0]  i_mem_rdata,
+    input   [15:0]  i_pc,
+    input   [15:0]  i_alu_data
+  );
+  begin
+    case(i_opcode)
+      4'hA  : begin
+        if(w_alu_data == 16'h007C) begin // MMIO Button
+          select_rd_data    = {15'b000_0000_0000_0000, i_button};
+        end else begin
+          select_rd_data    = i_mem_rdata;
+        end
+      end 
+      4'hC  : select_rd_data    = r_pc + 16'h0002;
+      4'hD  : select_rd_data    = r_pc + 16'h0002;
+      default : select_rd_data  = i_alu_data;
+    endcase
+  end
+  endfunction
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+```
+
+以上でMMIOの実装が完了しました。全体のコードを以下に載せておきます。
+
+```verilog
+module Z16CPU(
+  input  wire   i_clk,
+  input  wire   i_rst,
+  input  wire   i_button,
+  output reg    [5:0]   o_led
+);
+
+  // Program Counter
+  reg   [15:0]  r_pc;
+
+  wire  [15:0]  w_instr;
+  wire [3:0]    w_rd_addr;
+  wire [3:0]    w_rs1_addr;
+  wire [3:0]    w_rs2_addr;
+  wire [15:0]   w_imm;
+  wire          w_rd_wen;
+  wire          w_mem_wen;
+  wire [3:0]    w_alu_ctrl;
+  wire [3:0]    w_opcode;
+
+  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs2_data;
+  wire [15:0]   w_rd_data;
+  
+  wire [15:0]   w_data_b;
+  wire [15:0]   w_alu_data;
+
+  wire [15:0]   w_mem_rdata;
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      r_pc  <= 16'h0000;
+    end else if(w_opcode == 4'hC) begin // JAL
+      r_pc  <= w_alu_data;
+    end else if(w_opcode == 4'hD) begin // JRL
+      r_pc  <= r_pc + w_alu_data;
+    end else if((w_opcode == 4'hE) && (w_rs2_data == w_rs1_data)) begin // BEQ
+      r_pc  <= r_pc + w_imm;
+    end else if((w_opcode == 4'hF) && (w_rs2_data > w_rs1_data)) begin // BLT
+      r_pc  <= r_pc + w_imm;
+    end else begin
+      r_pc  <= r_pc + 16'h0002;
+    end
+  end
+
+  Z16InstrMemory InstrMem(
+    .i_addr     (r_pc   ),
+    .o_instr    (w_instr)
+  );
+
+  Z16Decoder Decoder(
+    .i_instr    (w_instr    ),
+    .o_opcode   (w_opcode   ),
+    .o_rd_addr  (w_rd_addr  ),
+    .o_rs1_addr (w_rs1_addr ),
+    .o_rs2_addr (w_rs2_addr ),
+    .o_imm      (w_imm      ),
+    .o_rd_wen   (w_rd_wen   ),
+    .o_mem_wen  (w_mem_wen  ),
+    .o_alu_ctrl (w_alu_ctrl )
+  );
+
+  assign w_rd_data = select_rd_data(w_opcode, i_button, w_mem_rdata, r_pc, w_alu_data);
+
+  function [15:0] select_rd_data(
+    input   [3:0]   i_opcode,
+    input           i_button,
+    input   [15:0]  i_mem_rdata,
+    input   [15:0]  i_pc,
+    input   [15:0]  i_alu_data
+  );
+  begin
+    case(i_opcode)
+      4'hA  : begin
+        if(w_alu_data == 16'h007C) begin // MMIO Button
+          select_rd_data    = {15'b000_0000_0000_0000, i_button};
+        end else begin
+          select_rd_data    = i_mem_rdata;
+        end
+      end 
+      4'hC  : select_rd_data    = r_pc + 16'h0002;
+      4'hD  : select_rd_data    = r_pc + 16'h0002;
+      default : select_rd_data  = i_alu_data;
+    endcase
+  end
+  endfunction
+
+  Z16RegisterFile RegFile(
+    .i_clk      (i_clk      ),
+    .i_rs1_addr (w_rs1_addr ),
+    .o_rs1_data (w_rs1_data ),
+    .i_rs2_addr (w_rs2_addr ),
+    .o_rs2_data (w_rs2_data ),
+    .i_rd_data  (w_rd_data  ),
+    .i_rd_addr  (w_rd_addr  ),
+    .i_rd_wen   (w_rd_wen   )
+  );
+
+  assign w_data_b = (w_opcode <= 8'h8) ? w_rs2_data : w_imm;
+  Z16ALU ALU(
+    .i_data_a   (w_rs1_data ),
+    .i_data_b   (w_data_b   ),
+    .i_ctrl     (w_alu_ctrl ),
+    .o_data     (w_alu_data )
+  );
+
+  Z16DataMemory DataMem(
+    .i_clk  (i_clk      ),
+    .i_addr (w_alu_data ),
+    .i_wen  (w_mem_wen  ),
+    .i_data (w_rs2_data ),
+    .o_data (w_mem_rdata)
+  );
+
+  // MMIO
+  always @(posedge i_clk) begin
+    // LED
+    if(i_rst) begin
+      o_led <= 6'b000000;
+    end else if(w_mem_wen && (w_alu_data == 16'h007A)) begin
+      o_led <= w_rs2_data[5:0];
+    end else begin
+      o_led <= o_led;
+    end
+  end
+
+endmodule
+```
+
+##### 動作の確認
+
+動作の確認に移りましょう。まずはLEDの動作を確認します。以下のテスト用のプログラムでは1~5の総和を求めた後、LEDのMMIOのアドレスである122(0x007A)に計算結果をストアし、停止しています。
+
+```
+00: ADD ZR ZR B1
+02: ADD ZR ZR B2
+04: ADDI 5 B1
+06: ADD B1 B2 B2
+08: ADDI -1 B1
+0A: BLT B1 ZR -4
+0C: ADD ZR ZR G0
+0E: ADDI 122 G0
+10: STORE B2 G0 0
+12: JRL 0 ZR G11
+```
+
+上記のプログラムをアセンブルし、バイナリを命令メモリに書き込みます。
+
+```verilog
+module Z16InstrMemory(
+  input  wire           i_clk,
+  input  wire   [15:0]  i_addr,
+  output wire   [15:0]  o_instr
+);
+
+  wire [15:0] mem[10:0];
+
+  assign o_instr = mem[i_addr[15:1]];
+
+  assign mem[0] = 16'h0010; // ADD ZR ZR B1
+  assign mem[1] = 16'h0020; // ADD ZR ZR B2
+  assign mem[2] = 16'h0519; // ADDI 5 B1
+  assign mem[3] = 16'h1220; // ADD B1 B2 B2
+  assign mem[4] = 16'hFF19; // ADDI -1 B1
+  assign mem[5] = 16'hFC4F; // BLT B1 ZR -4
+  assign mem[6] = 16'h0040; // ADD ZR ZR G0
+  assign mem[7] = 16'h7A49; // ADDI 122 G0
+  assign mem[8] = 16'h240B; // STORE B2 G0 0
+  assign mem[9] = 16'h00FD; // JRL 0 ZR G11
+
+endmodule
+```
+
+そしてテストベンチ`Z16CPU_tb.v`を改造して`o_led`を接続します。
+
+```verilog
+module Z16CPU_tb;
+
+  reg i_clk = 1'b0;
+  reg i_rst = 1'b0;
+  wire [5:0] o_led;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16CPU_tb);
+  end
+
+  Z16CPU CPU(
+    .i_clk  (i_clk  ),
+    .i_rst  (i_rst  ),
+    .o_led  (o_led  )
+  );
+
+  initial begin
+    // リセット
+    i_rst   = 1'b1;
+    #2
+    // リセットを落とし、実行開始
+    i_rst   = 1'b0;
+    #100
+    $finish;
+  end
+
+endmodule
+```
+
+そして以下のコマンドでシミュレーションを実行します。
+
+```bash
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+実際にシミュレーションを走らせた結果が以下の波形です。数クロックの後、`o_led`に16進数で`0xF`が出力されています。これは10進数で15であり、1~5の総和に一致しています。これで計算結果を外部に出力出来るようになりました。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_mmio_led.png)
+
+続いてボタンのMMIOの動作確認を行いましょう。今回はテスト用プログラムとして、ボタンが押されるまではLEDに出力される値をひたすらカウントアップしていくプログラムを使いましょう。
+
+動作を理解しやすくするために疑似コードを書きます。
+
+```c
+x = 0;
+led = 122;
+button = 124;
+while(1){
+  x = x + 1;
+  Mem[led] = x;
+  if(Mem[button] == 1) {
+    stop();
+  }
+}
+```
+
+そのあとこの疑似コードをZ16のアセンブリに人力コンパイルします。解読しなくて結構です、適当に斜め読みしてコピペしてください。コンパイラ欲しいですね。
+
+```
+00: ADD ZR ZR B1    // B1 <- 0
+02: ADDI 1 B1       // B1 <- B1 + 1
+04: ADD ZR ZR G0    // G0 <- 0
+06: ADDI 122 G0     // G0 <- G0 + 122
+08: ADD ZR ZR G1    // G1 <- 0
+0A: ADDI 124 G1     // G1 <- G1 + 124
+0C: ADD ZR ZR G3    // G3 <- 0
+0E: ADDI -8 G3      // G3 <- -8
+10: ADD ZR ZR G2    // G2 <- 0
+12: ADDI 1 G2       // G2 <- G2 + 1
+14: STORE G2 G0 0   // [LED] <- G2
+16: LOAD 0 G1 B2    // B2 <- [Button]
+18: BEQ B1 B2 6     // if B1 == B2, then PC <- PC + 6
+1A: JRL 0 G3 ZR     // PC <- PC + G3
+1C: JRL 0 ZR G11    // STOP
+```
+
+そしてこれをアセンブルし、バイナリを命令メモリに書き込みます。
+
+```verilog
+module Z16InstrMemory(
+  input  wire           i_clk,
+  input  wire   [15:0]  i_addr,
+  output wire   [15:0]  o_instr
+);
+
+  wire [15:0] mem[14:0];
+
+  assign o_instr = mem[i_addr[15:1]];
+
+  assign mem[0] = 16'h0010; // ADD ZR ZR B1    // B1 <- 0
+  assign mem[1] = 16'h0119; // ADDI 1 B1       // B1 <- B1 + 1
+  assign mem[2] = 16'h0040; // ADD ZR ZR G0    // G0 <- 0
+  assign mem[3] = 16'h7A49; // ADDI 122 G0     // G0 <- G0 + 122
+  assign mem[4] = 16'h0050; // ADD ZR ZR G1    // G1 <- 0
+  assign mem[5] = 16'h7C59; // ADDI 124 G1     // G1 <- G1 + 124
+  assign mem[6] = 16'h0070; // ADD ZR ZR G3    // G3 <- 0
+  assign mem[7] = 16'hF879; // ADDI -8 G3      // G3 <- -8
+  assign mem[8] = 16'h0060; // ADD ZR ZR G2    // G2 <- 0
+  assign mem[9] = 16'h0169; // ADDI 1 G2       // G2 <- G2 + 1
+  assign mem[10] = 16'h640B; // STORE G2 G0 0   // [LED] <- G2
+  assign mem[11] = 16'h052A; // LOAD 0 G1 B2    // B2 <- [Button]
+  assign mem[12] = 16'h066E; // BEQ B1 B2 6     // if B1 == B2, then PC <- PC + 6
+  assign mem[13] = 16'h070D; // JRL 0 G3 ZR     // PC <- PC + G3
+  assign mem[14] = 16'h00FD; // JRL 0 ZR G11    // STOP
+
+endmodule
+```
+
+次にテストベンチを改造し、`i_button`を定義してCPUに接続します。そしてCPUを動かし始めてから100クロック後に`i_button`に1を入力し、20クロック後に0にするように信号を制御します。
+
+```verilog
+module Z16CPU_tb;
+
+  reg i_clk = 1'b0;
+  reg i_rst = 1'b0;
+  reg i_button = 1'b0;
+  wire [5:0] o_led;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, Z16CPU_tb);
+  end
+
+  Z16CPU CPU(
+    .i_clk      (i_clk      ),
+    .i_rst      (i_rst      ),
+    .i_button   (i_button   ),
+    .o_led      (o_led      )
+  );
+
+  initial begin
+    // リセット
+    i_rst   = 1'b1;
+    #2
+    // リセットを落とし、実行開始
+    i_rst   = 1'b0;
+    #100
+    // 100クロック後にボタンを押す
+    i_button = 1'b1;
+    #20
+    // 20クロック後にボタンを離す
+    i_button = 1'b0;
+    #100
+    $finish;
+  end
+
+endmodule
+```
+
+後はいつものコマンドでシミュレーションを実行します。
+
+```bash
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+以下の波形が実際にシミュレーションを行った結果です。実行開始してからLEDの値がカウントアップされていき、ボタンが押された途端にカウントが停止しました。自作CPU上でプログラムが意図した通りに動きましたね、最高の気分です。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_branch.png)
+
+これで我々の自作CPUはボタン入力とLED出力を兼ね備えた物となりました。素晴らしい。
+
+#### 割り込み
 
 ## CPUを高速にしよう
 ### パイプライン化
