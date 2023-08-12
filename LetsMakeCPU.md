@@ -335,16 +335,15 @@ $$
 
 ここではVerilog HDLを用いた開発の流れを簡潔に説明します。
 
-
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/flow.png)
 
-開発はシミュレーションと実機検証に分かれています。基本的に書いたコードの動作確認は上段のシミュレーションで行い、現実世界での動作の確認は下段の実機検証の流れで行います。
+開発は**シミュレーション**と**実機検証**に分かれています。基本的に書いたコードの動作確認は上段のシミュレーションで行い、現実世界での動作の確認は下段の実機検証の流れで行います。
 
-シミュレーションにおいて、回路を記述したVerilog HDLファイルとテストベンチを書き、それをシミュレータ上で動かし動作を検証します。実機検証では、利用するソフトウェアはEDA(Electronic Design Automation)のみです。シミュレーションで検証したVerilog HDLファイルをEDAに渡し、EDAでビルドを行いFPGA等の実機で動作を確認します。
+シミュレーションにおいて、回路を記述したVerilog HDLファイルとテストベンチを書き、それをシミュレータ上で動かし動作を検証します。実機検証では、利用するソフトウェアはEDA(Electronic Design Automation)ツールのみです。シミュレーションで検証したVerilog HDLファイルをEDAに渡し、EDAでビルドを行いFPGA等の実機で動作を確認します。
 
 本書の大半の作業はシミュレーションで行いますので基本はPCを触ってればいいです。実機検証に関しては環境構築も作業も非常に煩雑であるため、本記事の後半で解説します。
 
-### 開発環境を作ろう
+### 開発環境構築
 
 初めに開発環境を構築していきましょう。大半の初心者は環境構築で躓く事が経験的に知られていますので、出来る限り丁寧に解説します。
 
@@ -356,13 +355,13 @@ visual studio codeをインストールせえ
 
 icarus verilogとgtkwaveをインストールをせえ
 
-### 開発環境に慣れよう
+### 開発環境に慣れる
 
-開発環境の構築が完了したら、次は実際に開発環境を触って開発の流れを体感しましょう。
+環境構築が完了しましたら、次は実際に開発環境を触って開発の流れを体感しましょう。
 
 #### Verilogファイルとテストベンチ
 
-とりあえず以下のコードを`day01.v`として保存しましょう。
+とりあえず以下のコードを`adder8.v`として保存しましょう。
 何を書いているのか分からなくて不安でしょうが、今は写経していただくだけで結構です。
 
 ```verilog
@@ -378,9 +377,9 @@ module adder8(
 endmodule
 ```
 
-次に以下のコードを`day01_tb.v`として保存して下さい。
+次に以下のコードを`adder8_tb.v`として保存して下さい。
 ```verilog
-module addr8_tb;
+module adder8_tb;
     reg             clk = 1'b0;
     reg    [7:0]    in0 = 8'h00;
     reg    [7:0]    in1 = 8'h00;
@@ -415,7 +414,7 @@ module addr8_tb;
 endmodule
 ```
 
-さて、今しがた`day01.v`と`day01_tb.v`というファイルを作りました。`day01.v`はVerilog HDLで書いたディジタル回路です。この他に`day01_tb.v`というファイルも書きましたね、Verilogをシミュレータ上で動かす為にはディジタル回路を記述したVerilogファイルの他に、**テストベンチ**と呼ばれるVerilogファイルが必要です。
+さて、今しがた`adder8.v`と`adder8_tb.v`というファイルを作りました。`adder8.v`はVerilog HDLで書いたディジタル回路です。また`adder8_tb.v`というファイルも書きましたね、これは**テストベンチ**というものです。Verilogをシミュレータ上で動かす為には、ディジタル回路を記述したVerilogファイルの他に、**テストベンチ**と呼ばれるVerilogファイルが必要です。
 
 テストベンチとは文字通り回路のテストを行うためのVerilogファイルです。例えば、あなたが何か回路を作成したとして、その回路が意図した通りに動作するか確かめたい場合、回路に入力を与え、その出力を調べる必要がありますね？テストベンチはそういった回路へ入力を与えたり、出力を確認したり、内部信号を検査したり、回路内の波形ファイルを出力したりするのに使います。
 
@@ -426,7 +425,7 @@ endmodule
 以下のコマンドを実行してください。
 
 ```bash
-$ iverilog day01_tb.v day01.v
+$ iverilog adder8_tb.v adder8.v
 $ vvp a.out
 ```
 
@@ -438,7 +437,12 @@ $ gtkwave wave.vcd
 
 GTKwaveの使い方は気合で慣れてください。信号を選択してAppendボタンを押すと多分見れますので適当に触ってみてください。
 
-以上の通り、Verilog HDLでディジタル回路とテストベンチを記述し、シミュレーションを実行。波形を見てデバッグ、そして再びシミュレーションを実行という流れになります。この流れは今後何度も繰り返します。今全てを覚える必要はありませんので大丈夫です、そのうち手癖で開発を回せるようになります。
+以上の通り、Verilog HDLでディジタル回路とテストベンチを記述し、シミュレーションを実行。波形を見てデバッグ、そして再びシミュレーションを実行が開発の流れになります。この一連の流れは今後何度も繰り返します。今全てを覚える必要はありませんので大丈夫です、そのうち手癖で開発を回せるようになります。
+
+1. Verilog HDLで回路を書く
+2. Verilog HDLでテストベンチを書く
+3. シミュレーションを実行
+4. 波形を見る
 
 ### Verilogの文法を学ぼう(基礎１)
 
@@ -452,7 +456,7 @@ Verilog HDLではシステム全体をモジュールという単位で分割し
 
 モジュールのイメージ
 
-モジュール名は`module`の後ろに記述し、回路の内容は`module` ~ `endmodule`の間に記述します。
+Verilogでモジュールを作成するには`module`というキーワードを用います。例えば`test_module`という名前のモジュールを作成したい場合は、`module test_module();`と記述し、`module`の後ろにモジュール名を記述します。そして回路の内容を`module モジュール名();` ~ `endmodule`の間に記述します。
 
 ```verilog
 module test_module();
@@ -462,7 +466,7 @@ endmodule
 
 #### 入出力ポート
 
-回路には入出力が必要ですね、回路の入出力ポートは`input`, `output`で作成します。入力信号名は`input`の後ろに宣言し、出力信号名は`output`の後ろに宣言します。IOの個数や順番に決まりはありませんが、最後の宣言にはカンマが必要ないことに注意しましょう。
+回路には入出力が必要です、回路の入出力ポートは`input`, `output`というキーワードで定義します。入力信号名は`input`の後ろに宣言し、出力信号名は`output`の後ろに宣言します。IOの個数や順番に決まりはありませんが、最後の宣言にはカンマが必要ないことに注意しましょう。
 
 ```verilog
 module test_module (
@@ -477,9 +481,9 @@ endmodule
 
 #### wire型
 
-次は`wire`です。人生のどこかで見た回路の上には配線がありましたね、あの配線は信号を伝達する信号線です。`wire`ではその信号線を生成します。
+回路の上には配線がありましたね、あの配線は信号を伝達する信号線です。Verilogにおいて、`wire`というキーワードを用いることで信号線を定義する事が出来ます。
 
-`wire`の使い方は以下の通りです。
+`wire`の使い方は以下のように、`wire 信号幅 信号線名;`の順で記述します。
 
 ```verilog
 wire [31:0] 信号線名;
@@ -495,33 +499,57 @@ wire 信号線名;
 
 #### 演算子
 
-Verilog HDLには様々な演算子が存在します。これらの演算子は複数ビットを纏めて演算が可能です。以下によく使う演算子を載せておくきますので適宜参照してください。
+Verilogでは信号線同士で演算を行うことが可能です。Verilogには様々な演算子が存在し、これらの演算子は複数ビットを纏めて演算が可能です。以下によく使う演算子を載せておくきますので適宜参照してください。
+
+| 演算名 | 演算子 | 例 |
+| --- | --- | --- |
+| NOT | `~` | `~A` |
+| OR | `|` | `A | B` |
+| AND | `&` | `A & B` |
+| XOR | `^` | `A ^ B` |
+| 加算 | `+` | `A + B` |
+| 減算 | `-` | `A - B` |
+| 乗算 | `*` | `A * B` |
+| 除算 | `/` | `A / B` |
+
+#### 数値リテラル
+
+Verilog HDLで数値を記述する際は、`ビット幅'進数 数値`という形式で記述します。`進数`は`b`で2進数、`d`で10進数、`h`で16進数です。`ビット幅`を指定しない場合のビット幅は処理系によって変わります。(Quartusでは32ビット)。
+
+```verilog
+5'b10101; //2進5ビット
+8'd43;    //10進8ビット 
+16'hdead; //16進16ビット
+```
+
+| 進数 | 文字 | 例 |
+| ---- | ---- | -- |
+| 2    | `b`  | `8'b0011 1101` |
+| 10   | `d`  | `8'd61` |
+| 16   | `h`  | `8'h3d` |
 
 #### assign文
 
 `wire`で作られた信号線にはキーワード`assign`を用いて入力できます。`assign`を用いて書かれた回路は、入力が変化すると即座に出力が変化する**組み合わせ回路**となります。
-以下のコードでは`test_output0`に`test_input`の値をそのまま入力しています。
+
+この`assign`を用いた信号の入力時に、演算子を用いて演算を行うことが可能です。以下の例では`test_wire0`と`test_wire1`の信号を加算し、`test_output`に入力しています。
+
+また`test_wire1`に入力している`test_input`の直後に書いてある`[7:0]`は**スライス**という操作であり、`test_input`の7ビット目から0ビット目の計8ビットを抜き出して、`test_wire1`に入力しています。スライスはよく使う操作ですので覚えておきましょう。
 
 ```verilog
 module test_module (
-    input [9:0] test_input,
-    output wire [9:0] test_output0,
-    output wire [4:0] test_output1
+  input [15:0] test_input,
+  output [7:0] test_output
 );
-    assign test_output0 = test_input;
-    // 入力の上位5ビットを出力に直結している
-    assign test_output1 = test_input[9:5]; 
+    
+  wire [7:0] test_wire0;
+  wire [7:0]  test_wire1;
+
+  assign test_wire0 = 16'h0505;
+  assign test_wire1 = test_input[7:0];
+
+  assign test_output = test_wire0 + test_wire1;
 endmodule
-```
-`test_output1`に入力している`test_input`の直後に書いてある`[9:5]`は**スライス**という操作であり、`test_input`の5ビットから9ビットの計5ビットを抜き出して、`test_output1`に出力しています。スライスはよく使う操作ですので覚えておきましょう。
-
-#### 数値リテラル
-
-Verilog HDLで数値を記述する際は、`ビット幅'進数 数値`という形式で記述します。`進数`は`b`で2進数、`d`で10進数、`h`で16進数です。`ビット幅`を指定しない場合は処理系によりけりです(Quartusでは32ビット)。
-```verilog
-    assign test_wire1 = 5'b10101; //2進5ビット
-    assign test_wire2 = 8'd43;    //10進8ビット 
-    assign test_wire3 = 16'hdead; //16進16ビット
 ```
 
 ### Verilogの文法を学ぼう(練習１)
@@ -533,6 +561,18 @@ Verilog HDLで数値を記述する際は、`ビット幅'進数 数値`とい�
 以下の回路と同等のモジュール`problem1`を作成してください。入出力は画像の通りです。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem1.png)
+
+#### 練習問題２
+
+以下の回路と同等のモジュール`problem2`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem2.png)
+
+#### 練習問題３
+
+以下の回路と同等のモジュール`problem3`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem3.png)
 
 #### 模範解答１
 
@@ -548,6 +588,41 @@ module problem1(
 
     assign w_p = i_p0 & i_p1;
     assign o_p = w_p | i_p2;
+
+endmodule
+```
+
+#### 模範解答２
+
+```verilog
+module problem2(
+  input       [7:0] i_p0,
+  input       [7:0] i_p1,
+  input       [7:0] i_p2,
+  output wire [7:0] o_p
+);
+
+    wire [7:0] w_p;
+
+    assign w_p = i_p1 & i_p2;
+    assign o_p = i_p0 + w_p;
+
+endmodule
+```
+
+#### 模範解答３
+
+```verilog
+module problem3(
+  input       [15:0] i_p0,
+  input       [15:0] i_p1,
+  output wire [15:0] o_p
+);
+
+    wire [15:0] w_p;
+
+    assign w_p = ~i_p0;
+    assign o_p = w_p | i_p1;
 
 endmodule
 ```
@@ -781,7 +856,7 @@ vvp a.out
 gtkwave wave.vcd &
 ```
 
-## Quartus入門
+## FPGA入門
 ### 論理合成
 ### ピンアサイン
 ### 書き込み
@@ -789,8 +864,6 @@ gtkwave wave.vcd &
 ## 自作CPU入門
 
 さあ始めましょう
-
-### プログラムのおしごと
 
 ### プログラムが動く流れ
 
