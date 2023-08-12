@@ -831,8 +831,26 @@ endmodule
 
 #### 連結演算子
 
+三項演算子に続いて便利な演算子をもう一つ紹介します。連結演算子です。これは以下のようにビットを結合する演算子です。
+
 ```
-{}
+{4'h0011, 4'b1100} -> 8'b00111100
+```
+
+この連結演算子も演算子ですのでassign文やalways文やfunction文で利用可能です。
+
+```verilog
+module test_module(
+  input [7:0] i_data_a,
+  input [7:0] i_data_b,
+  output reg [15:0] o_data
+);
+
+  always @(posedge clk) begin
+    o_data <= {i_data_a, i_data_b};
+  end
+
+endmodule
 ```
 
 #### モジュール呼び出し
