@@ -802,9 +802,32 @@ function文もそれなりに使いますので覚えておきましょう。
 
 #### 三項演算子
 
-三項演算子はいつでも使える(?)。
-代入先 = (条件) ? (条件が真の時に代入したい値) :(条件が偽の時に代入したい値)
-ネストも可能。
+Verilogには`+`や`&`など様々な演算子が存在してますが、その中でもある便利な演算子を紹介します。三項演算子です。
+
+三項演算子は`?`と`:`の２つを使う演算子で、一行で書けるif文のような演算子であり、以下のような演算をします。
+
+```
+代入先 = (条件) ? (条件が真の時に代入する値) : (条件が偽の時に代入する値)
+```
+
+これは演算子ですのでassign文でもalways文でもfunction文でも使用可能です。
+
+以下の例では`i_condition`の値が`2'b11`の場合は`o_data`に`i_data_a`の値が格納され、それ以外の場合は`i_data_b`が格納されます。
+
+```verilog
+module test_module(
+  input [1:0] i_condition,
+  input [7:0] i_data_a,
+  input [7:0] i_data_b,
+  output reg [7:0] o_data
+);
+
+  always @(posedge clk) begin
+    o_data <= (i_condition == 2'b11) ? i_data_a : i_data_b ;
+  end
+
+endmodule
+```
 
 #### 連結演算子
 
