@@ -4639,7 +4639,9 @@ vvp a.out
 gtkwave wave.vcd
 ```
 
-以下の波形が実際にシミュレーションを行った結果です。実行開始してからLEDの値がカウントアップされていき、ボタンが押された途端にカウントが停止しました。自作CPU上でプログラムが意図した通りに動きましたね、最高の気分です。
+以下の波形が実際にシミュレーションを行った結果です。
+
+プログラムの実行開始時からLED出力がカウントアップされ、ボタンが押された途端にカウントが停止しました。自作CPU上でプログラムが意図した通りに動きましたね、最高の気分です。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_mmio_button.png)
 
