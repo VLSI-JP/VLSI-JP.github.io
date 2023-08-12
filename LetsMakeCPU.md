@@ -888,8 +888,7 @@ module test_module(
 endmodule
 ```
 
-#### generate文
-#### 体操：UARTで送信回路を作る
+### Verilogの文法を学ぼう(練習２)
 
 ### FPGAでVerilogを動かす
 
