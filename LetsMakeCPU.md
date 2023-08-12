@@ -766,22 +766,39 @@ endmodule
 
 #### function文
 
-always文では気軽にif文を使うことがassignで書けない複雑な組み合わせ回路の場合、function文を利用する。`function`~`endfunction`で回路の内容を囲み、`function 返り値のビット幅 回路名(input 入力信号)`と記述する。functionの返り値はfunction名に入力する形で記述する。
+always文では気軽にif文やcase文を使うことが出来ましたが、assign文ではそうもいきません。assign文でif文やcase文を使いたい場合はfunction文で関数を作成しましょう。
+
+function文では`function()`~`endfunction`で処理の内容を囲み、`function 返り値のビット幅 関数名(input ビット幅 入力信号)`と記述して定義します。そして関数の返り値はfunction名に入力する形で記述します。
+
+以下の例では、`test_function()`という名前の関数を新たに定義し、関数の処理結果を`o_data`に入力しています。
 
 ```verilog
-    assign test_wire = test_function(test_input);
+module test_module(
+  input [3:0] i_condition,
+  input [7:0] i_data,
+  output [7:0] o_data
+);
 
-    function [4:0] test_function(input [2:0] func_in);
-    begin
-        case(func_in)
-            3'b000 : test_function = 5'b00001;
-            3'b001 : test_function = 5'b10101;
-            default : test_function = 5'b11111;
-        endcase
-    end
-    endfunction
+  assign o_data = test_function(i_condition, i_data);
+
+  function [7:0] test_function(
+    input [3:0]  i_ctrl, 
+    input [15:0] i_data
+  );
+  begin
+    case(i_ctrl)
+      4'b0000 : test_function = i_data + 16'h0001;
+      4'b0000 : test_function = i_data & 16'h0505;
+      4'b0000 : test_function = i_data & 16'hff00;
+      default : test_function = 16'h0000;
+    endcase
+  end
+  endfunction
+
+endmodule
 ```
 
+function文もそれなりに使いますので覚えておきましょう。
 
 #### 三項演算子
 
