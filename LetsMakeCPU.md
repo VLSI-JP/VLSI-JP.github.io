@@ -353,7 +353,17 @@ visual studio codeをインストールせえ
 
 #### Verilog HDLシミュレータのインストール
 
-icarus verilogとgtkwaveをインストールをせえ
+このページの**Downloadの一番上のリンク**からダウンロードしてください。v12がv13とかv14とかになってるかもしれませんが、とりあえず**Downloadの一番上のリンク**です。
+
+[http://bleyer.org/icarus/](http://bleyer.org/icarus/)
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/verilog_download.png)
+
+
+インストール時の注意点として**１つだけ絶対に押さなければならないボタンが存在します。** 以下の画像のSelect Additional TasksのAdd executable folder(s) to the user PATHです。**絶対にチェックを入れてください。** それ以外は適当にNextなりFinishなりポチポチ押してけばいいです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/verilog_install.png)
+
 
 ### 開発環境に慣れる
 
