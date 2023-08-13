@@ -558,9 +558,70 @@ endmodule
 
 #### 練習問題１
 
-以下の回路と同等のモジュール`problem1`を作成してください。入出力は画像の通りです。
+以下の回路と同等のモジュール`problem1`を`problem1.v`という名前のファイルに作成してください。入出力は画像の通りです。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem1.png)
+
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem1_tb.v`というファイル名で保存する。
+
+```verilog
+module problem1_tb;
+  reg [7:0] i_p0;
+  reg [7:0] i_p1;
+  reg [7:0] i_p2;
+  wire [7:0] o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+    
+  problem1 DUT(
+    .i_p0   (i_p0   ),
+    .i_p1   (i_p1   ),
+    .i_p2   (i_p2   ),
+    .o_p    (o_p    )
+  );
+    
+  initial begin
+    i_p0 = 8'h00;
+    i_p1 = 8'h00;
+    i_p2 = 8'h00;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'h0f;
+    i_p1 = 8'h55;
+    i_p2 = 8'h88;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'h74;
+    i_p1 = 8'h81;
+    i_p2 = 8'h11;
+    #2
+    $display("o_p = %02x", o_p);
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem1_tb.v problem1.v
+vvp a.out
+```
+
+以下の出力が得られたら正解です。
+
+```bash
+VCD info: dumpfile wave.vcd opened for output.
+o_p = 00
+o_p = 8d
+o_p = 11
+problem1_tb.v:35: $finish called at 6 (1s)
+```
 
 #### 練習問題２
 
@@ -568,11 +629,128 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem2.png)
 
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem2_tb.v`というファイル名で保存する。
+
+```verilog
+module problem2_tb;
+  reg [7:0] i_p0;
+  reg [7:0] i_p1;
+  reg [7:0] i_p2;
+  wire [7:0] o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+    
+  problem2 DUT(
+    .i_p0   (i_p0   ),
+    .i_p1   (i_p1   ),
+    .i_p2   (i_p2   ),
+    .o_p    (o_p    )
+  );
+    
+  initial begin
+    i_p0 = 8'h55;
+    i_p1 = 8'h77;
+    i_p2 = 8'h01;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'hf0;
+    i_p1 = 8'h55;
+    i_p2 = 8'h5a;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'hff;
+    i_p1 = 8'h88;
+    i_p2 = 8'h11;
+    #2
+    $display("o_p = %02x", o_p);
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem2_tb.v problem2.v
+vvp a.out
+```
+
+以下の出力が得られたら正解です。
+
+```bash
+VCD info: dumpfile wave.vcd opened for output.
+o_p = 56
+o_p = 40
+o_p = ff
+problem2_tb.v:35: $finish called at 6 (1s)
+```
+
 #### 練習問題３
 
 以下の回路と同等のモジュール`problem3`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem3.png)
+
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem3_tb.v`というファイル名で保存する。
+
+```verilog
+module problem3_tb;
+  reg [15:0] i_p0;
+  reg [15:0] i_p1;
+  wire [15:0] o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+    
+  problem3 DUT(
+    .i_p0   (i_p0   ),
+    .i_p1   (i_p1   ),
+    .o_p    (o_p    )
+  );
+    
+  initial begin
+    i_p0 = 16'h0f0f;
+    i_p1 = 16'h0f0f;
+    #2
+    $display("o_p = %04x", o_p);
+    i_p0 = 16'h3366;
+    i_p1 = 16'h6633;
+    #2
+    $display("o_p = %04x", o_p);
+    i_p0 = 16'h1234;
+    i_p1 = 16'h5678;
+    #2
+    $display("o_p = %04x", o_p);
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem3_tb.v problem3.v
+vvp a.out
+```
+
+以下の出力が得られたら正解です。
+
+```bash
+VCD info: dumpfile wave.vcd opened for output.
+o_p = ffff
+o_p = eebb
+o_p = fffb
+problem3_tb.v:30: $finish called at 6 (1s)
+```
 
 #### 模範解答１
 
