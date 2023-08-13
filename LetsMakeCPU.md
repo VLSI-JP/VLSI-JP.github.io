@@ -762,10 +762,10 @@ module problem1(
   output wire [7:0] o_p
 );
 
-    wire [7:0] w_p;
+  wire [7:0] w_p;
 
-    assign w_p = i_p0 & i_p1;
-    assign o_p = w_p | i_p2;
+  assign w_p = i_p0 & i_p1;
+  assign o_p = w_p | i_p2;
 
 endmodule
 ```
@@ -780,10 +780,10 @@ module problem2(
   output wire [7:0] o_p
 );
 
-    wire [7:0] w_p;
+  wire [7:0] w_p;
 
-    assign w_p = i_p1 & i_p2;
-    assign o_p = i_p0 + w_p;
+  assign w_p = i_p1 & i_p2;
+  assign o_p = i_p0 + w_p;
 
 endmodule
 ```
@@ -797,15 +797,177 @@ module problem3(
   output wire [15:0] o_p
 );
 
-    wire [15:0] w_p;
+  wire [15:0] w_p;
 
-    assign w_p = ~i_p0;
-    assign o_p = w_p | i_p1;
+  assign w_p = ~i_p0;
+  assign o_p = w_p | i_p1;
 
 endmodule
 ```
 
 お疲れ様です。
+
+### Verilogのシミュレーションを学ぶ
+
+練習問題では特に説明なしにテストベンチを出しました。このタイミングでテストベンチの書き方を説明します。
+
+以下のテストベンチのコードを例にテストベンチ用のVerilogの構文を学んでいきましょう。
+
+```verilog
+module test_sim;
+  reg           clk     = 0;
+  reg   [7:0]   data_i  = 8'h00;
+  wire  [7:0]   data_o;
+
+  initial begin
+    $dumpfile("wave.vcd");  // 波形ファイル
+    $dumpvars(0, DUT);      // DUTインスタンスの全信号を出力
+  end
+
+  test_module DUT(
+    .clk        (clk        ), 
+    .input_data (data_i     ),
+    .output_data(data_o     )
+  );
+
+  always #1 begin    // クロックの生成 1秒毎に反転
+    clk <= ~clk;
+  end
+
+  initial begin
+    data_i  = 8'h11;
+    #2     // 2秒待機
+    data_i  = 8'h20;
+    #2
+    data_i  = 8'h30;
+    #10    // 10秒待機
+    $finish;    // 終了
+  end
+endmodule
+```
+
+#### 入出力用信号の定義
+
+作成した回路の動作を検証するためには、回路に様々な信号を入力し、出力を検査する必要があります。テストベンチにおいて回路に入力する信号は`reg ビット幅 信号名;`で定義します。また回路からの出力を受ける信号は`wire ビット幅 信号名;`で定義します。両方ともビット幅を省略した場合は1bitの幅になります。
+
+実際に入出力用信号を定義した例が以下になります。この場合、`clk`、`data_i`が入力用の信号で、`data_o`が出力を受ける信号になります。
+
+```verilog
+  reg           clk     = 0;
+  reg   [7:0]   data_i  = 8'h00;
+  wire  [7:0]   data_o;
+```
+
+#### テスト用回路の生成
+
+テストベンチで回路をテストするためにはテストベンチ内で回路を生成する必要があります。そこで行うのがテスト用回路の生成です。
+
+Verilogにおいて、回路は`モジュール名 インスタンス名`で生成する事が可能です。以下の例では`test_module`という名前のモジュールから`DUT`という名前の回路(インスタンス)を生成しています。
+また入出力信号は`.インターフェイス名(信号線名)`で接続します。以下の例では`test_module`が`clk`, `input_data`, `output_data`というインターフェイスを持っているとして、先程定義した入出力信号をそれぞれのインターフェイスに接続しています。
+
+カンマの有無に注意してください。
+
+```verilog
+  test_module DUT(
+    .clk        (clk        ), 
+    .input_data (data_i     ),
+    .output_data(data_o     )
+  );
+```
+
+ちなみにDUTはDevice Under Testの略です。
+
+#### システムタスク
+
+上記のテストベンチには、`$`で始まる名前の関数がいくつか使われていますね。これらの関数を**システムタスク**と呼びます。システムタスクとは回路の検証に使うための関数であり、Verilog HDLには様々なシステムタスクが存在してます。
+
+シミュレーション時に最低限使うべきシステムタスクは以下の４つです。
+
+* `$dumpfile` : 波形ファイルの名前設定
+* `$dumpvars` : 内部信号を波形に出力するモジュールを設定
+* `$display`  : ターミナルに文字列を表示
+* `$finish` : シミュレーションを終了する(必須)
+
+必要な時にそれぞれ説明していきます。
+
+#### 波形ファイルの生成
+
+作成した回路が正しく動作しているか確かめる際に重要となるのが**波形ファイル**です。`$dumpfile("wave.vcd")`で`wave.vcd`という名前の波形ファイルを生成出来ます。また`$dumpvars()`でどの回路の波形を出力するか指定できます。例では`$dumpvars(0, DUT)`としており、`DUT`という名前の回路の波形を得ています。
+
+実際には以下のように`initial begin ~ end`で囲った部分で利用します。
+
+```verilog
+  initial begin
+    $dumpfile("wave.vcd");  // 波形ファイル
+    $dumpvars(0, DUT);      // DUTインスタンスの全信号を出力
+  end
+```
+
+この記述は回路の生成の前に記述してください。
+
+#### クロックの生成
+
+基礎知識のD-FFの部分で説明しましたが、回路が情報を記録するためには**クロック**という信号がしばしば必要になります。先程の練習問題ではクロックを用いませんでしたが、今後は殆どの場合においてクロックを必要とする回路を作ることになりますので、今のうちにテストベンチでクロックを生成する方法を学んでおきましょう。
+
+テストベンチにおいてはクロック信号の生成に以下の記述を用います。以下の記述では先程定義した入力用信号である`clk`の値を1秒毎にNOT演算子で反転し、再び`clk`に入力しています。この結果、`clk`の値は0, 1, 0, 1, 0, 1と振動するようになります。これをクロック信号として利用しています。
+
+```verilog
+  always #1 begin
+    clk <= ~clk;
+  end
+```
+
+#### 入力信号を制御
+
+テスト対象の回路に対してずっと同じ信号を入力するのはあまり効果的なテストとは言えません。そこで時間に応じて入力信号を変化させる必要があります。そのために以下の記述を用います。
+
+以下の`initial begin ~ end`で囲まれた記述では、入力信号の`data_i`に値を格納してから`#2`という記述をしています。この`#`は遅延と呼び、`#数値`で指定した秒数だけ待機する事が出来ます。待っている間にもクロックは動作します。つまり以下の例では回路に`8'h11`という値を入力して2秒待機しています。
+
+その後何回か信号を変化させ、最終的にシステムタスクの`$finish`が実行されます。この`$finish`が実行されるとシミュレーションが終了します。テストベンチには`$finish`を必ず記述する必要があります。
+
+```verilog
+  initial begin
+    data_i  = 8'h11;
+    #2     // 2秒待機
+    data_i  = 8'h20;
+    #2
+    data_i  = 8'h30;
+    #10    // 10秒待機
+    $finish;    // 終了
+  end
+```
+
+なぜ2秒待機しているのか一応説明すると、先程のクロック生成で`clk`は`#1`で0 -> 1と変化しますが、これでは半クロック分しか待機できていません。そこで`#2`とすると`clk`は0 -> 1 -> 0と変化し、1クロック待機することが可能となるためです。
+
+#### シミュレーションを実行
+
+シミュレーションを実行するためにいくつかコマンドを実行しました。これらのコマンドの使い方とシミュレーションの実行方法をここで説明します。
+
+シミュレーションにおいて主に`iverilog`、`vvp`、`gtkwave`の３つのコマンドを利用します。
+
+* iverilog : シミュレータ用のVerilogコンパイラ
+* vvp : シミュレーション用バーチャルマシン(実行環境)
+* gtkwave : オープンソースの波形ビューワー
+
+これらのコマンドを使う流れとしては、書いたVerilogファイルとテストベンチを`iverilog`に与えて`a.out`を生成します。そして出力された`a.out`を`vvp`に与えて波形ファイルを生成し、生成された波形ファイルを`gtkwave`で閲覧します。
+
+それぞれのコマンドの使い方は以下の通りです。
+
+```bash
+iverilog テストベンチファイル名 Verilogファイル名
+vvp a.out
+gtkwave 波形ファイル名
+```
+
+実際には以下のように使います。
+
+```bash
+iverilog test_tb.v test.v 
+vvp a.out
+gtkwave wave.vcd
+```
+
+テストベンチを書くのは非常に面倒で退屈ですが、Verilog HDLでディジタル回路を設計する事とテストベンチを書くことは切っても切れない関係にあります。今後何度も書くことになりますので適宜参照するようにしてください。
 
 ### Verilogの文法を学ぼう(基礎２)
 
@@ -1068,108 +1230,6 @@ endmodule
 
 ### Verilogの文法を学ぼう(練習２)
 
-### FPGAでVerilogを動かす
-
-### シミュレーション方法
-シミュレーション用の関数と構文を説明した後、サンプルコードを載せる。
-
-#### システムタスク
-シミュレーション用の関数(システムタスク)の解説
-* `$dumpfile` : 波形ファイルの名前設定
-* `$dumpvars` : 内部信号を波形に出力するモジュールを設定
-* `$display`  : 標準出力に信号を出力する
-* `$finish` : シミュレーションを終了する(必須)
-
-#### シミュレーション用構文
-シミュレーションに使うverilogの構文の解説
-* クロック生成
-```verilog
-always #1 begin
-    clk <= !clk;
-end
-```
-1秒毎にclkの値を反転させる。これをクロック信号として扱う
-* 時間経過で入力を変化
-```verilog
-initial begin
-    #2
-    data_i <= 8'h05;
-    #2
-    data_i <= 8'h11;
-end
-```
-`#2`で2秒待機した後`data_i`への入力を変化させている。この場合`clk`の反転は1秒毎なので`#2`で1クロック待機となる。
-
-#### テストベンチの例
-適当なモジュール例(インクリメントするだけのモジュール)
-```verilog
-module test (
-    input   clk,
-    input   [7:0] data_i,
-    output  [7:0] data_o
-);
-
-    reg [7:0] data;
-
-    always @(posedge clk) begin
-        data <= data_i + 8'h1;
-    end
-    assign data_o = data;
-endmodule
-```
-テストベンチの例
-```verilog
-module test_sim();
-    reg             clk = 0;
-    reg     [7:0]   data_i = 8'h00;
-    wire    [7:0]   data_o;
-
-    initial begin
-        $dumpfile("wave.vcd");  // 波形ファイル
-        $dumpvars(0, test);     // testインスタンスの全信号を出力
-    end
-
-    test test(
-        .clk        (clk    ), 
-        .data_i     (data_i     ),
-        .data_o     (data_o     )
-    );
-
-    always #1 begin    // クロックの生成 10秒毎に反転
-        clk <= !clk;
-    end
-
-    initial begin
-        data_i  <= 8'h11;
-        #2     // 20秒 (1 クロック)待機
-        data_i  <= 8'h20;
-        #2
-        data_i  <= 8'h30;
-        $display("data_o : %d\n", data_o); // 標準出力にも出力可能
-        #10
-        $finish;    // 終了
-    end
-endmodule
-```
-
-#### ツール解説
-* icarus verilog : オープンソースのVerilogシミュレータ(Linux, Windows, Mac?)
-    * iverilog : シミュレータ用のVerilogコンパイラ
-    * vvp : シミュレーション用バーチャルマシン(実行環境)
-* gtkwave : オープンソースの波形ビューワー
-
-使い方
-```bash
-iverilog -o 出力ファイル名 -s トップモジュール名 Verilogファイル名
-vvp 出力ファイル名
-gtkwave 波形ファイル名
-```
-実行例
-```bash
-iverilog -s test_sim test_sim.v test.v 
-vvp a.out
-gtkwave wave.vcd &
-```
 
 ## FPGA入門
 ### 論理合成
