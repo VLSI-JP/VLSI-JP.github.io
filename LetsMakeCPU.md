@@ -3890,7 +3890,7 @@ endfunction
 
 ジャンプ命令のJALとJRLの両方ともRDにPC + 2の値を格納する動作をしますので、ジャンプ命令のオペコードの場合は`w_rd_wen`を1にする必要があります。
 
-JAL
+- JAL
 
 $$
 \begin{align}
@@ -3899,7 +3899,7 @@ $$
 \end{align}
 $$
 
-JRL
+- JRL
 
 $$
 \begin{align}
