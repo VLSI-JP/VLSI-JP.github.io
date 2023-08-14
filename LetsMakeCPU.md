@@ -2176,6 +2176,8 @@ endmodule
 
 これでフェッチ機構を実装できました。次はフェッチした命令を解釈するデコーダを作成していきましょう。
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+
 LOAD命令のビットフィールドは以下のように、LSBから順にオペコード、RDのアドレス、RS1のアドレス、即値となっていましたね。
 
 `MSB | imm[3:0] | rs1[3:0] | rd[3:0] | opcode[3:0] | LSB`
@@ -2905,6 +2907,10 @@ STORE命令の動作を箇条書きすると以下の通りになります。
 
 ##### デコーダを改造
 
+ではデコーダの改造に着手しましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+
 STORE命令のビットフィールドは以下のように、LSBから順にオペコード、即値、RS1のアドレス、RS2のアドレスとなっていましたね。
 
 `MSB | rs2[3:0] | rs1[3:0] | imm[3:0] | opcode[3:0] | LSB`
@@ -3336,6 +3342,10 @@ gtkwave wave.vcd
 
 ##### デコーダを改造
 
+ではデコーダの改造に着手します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+
 以下はデコーダの入出力信号です。演算命令を実行するにあたり、変更を加える必要がある信号はレジスタファイルへの書き込み制御信号である`o_rd_wen`とALUの制御信号である`o_alu_ctrl`です。改造していきましょう。
 
 ```verilog
@@ -3660,9 +3670,11 @@ endmodule
 4. ALUで演算
 5. レジスタに演算結果を書き込む
 
-ではまずデコーダを改造していきます。
-
 ##### デコーダを改造
+
+ではデコーダの改造に着手します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
 
 Z16の即値命令であるADDIは、RDの値に即値を加算してRDに格納する命令でした。
 
@@ -3934,6 +3946,10 @@ gtkwave wave.vcd
 やることは変わりません。まずはデコーダを改造しましょう。
 
 ##### デコーダの改造
+
+ではデコーダの改造に着手します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
 
 ジャンプ命令のビットフィールドは以下のように、MSBから4bitに符号付き4bit即値が存在しています。
 
@@ -4334,9 +4350,13 @@ gtkwave wave.vcd
 3. レジスタからRS1, RS2の値を読み出し
 4. 条件に合致する場合はPCに書き込み
 
-意外と少ないですね。ご多分に漏れずまずはデコーダの改造に着手しましょう。
+意外と少ないですね。ご多分に漏れずデコーダの改造に着手しましょう。
 
 ##### デコーダの改造
+
+ではデコーダの改造に着手します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
 
 分岐命令のビットフィールドは他の命令と比べてかなり特異なものでした。
 
