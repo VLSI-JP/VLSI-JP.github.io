@@ -373,6 +373,7 @@ visual studio codeをインストールせえ
 
 また`gtkwave`コマンドを実行してください。何かウィンドウが出たら成功です。
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/check_gtkwave.png)
 
 ### 開発環境に慣れる
 
