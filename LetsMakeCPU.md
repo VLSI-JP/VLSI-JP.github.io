@@ -387,10 +387,18 @@ $$
 
 環境構築が完了しましたら、次は実際に開発環境を触って開発の流れを体感しましょう。
 
+まずは`verilog_test`という名前で新たにフォルダを作成してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/make_folder.png)
+
 #### Verilogファイルとテストベンチ
 
-とりあえず以下のコードを`adder8.v`として保存しましょう。
-何を書いているのか分からなくて不安でしょうが、今は写経していただくだけで結構です。
+そしてVSCodeを開き、`New File..`から先程作成したフォルダに`adder8.v`という名前のファイルを作成します。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_newfile.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_newfile_adder8.png)
+
+そうしましたら以下のコードを`adder8.v`に書き写してください。何を書いているのか分からなくて不安でしょうが、今は写経していただくだけで結構です。
 
 ```verilog
 module adder8(
@@ -405,7 +413,12 @@ module adder8(
 endmodule
 ```
 
-次に以下のコードを`adder8_tb.v`として保存して下さい。
+書き写しましたら上書き保存してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_write_adder8.png)
+
+次に`adder8_tb.v`という名前で新たにファイルを作成し、以下のコードを書き写してください。
+
 ```verilog
 module adder8_tb;
     reg             clk = 1'b0;
@@ -442,6 +455,10 @@ module adder8_tb;
 endmodule
 ```
 
+書き写しましたら上書き保存してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_write_adder8_tb.png)
+
 さて、今しがた`adder8.v`と`adder8_tb.v`というファイルを作りました。`adder8.v`はVerilog HDLで書いたディジタル回路です。また`adder8_tb.v`というファイルも書きましたね、これは**テストベンチ**というものです。Verilogをシミュレータ上で動かす為には、ディジタル回路を記述したVerilogファイルの他に、**テストベンチ**と呼ばれるVerilogファイルが必要です。
 
 テストベンチとは文字通り回路のテストを行うためのVerilogファイルです。例えば、あなたが何か回路を作成したとして、その回路が意図した通りに動作するか確かめたい場合、回路に入力を与え、その出力を調べる必要がありますね？テストベンチはそういった回路へ入力を与えたり、出力を確認したり、内部信号を検査したり、回路内の波形ファイルを出力したりするのに使います。
@@ -450,22 +467,34 @@ endmodule
 
 #### シミュレーションを実行
 
+回路とテストベンチが書き終わりましたら、作成したファイルがあるフォルダを開き、白い部分をShiftを押しながら右クリックをして「ターミナルで開く」をクリックしてください。これで`verilog_test`内でターミナルを開くことができます。起動したターミナルで`ls`コマンドを実行すると、フォルダ内のファイルの一覧を見ることが可能です。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/open_terminal.png)
+
 以下のコマンドを実行してください。
 
 ```bash
-$ iverilog adder8_tb.v adder8.v
-$ vvp a.out
+iverilog adder8_tb.v adder8.v
+vvp a.out
 ```
 
-実行が完了したらディレクトリ内に`wave.vcd`というファイルが生成されている筈です。これは波形ファイルです。波形ファイルは以下のコマンドで開きます。
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/run_iverilog.png)
+
+実行が完了したらフォルダ内に`wave.vcd`というファイルが生成されている筈です。これは波形ファイルです。波形ファイルは以下のコマンドで開きます。
 
 ```bash
-$ gtkwave wave.vcd
+gtkwave wave.vcd
 ```
 
-GTKwaveの使い方は気合で慣れてください。信号を選択してAppendボタンを押すと多分見れますので適当に触ってみてください。
+このコマンドでGTKwaveが起動します。
 
-以上の通り、Verilog HDLでディジタル回路とテストベンチを記述し、シミュレーションを実行。波形を見てデバッグ、そして再びシミュレーションを実行が開発の流れになります。この一連の流れは今後何度も繰り返します。今全てを覚える必要はありませんので大丈夫です、そのうち手癖で開発を回せるようになります。
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/run_gtkwave.png)
+
+GTKWaveでは信号名をダブルクリックか、信号名を選択してAppendボタンを押すと波形を見ることができます。適当に触ってみて気合で慣れてください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/use_gtkwave.png)
+
+以上がVerilog HDLでディジタル回路とテストベンチを記述し、シミュレーションを実行。波形を見てデバッグ、そして再びシミュレーションを実行が開発の流れになります。この一連の流れは今後何度も繰り返します。今全てを覚える必要はありませんので大丈夫です、そのうち手癖で開発を回せるようになります。
 
 1. Verilog HDLで回路を書く
 2. Verilog HDLでテストベンチを書く
