@@ -353,16 +353,25 @@ visual studio codeをインストールせえ
 
 #### Verilog HDLシミュレータのインストール
 
-このページの**Downloadの一番上のリンク**からダウンロードしてください。v12がv13とかv14とかになってるかもしれませんが、とりあえず**Downloadの一番上のリンク**です。
-
-[http://bleyer.org/icarus/](http://bleyer.org/icarus/)
+このページ([http://bleyer.org/icarus/](http://bleyer.org/icarus/))の**Downloadの一番上のリンク**からダウンロードしてください。v12がv13とかv14とかになってるかもしれませんが、とりあえず**Downloadの一番上のリンク**です。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/verilog_download.png)
 
+[http://bleyer.org/icarus/](http://bleyer.org/icarus/)
 
-インストール時の注意点として**１つだけ絶対に押さなければならないボタンが存在します。** 以下の画像のSelect Additional TasksのAdd executable folder(s) to the user PATHです。**絶対にチェックを入れてください。** それ以外は適当にNextなりFinishなりポチポチ押してけばいいです。
+またインストール時の注意点として**１つだけ絶対に押すボタンが存在します。** 以下の画像のSelect Additional TasksのAdd executable folder(s) to the user PATHです。**絶対にチェックを入れてください。** それ以外は適当にNextなりFinishなりポチポチ押してけばいいです。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/verilog_install.png)
+
+インストールが終わりましたら、正しくインストール出来ているか確かめるためにソフトウェアの検索欄に`cmd`と入力してコマンドプロンプトを起動してください。起動方法をご存知ならPowerShellでもターミナルでも構いません。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/run_cmd.png)
+
+そして`iverlog`コマンドと`vvp`コマンドを実行してください。以下のような表示が出たら成功です。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/check_iverilog.png)
+
+また`gtkwave`コマンドを実行してください。何かウィンドウが出たら成功です。
 
 
 ### 開発環境に慣れる
