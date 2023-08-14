@@ -5097,7 +5097,7 @@ while(1){
 12: ADDI 1 G2       // G2 <- G2 + 1
 14: STORE G2 G0 0   // [LED] <- G2
 16: LOAD 0 G1 B2    // B2 <- [Button]
-18: BEQ B1 B2 6     // if B1 == B2, then PC <- PC + 6
+18: BEQ B1 B2 4     // if B1 == B2, then PC <- PC + 4
 1A: JRL 0 G3 ZR     // PC <- PC + G3
 1C: JRL 0 ZR G11    // STOP
 ```
@@ -5127,7 +5127,7 @@ module Z16InstrMemory(
   assign mem[9] = 16'h0169; // ADDI 1 G2       // G2 <- G2 + 1
   assign mem[10] = 16'h640B; // STORE G2 G0 0   // [LED] <- G2
   assign mem[11] = 16'h052A; // LOAD 0 G1 B2    // B2 <- [Button]
-  assign mem[12] = 16'h066E; // BEQ B1 B2 6     // if B1 == B2, then PC <- PC + 6
+  assign mem[12] = 16'h046E; // BEQ B1 B2 4     // if B1 == B2, then PC <- PC + 4
   assign mem[13] = 16'h070D; // JRL 0 G3 ZR     // PC <- PC + G3
   assign mem[14] = 16'h00FD; // JRL 0 ZR G11    // STOP
 
