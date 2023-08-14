@@ -4798,9 +4798,9 @@ module Z16CPU(
 );
 ```
 
-そして`select_rd_data()`を改造します。MMIOで値を読み込む場合はLOAD命令を用いますので、読み込んだデータの書き込み先はレジスタファイルになります。そこでレジスタファイルに書き込むデータを選択する関数である`select_rd_data()`を改造すればよいという事です。
+MMIOで値を読み込む場合はLOAD命令を用いますので、読み込んだデータの書き込み先はレジスタファイルになります。そこでレジスタファイルに書き込むデータを選択する関数である`select_rd_data()`を改造します。
 
-ここではオペコードがLOAD命令の場合で、かつ計算されたアドレス`w_alu_data`の値が`16'h007C`の場合に`i_button`の値を`w_rd_data`に接続するようにしています。また`i_button`のビット幅は1bitですので、15bitの0を結合して16bitにしています。
+ここではオペコードがLOAD命令の場合であり、また計算されたアドレス`w_alu_data`の値が`16'h007C`の場合に`i_button`の値を`w_rd_data`に接続して、レジスタファイルにボタンの状態が入力されるようにします。また`i_button`のビット幅は1bitですので、15bitの0を結合して16bitにしています。
 
 ```verilog
   assign w_rd_data = select_rd_data(w_opcode, i_button, w_mem_rdata, r_pc, w_alu_data);
