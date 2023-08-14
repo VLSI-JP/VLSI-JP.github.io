@@ -345,13 +345,21 @@ $$
 
 ### 開発環境構築
 
-初めに開発環境を構築していきましょう。大半の初心者は環境構築で躓く事が経験的に知られていますので、出来る限り丁寧に解説します。
+初めに開発環境を構築していきましょう。大半の初心者は環境構築で躓く事が経験的に知られています。心を強く持ちましょう。
 
 #### テキストエディタのインストール
 
-visual studio codeをインストールせえ
+まずはテキストエディタのインストールを行います。メモ帳でも自作CPUを出来なくはないですがメモ帳は使い辛いのでVisual Studio Codeをインストールしましょう。もしそれ以外にお気に入りのテキストエディタがありましたら(vimとか)、そのままお使いいただいて構いません。
+
+このページ([https://code.visualstudio.com](https://code.visualstudio.com))からダウンロードを行ってください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_download.png)
+
+[https://code.visualstudio.com](https://code.visualstudio.com)
 
 #### Verilog HDLシミュレータのインストール
+
+本記事ではシミュレータとしてIcarus Verilogを利用します。
 
 このページ([http://bleyer.org/icarus/](http://bleyer.org/icarus/))の**Downloadの一番上のリンク**からダウンロードしてください。v12がv13とかv14とかになってるかもしれませんが、とりあえず**Downloadの一番上のリンク**です。
 
