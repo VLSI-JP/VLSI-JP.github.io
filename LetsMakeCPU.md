@@ -593,8 +593,6 @@ Verilog HDLで数値を記述する際は、`ビット幅'進数 数値`とい�
 
 この`assign`を用いた信号の入力時に、演算子を用いて演算を行うことが可能です。以下の例では`test_wire0`と`test_wire1`の信号を加算し、`test_output`に入力しています。
 
-また`test_wire1`に入力している`test_input`の直後に書いてある`[7:0]`は**スライス**という操作であり、`test_input`の7ビット目から0ビット目の計8ビットを抜き出して、`test_wire1`に入力しています。スライスはよく使う操作ですので覚えておきましょう。
-
 ```verilog
 module test_module (
   input [15:0] test_input,
@@ -610,6 +608,8 @@ module test_module (
   assign test_output = test_wire0 + test_wire1;
 endmodule
 ```
+
+また`test_wire1`に入力している`test_input`の直後に書いてある`[7:0]`は**スライス**という操作であり、`test_input`の7ビット目から0ビット目の計8ビットを抜き出して、`test_wire1`に入力しています。スライスはよく使う操作ですので覚えておきましょう。
 
 ### Verilogの文法を学ぼう(練習１)
 
@@ -1361,7 +1361,7 @@ RISC-Vみたいなイケてるロゴを持ってるISAに憧れがあるのでZ1
 
 ###### ADD
 
-加算命令、`ADD RS2 RS1 RD`と記述し、RS2とRS1の値を加算してRDに格納する。オペコードは`4'h0`であるため、仮に`ADD G3 G2 G1`は`16'h7650`となる。また、RS2にゼロレジスタZRを指定することでRS1からRDに値を移動させるだけの命令として使うことが可能である。
+加算命令。レジスタ同士の足し算を行う命令であり、`ADD RS2 RS1 RD`と記述し、RS2とRS1の値を加算してRDに格納する。オペコードは`4'h0`。例として`ADD G3 G2 G1`は`16'h7650`となる。また、RS2にゼロレジスタZRを指定することで、RS1からRDに値を移動させるだけの命令として使うことが可能です。
 
 $$
 \text{RS2} + \text{RS1} \rightarrow \text{RD}
@@ -1369,7 +1369,7 @@ $$
 
 ###### SUB
 
-減算命令、`SUB RS2 RS1 RD`と記述し、RS2からRS1の値を減算してRDに格納する。オペコードは`4'h1`であるため、仮に`SUB G3 G2 G1`は`16'h7651`となる。
+減算命令。レジスタ同士の引き算を行う命令であり、`SUB RS2 RS1 RD`と記述し、RS2からRS1の値を減算してRDに格納する。オペコードは`4'h1`。例として`SUB G3 G2 G1`は`16'h7651`となる。
 
 $$
 \text{RS2} - \text{RS1} \rightarrow \text{RD}
@@ -1377,7 +1377,7 @@ $$
 
 ###### MUL
 
-乗算命令、`MUL RS2 RS1 RD`と記述し、RS2とRS1の値を乗算してRDに格納する。オペコードは`4'h2`であるため、仮に`MUL G3 G2 G1`は`16'h7652`となる。
+乗算命令。レジスタ同士の掛け算を行う命令であり、`MUL RS2 RS1 RD`と記述し、RS2とRS1の値を乗算してRDに格納する。オペコードは`4'h2`。例として`MUL G3 G2 G1`は`16'h7652`となる。
 
 $$
 \text{RS2}\times \text{RS1} \rightarrow \text{RD}
@@ -1385,7 +1385,7 @@ $$
 
 ###### DIV
 
-除算命令、`DIV RS2 RS1 RD`と記述し、RS2をRS1で割った商をRDに格納する。オペコードは`4'h3`であるため、仮に`DIV G3 G2 G1`は`16'h7653`となる。
+除算命令。レジスタ同士の割り算を行う命令であり、`DIV RS2 RS1 RD`と記述し、RS2をRS1で割った商をRDに格納する。オペコードは`4'h3`。例として`DIV G3 G2 G1`は`16'h7653`となる。
 
 $$
 \text{RS2} \div \text{RS1} \rightarrow \text{RD}
@@ -1393,7 +1393,7 @@ $$
 
 ###### OR
 
-OR命令、`OR RS2 RS1 RD`と記述し、RS2とRS1の値のORをRDに格納する。オペコードは`4'h4`であるため、仮に`OR G3 G2 G1`は`16'h7654`となる。
+OR命令。レジスタ同士のOR演算を行う命令であり、`OR RS2 RS1 RD`と記述し、RS2とRS1の値のORをRDに格納する。オペコードは`4'h4`。例として`OR G3 G2 G1`は`16'h7654`となる。
 
 $$
 \text{RS2} \parallel \text{RS1} \rightarrow \text{RD}
@@ -1401,7 +1401,7 @@ $$
 
 ###### AND
 
-AND命令、`AND RS2 RS1 RD`と記述し、RS2とRS1の値のANDをRDに格納する。オペコードは`4'h5`であるため、仮に`AND G3 G2 G1`は`16'h7655`となる。
+AND命令。レジスタ同士のAND演算を行う命令であり、`AND RS2 RS1 RD`と記述し、RS2とRS1の値のANDをRDに格納する。オペコードは`4'h5`。例として`AND G3 G2 G1`は`16'h7655`となる。
 
 $$
 \text{RS2} \& \text{RS1} \rightarrow \text{RD}
@@ -1409,7 +1409,7 @@ $$
 
 ###### XOR
 
-XOR命令、`XOR RS2 RS1 RD`と記述し、RS2とRS1の値のXORをRDに格納する。オペコードは`4'h6`であるため、仮に`XOR G3 G2 G1`は`16'h7656`となる。
+XOR命令。レジスタ同士のXOR演算を行う命令であり、`XOR RS2 RS1 RD`と記述し、RS2とRS1の値のXORをRDに格納する。オペコードは`4'h6`。例として`XOR G3 G2 G1`は`16'h7656`となる。
 
 $$
 \text{RS2} \oplus \text{RS1} \rightarrow \text{RD}
@@ -1417,7 +1417,7 @@ $$
 
 ###### SLL
 
-論理左シフト命令、`SLL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理左シフトしてRDに格納する。オペコードは`4'h7`であるため、仮に`SLL G3 G2 G1`は`16'h7657`となる。
+論理左シフト命令。レジスタの値の左シフトを行う命令であり、`SLL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理左シフトしてRDに格納する。オペコードは`4'h7`。例として`SLL G3 G2 G1`は`16'h7657`となる。
 
 $$
 \text{RS1} << \text{RS2} \rightarrow \text{RD}
@@ -1425,7 +1425,7 @@ $$
 
 ###### SRL
 
-論理右シフト命令、`SRL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理右シフトしてRDに格納する。オペコードは`4'h8`であるため、仮に`SRL G3 G2 G1`は`16'h7658`となる。
+論理右シフト命令。レジスタの値の右シフトを行う命令であり、`SRL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理右シフトしてRDに格納する。オペコードは`4'h8`。例として`SRL G3 G2 G1`は`16'h7658`となる。
 
 $$
 \text{RS1} >> \text{RS2} \rightarrow \text{RD}
@@ -1439,7 +1439,7 @@ $$
 f(x, y) = x\times y + x - y
 $$
 
-xがG0、yがG1、結果をG7に格納する事にします。
+xの値をG0、yの値をG1、結果をG7に格納する事にします。
 
 アセンブリ
 
@@ -1483,7 +1483,7 @@ ADD G2 G3 G7
 
 ###### ADDI
 
-即値加算命令。`ADDI IMM RD`と記述し、RDにIMMを加算してRDに格納する。IMMが取れる値の範囲は符号付き8bitなので-128~127。オペコードは`4'h9`であるため、仮に`ADDI 100 G0`は`16'h6449`、`ADDI -1 G2`は`16'hFF69`となる。
+即値加算命令。即値とレジスタで足し算を行う命令であり、`ADDI IMM RD`と記述し、RDにIMMを加算してRDに格納する。IMMが取れる値の範囲は符号付き8bitなので-128~127。オペコードは`4'h9`。例として`ADDI 100 G0`は`16'h6449`、`ADDI -1 G2`は`16'hFF69`となる。
 
 $$
 \text{IMM} + \text{RD} \rightarrow \text{RD}
@@ -1525,11 +1525,17 @@ ADD G2 G1 G7
 
 ##### メモリ命令
 
-Z16ではレジスタは16個あると先に説明しましたが、このままではCPUはデータを16個しか持つ事が出来ません。これではあまり実用的なCPUとは言えません。そこで**メモリ**という記憶装置を作り、扱えるデータの量を増やします。CPUがメモリを扱えるようにするため、メモリからデータを読み書きする専用の命令を定義します。
+Z16ではレジスタは16個あると先に説明しましたが、このままではCPUはデータを16個しか持つ事が出来ません。これではあまり実用的なCPUとは言えません。そこで**メモリ**という記憶装置を作り、扱えるデータの量を増やします。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem.png)
+
+CPUがメモリを扱えるようにするため、メモリからデータを読み書きする専用の命令を定義します。
 
 ###### LOAD
 
 Loadはメモリからデータを取り出す操作であり、Z16ではLOADというLoadを行う命令を一つ持っている。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_load.png)
 
 LOAD命令のビットフィールドの形式は以下の通り、LSBから下位4bitはオペコード、そこから4bitずつにディスティネーションレジスタ、ソースレジスタ１、即値となっている。
 
@@ -1544,6 +1550,8 @@ $$
 ###### STORE
 
 Storeはメモリにデータを書き込む操作であり、Z16ではSTOREというStoreを行う命令を一つ持っている。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_store.png)
 
 STORE命令のビットフィールドは以下の通り、LSBから下位4bitがオペコード、そこから4bitずつに即値、ソースレジスタ１、ソースレジスタ２となっている。
 
@@ -1706,6 +1714,8 @@ $$
 ### ディジタルビルディングブロック
 
 CPUは多くの部品で構成されていますが、各部品はそこまで複雑ではありません。本章ではCPUの各部品について説明し、実際に実装していきます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/computer_abst.png)
 
 #### Register File
 
@@ -2063,7 +2073,7 @@ endmodule
 
 #### PC
 
-次はCPUの中を見ていきましょう。このCPUの中にある**PC**は**プログラムカウンタ(Program Counter)**と呼び、命令メモリにアドレスを供給します。通常、プログラムは上から下に実行されるのでプログラムカウンタが出す値は毎クロック増えていきます。
+このCPUの中にある**PC**は**プログラムカウンタ(Program Counter)**と呼び、命令メモリにアドレスを供給します。通常、プログラムは上から下に実行されるのでプログラムカウンタが出す値は毎クロック増えていきます。
 
 プログラムカウンタ・命令メモリ・CPUの関係をまとめると、プログラムカウンタがアドレスを命令メモリに入力し、命令メモリが命令をCPUへを出力するという流れになります。このデータの流れを**フェッチ(Fetch)**と呼びます。覚えておきましょう。
 
@@ -2071,7 +2081,7 @@ endmodule
 
 #### Decoder
 
-PCの次は**Decoder**です。これは**デコーダ**と呼び、命令から各種制御信号を生成します。具体的な動作の説明は他の部品の説明をしてから行いますので、とりあえず今は命令に応じて各部品を制御するモジュールだと認識しておいてください。
+最後は**Decoder**です。これは**デコーダ**と呼び、命令から各種制御信号を生成します。具体的な動作の説明はCPUを実際に作成する際に説明しますので、とりあえず今は命令に応じて各部品を制御するモジュールだと認識しておいてください。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/decoder.png)
 
