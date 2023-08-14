@@ -2089,7 +2089,7 @@ endmodule
 
 さて、CPUの部品が一通り実装できましたね。本章では実装した部品を実際に組み立て、CPUとしての動作が出来るようにしていきましょう。
 
-たたき台となるコードを以下に用意しました。このたたき台には命令メモリとデータメモリが未接続の状態で置いてあります。
+たたき台となるコードを以下に用意しました。以下のコードを`Z16CPU.v`という名前で保存してください。このたたき台には命令メモリとデータメモリが未接続の状態で置いてあります。
 
 ```verilog
 module Z16CPU(
@@ -2097,11 +2097,13 @@ module Z16CPU(
   input  wire   i_rst
 );
 
+  // 命令メモリ
   Z16InstrMem InstrMem(
     .i_addr     (),
     .o_instr    ()
   );
 
+  // データメモリ
   Z16DataMem DataMem(
     .i_clk  (),
     .i_addr (),
@@ -2136,18 +2138,21 @@ endmodule
 
 `Z16CPU.v`に書き込んでいきます。
 
+まずはプログラムカウンタの役割を担う`r_pc`というレジスタが追加します。リセット入力が有効な場合にはこのプログラムカウンタを0にし、通常時は2づつカウントアップさせます。そしてプログラムカウンタの値を命令メモリのアドレス入力に接続します。また`w_instr`という名前の信号線を定義し、命令メモリの出力に接続します。
+
 ```verilog
 module Z16CPU(
   input  wire   i_clk,
   input  wire   i_rst
 );
 
-  // Program Counter
+  // プログラムカウンタ
   reg   [15:0]  r_pc;
   wire  [15:0]  w_instr;
 
   always @(posedge i_clk) begin
     if(i_rst) begin
+      // リセット
       r_pc  <= 16'h0000;
     end else begin
       r_pc  <= r_pc + 16'h0002;
@@ -2155,8 +2160,8 @@ module Z16CPU(
   end
 
   Z16InstrMem InstrMem(
-    .i_addr     (r_pc   ),
-    .o_instr    (w_instr)
+    .i_addr     (r_pc   ), // プログラムカウンタを命令メモリに接続
+    .o_instr    (w_instr)  
   );
 
   Z16DataMem DataMem(
@@ -2169,8 +2174,6 @@ module Z16CPU(
 
 endmodule
 ```
-
-追加された部分を説明しますと、`r_pc`というレジスタが追加されました。これはプログラムカウンタです。リセット入力が有効な場合にはプログラムカウンタを0にし、通常時は2づつカウントアップさせています。このプログラムカウンタの値を命令メモリのアドレス入力に入れていますね。また`w_instr`という名前の信号線を定義し、命令メモリの出力に接続しています。
 
 ##### デコーダの作成
 
@@ -2511,13 +2514,13 @@ module Z16CPU(
 
   wire  [15:0]  w_instr;
   wire [3:0]    w_rd_addr;
-  wire [3:0]    w_rs1_addr;
+  wire [3:0]    w_rs1_addr; // RS1のアドレス
   wire [15:0]   w_imm;
   wire          w_rd_wen;
   wire          w_mem_wen;
   wire [3:0]    w_alu_ctrl;
 
-  wire [15:0]   w_rs1_data;
+  wire [15:0]   w_rs1_data; // RS1のデータ
 
 
   always @(posedge i_clk) begin
@@ -2545,8 +2548,8 @@ module Z16CPU(
 
   Z16RegisterFile RegFile(
     .i_clk      (i_clk      ),
-    .i_rs1_addr (w_rs1_addr ),
-    .o_rs1_data (w_rs1_data ),
+    .i_rs1_addr (w_rs1_addr ),  // RS1のアドレスを接続
+    .o_rs1_data (w_rs1_data ),  // RS1のデータを出力
     .i_rs2_addr (),
     .o_rs2_data (),
     .i_rd_data  (),
@@ -2592,7 +2595,7 @@ module Z16CPU(
 
   wire [15:0]   w_rs1_data;
 
-  wire [15:0]   w_alu_data;
+  wire [15:0]   w_alu_data; // ALUの演算結果
 
   always @(posedge i_clk) begin
     if(i_rst) begin
@@ -2629,10 +2632,10 @@ module Z16CPU(
   );
 
   Z16ALU ALU(
-    .i_data_a   (w_rs1_data ),
-    .i_data_b   (w_imm      ),
-    .i_ctrl     (w_alu_ctrl ),
-    .o_data     (w_alu_data )
+    .i_data_a   (w_rs1_data ),  // RS1のデータを入力
+    .i_data_b   (w_imm      ),  // 即値を入力
+    .i_ctrl     (w_alu_ctrl ),  // ALUの制御信号を入力
+    .o_data     (w_alu_data )   // ALUの演算結果を出力
   );
 
   Z16DataMemory DataMem(
@@ -2674,7 +2677,7 @@ module Z16CPU(
   wire [15:0]   w_rs1_data;
 
   wire [15:0]   w_alu_data;
-  wire [15:0]   w_mem_rdata;
+  wire [15:0]   w_mem_rdata; // メモリからの読み出しデータ
 
   always @(posedge i_clk) begin
     if(i_rst) begin
@@ -2719,10 +2722,10 @@ module Z16CPU(
 
   Z16DataMemory DataMem(
     .i_clk  (i_clk      ),
-    .i_addr (w_alu_data ),
-    .i_wen  (w_mem_wen  ),
+    .i_addr (w_alu_data ),  // アドレス入力
+    .i_wen  (w_mem_wen  ),  // メモリ書き込み有効化信号
     .i_data (),
-    .o_data (w_mem_rdata)
+    .o_data (w_mem_rdata)   // メモリのデータ出力
   );
 
 endmodule
