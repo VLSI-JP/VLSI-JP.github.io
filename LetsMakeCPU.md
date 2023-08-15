@@ -1376,7 +1376,7 @@ module problem6(
         2'b00 : o_data <= i_data[4:2];
         2'b01 : o_data <= i_data[7:5];
         2'b10 : o_data <= i_data[10:8];
-        2'b11 : o_data <= i_data[12:11];
+        2'b11 : o_data <= i_data[13:11];
       endcase
     end
   end
