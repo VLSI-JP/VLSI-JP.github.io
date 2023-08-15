@@ -1298,7 +1298,21 @@ endmodule
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem4.png)
 
 #### 練習問題２
+
+以下の回路と同等のモジュール`problem5`を`problem5.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、`i_ctrl`によって格納するデータを選択できます。
+
+入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem5.png)
+
 #### 練習問題３
+
+以下の回路と同等のモジュール`problem6`を`problem6.v`という名前のファイルに作成してください。以下の回路は3bitのレジスタを持っており、`i_data`の下位2bitによって格納するデータを選択できます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
+
+入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem6.png)
+
 #### 模範解答１
 
 ```verilog
@@ -1320,7 +1334,55 @@ endmodule
 ```
 
 #### 模範解答２
+
+```verilog
+module problem5(
+  input         i_clk,
+  input [15:0]  i_data_0,
+  input [15:0]  i_data_1,
+  input [15:0]  i_data_2,
+  input [15:0]  i_data_3,
+  input [1:0]   i_ctrl,
+  output reg [15:0] o_data
+);
+
+  always @(posedge i_clk) begin
+    case(i_ctrl)
+      2'b00 : o_data <= i_data_0;
+      2'b01 : o_data <= i_data_1;
+      2'b10 : o_data <= i_data_2;
+      2'b11 : o_data <= i_data_3;
+    endcase
+  end
+
+endmodule
+```
+
 #### 模範解答３
+
+```verilog
+module problem6(
+  input             i_clk,
+  input             i_rst,
+  input      [15:0] i_data,
+  output reg [2:0]  o_data
+);
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      o_data <= 3'b000;
+    end else begin
+      case(i_data[1:0])
+        2'b00 : o_data <= i_data[4:2];
+        2'b01 : o_data <= i_data[7:5];
+        2'b10 : o_data <= i_data[10:8];
+        2'b11 : o_data <= i_data[12:11];
+      endcase
+    end
+  end
+
+endmodule
+```
 
 ## 実機向け：FPGA入門
 ### 論理合成
