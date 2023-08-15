@@ -5347,6 +5347,10 @@ gtkwave wave.vcd
 
 ## この先へ
 
+焼きたくないか、半導体を
+
+[OpenMPW入門](https://vlsi.jp/OpenMPW.html)
+
 ---
 
 Copyright (C) Cra2yPierr0t, ALL RIGHTS RESERVED
