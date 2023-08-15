@@ -6,7 +6,7 @@ image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/image
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/letsmakecpu.png)
 
-# 無から始める自作CPU(作成中)
+# 無から始める自作CPU
 
 **CPUは作れる！！！！！！！！ご存知でしたか！！！？？？？？？**
 
@@ -73,7 +73,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 #### OR
 
-次は**ORゲート**です。これは入力の論理和、入力に一つでも1があるなら1を出力し、入力が全て0なら0を出力します。
+次は**ORゲート**です。これは入力の論理和、入力の少なくともどちらか一方が1なら1を出力します。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/or.png)
 
@@ -90,7 +90,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 #### AND
 
-次は**ANDゲート**です。これは入力の論理積、入力の全てが1なら1を出力し、それ以外なら0を出力します。
+次は**ANDゲート**です。これは入力の論理積、入力の両方が1なら1を出力します。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/and.png)
 
@@ -107,7 +107,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 #### NAND
 
-次は**NANDゲート**、これはANDゲートの出力にNOTしたものです、入力の全てが1なら0を出力し、それ以外なら1を出力します。
+次は**NANDゲート**、これはANDゲートの出力にNOTしたものです、入力の少なくともどちらか一方が0なら1を出力します。それ以外なら1を出力します。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/nand.png)
 
@@ -141,7 +141,7 @@ NANDゲートの面白い特徴として、NANDゲートから他の全ての論
 
 #### XOR
 
-論理回路ラスト、**XORゲート**です。これは**排他的論理和**と呼び、入力が異なる場合に1を出力し、同じ場合に0を出力します。
+論理回路ラスト、**XORゲート**です。これは**排他的論理和**と呼び、入力が異なる場合に1を出力し、同じ場合は0を出力します。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/xor.png)
 
