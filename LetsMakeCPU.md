@@ -1389,6 +1389,29 @@ endmodule
 ```
 
 ## 実機向け：FPGA入門
+### 開発環境構築
+
+「Gowin EDA®のダウンロード」からGowin EDAのEducation Editionをダウンロードします。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_download.png)
+
+そしてダウンロードしたファイルを解凍して、中のインストーラを実行してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_doubleclick.png)
+
+インストーラを実行するとなんかスゲー怖い画面が出ます。臆せず`詳細情報`から`実行`をクリックしましょう。これは日本が半導体産業をサボったツケです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_defender1.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_defender2.png)
+
+インストールが開始した後は適当にNextなりYesなりポチポチしてけばいいです。たまに以下のようなスゲー怖い画面が出ますが`はい`を押しとけばいいです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_defender3.png)
+
+インストールが成功したらデスクトップにGowin EDAのアイコンが出来ます。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_icon.png)
+
 ### 論理合成
 ### ピンアサイン
 ### 書き込み
