@@ -1289,6 +1289,38 @@ endmodule
 
 ### Verilogの文法を学ぼう(練習２)
 
+#### 練習問題１
+
+以下の回路と同等のモジュール`problem4`を`problem4.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、クロック毎に1つづ値が増えていきます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
+
+入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem4.png)
+
+#### 練習問題２
+#### 練習問題３
+#### 模範解答１
+
+```verilog
+module problem4(
+  input             i_clk,
+  input             i_rst,
+  output reg [15:0] o_p
+);
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      o_p   <= 16'h0000;
+    end else begin
+      o_p   <= o_p + 16'h0001;
+    end
+  end
+
+endmodule
+```
+
+#### 模範解答２
+#### 模範解答３
 
 ## 実機向け：FPGA入門
 ### 論理合成
