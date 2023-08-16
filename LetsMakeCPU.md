@@ -15,6 +15,8 @@ image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/image
 
 この記事は半導体やプログラミングの知識が無くても、CPUを自作出来るレベルまでお前を持っていく事を目的としています。
 
+本記事の内容の9割はパソコンがあれば行うことが可能です。残り1割は2,500円程の基板を買って頂く必要がありますが、まあその部分は飛ばして頂いても力はつくと思います。こんな変な記事の内容に従って2,500円の基板を買うだけの心の余裕がある方だけ買ってください。
+
 - CPUを作るメリット : 無
 - 対象読者 : 人間
 
@@ -46,6 +48,8 @@ CPUとはCentral Processing Unit、中央演算装置の略で、石みたいな
 この世に存在するプログラムは全てCPUの上で動いています。このCPUが無ければプログラムは動かせませんし、いくらプログラムを書いても意味がありません。我々の生活基盤はこの石に支えられているという訳ですね、ありがとうCPU。愛してるCPU。本記事ではそんなCPUを作ります。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/world_of_cpu.png)
+
+### 二進数
 
 ### ディジタル回路
 
@@ -1389,9 +1393,30 @@ endmodule
 ```
 
 ## 実機向け：FPGA入門
+
+本章ではVerilog HDLで書いたディジタル回路を実機で動かす方法を学んでいきます。自分で設計した回路が現実世界で動くというのはプログラミングとはまた違った喜びを味わえます。開発用ボードを積んでる変態を除けば、実際にボードを買い、動かすというのは非常にハードルが高く感じるかもしれません。一度買ってしまえば慣れます。ブレーキを外していきましょう。
+
+### FPGAボードを購入する
+
+ではFPGAボードを購入しましょう。本記事では**Tang Nano 9K**というFPGAボードを使って開発を進めて行きます。Tang Nano 9kはGowin社のFPGAが搭載されているSipeed社が開発したFPGAボードです。FPGAボードは基本的に余裕で1万円を越しますが、このTang Nano 9kは非常に安価なFPGAボードであり、その値段はなんと2,500円です。チャイナパワーを感じますね。
+
+このTang Nano 9kを秋月電子通商で購入してください。秋葉に買いに行ってもいいですしネット通販でも大丈夫です。ネット通販の場合は秋月のページに行ってTang Nano 9kを検索してください。通販コードはM-17448です。
+
+送料が500円くらい掛かるのでまとめて買うといいです。
+
+[https://akizukidenshi.com/catalog/default.aspx](https://akizukidenshi.com/catalog/default.aspx)
+
+購入しましたらワクワクしながら待ちましょう。
+
 ### 開発環境構築
 
-「Gowin EDA®のダウンロード」からGowin EDAのEducation Editionをダウンロードします。
+次にTang Nano 9kで開発を行うためのソフトウェアをインストールしていきましょう。
+
+まずは以下のGowin社のサイトに飛び、アカウントを作成してください。知らんサイトで知らんアカウントを作るのは抵抗があるかもしれませんが、諦めてください。
+
+[https://www.gowinsemi.com/ja/support/home/](https://www.gowinsemi.com/ja/support/home/)
+
+アカウントを作成しましたら、「Gowin® EDAのダウンロード」からGowin EDAのEducation Editionをダウンロードします。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_download.png)
 
