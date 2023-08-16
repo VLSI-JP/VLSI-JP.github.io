@@ -5438,22 +5438,91 @@ gtkwave wave.vcd
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/pipelined_cpu.png)
 
-我々が作成したZ16 CPUは、この4つのステージの処理を１クロックで行うシングルサイクルプロセッサでした。しかしながら、１クロックで全てのステージの処理を行うため、クロックの周波数を上げ、高速に動作させるのが非常に難しいという欠点があります。
+我々が作成したZ16 CPUは、この4つのステージの処理を１クロックで行うシングルサイクルプロセッサでした。しかしながら１クロックで全てのステージの処理を行うため、１クロックの間にデータが通るべきデータパスが長くなり、クロックの周波数を上げて高速に動作させるのが非常に難しいという欠点があります。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/single_cycle_processor.png)
 
+そこで、各ステージの境目にレジスタを追加し、１クロックで１ステージだけ処理を行うようにします。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/insert_buffer_path.png)
+
+そうすると、１クロックの間にデータが通るべきデータパスが短くなり、容易に動作周波数を上げる事が出来ます。
+
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/multi_cycle_processor.png)
+
+ただこの場合、動作周波数を４倍に出来ても１つの命令を実行するのに４クロック必要になり、結果的に処理速度は変わりません。これでは意味がありません。
+
+そこで更に改造を加え、各ステージで並列に処理を行うようにします。つまり命令１をデコードしている間に命令２をフェッチし、次のクロックでは命令１が実行されている間に命令２がデコードされ、それと同時に命令３がフェッチされます。
+
+このようにCPUのデータパスを各ステージに分割し、それぞれのステージを並列に動作させる技法を**パイプライン化**と呼びます。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/pipelined_processor.png)
 
-#### キャッシュ
-#### より高度なアーキテクチャ
+マルチサイクルの例では、命令１から命令３が完了するまでに12クロック掛かっていました。これをパイプライン化した結果、6クロックで処理が完了しています。なんと2倍の性能向上です。ヤバいですね。
 
-## この先へ
+残念ながらこれは理想的な場合です。実際に素朴なパイプライン化を行うと、データハザードや構造ハザード、制御ハザードといった様々な問題が発生します。ただこれらの問題もフォワーディングなどの技法を通して解決が可能です。最高ですね。
+
+#### OoO実行
+
+OoO実行という高速化技法を説明します。これはOut-of-Order実行の略で、簡単に言うと命令の順序を変えて高速に実行できるようにする高速化技法です。例として以下の命令列を考えます。１つの命令の実行に１サイクル掛かると仮定して、この命令列は実行するのに計6サイクル掛かります。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_0.png)
+
+サイクル０とサイクル１の命令を見ると、この２つの命令の間にはG0についてデータ依存が存在しています。つまりSUB命令はADD命令が計算するG0の値が必要であるため、当然SUB命令はADD命令より先に実行することは不可能です。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_1.png)
+
+しかし、その下のサイクル２とサイクル３の命令を見てみると、この２つの命令の間にはデータ依存は存在してません。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_2.png)
+
+つまりこの２つの命令は同時に実行することが可能です。してしまいましょう。この操作によって１サイクルだけ高速に実行できるようになりました。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_baka.png)
+
+ただ更によく見てみると、一番下のDIV命令は命令列のどの命令に対してもデータ依存を持っていません。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_3.png)
+
+よって一番最初に実行しても何も問題ありません。してしまいましょう。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_4.png)
+
+命令の実行順序を変えることで、結果的に２サイクル分も高速化することが出来ました。嬉しいですね。これを**Out-of-Order実行**と呼びます。
+
+そもそもどうやって２つの命令を同時に実行するのか、レジスタファイルは２読み出し１書き込みの構造ではないのか、など様々な疑問が浮かんでいると思います。答えは簡単で、ALUの数を増やしたりVerilogを書き換えてレジスタファイルの構造を変えてやれば良いです。更に具体的な知識が欲しければ**Tomasuloのアルゴリズム**や**Scoreboarding**で調べれば出てきます。出てこない気がしてきた。頑張ってください。
+
+#### 更なる速さを求める
+
+コンピュータアーキテクチャの世界においてパイプライン化やOut-of-Order実行は氷山の一角に過ぎず、計算機の高速化を求めた先人たちの様々な高速化技法が存在しています。シングルサイクルの16bitのCPUを作って満足ですか？更なる速さを求めたくはありませんか？加速しましょう。
+
+Hisa Ando大先生の最強の本がオススメです。重版してくれんかな。
+
+<iframe src="https://book.mynavi.jp/ec_products_detail_html/id=22500" frameborder="0" width="220" height="250" scrolling="yes"></iframe>
+
+## この次へ
+
+自作CPUに飽きたら次なにやる？
+
+### 半導体を作る
 
 焼きたくないか、半導体を
 
-[OpenMPW入門](https://vlsi.jp/OpenMPW.html)
+[OpenMPW入門](https://vlsi.jp/OpenMPW.html) ← これは僕のポジショントークです。
+
+### コンパイラを作る
+
+自作コンパイラが吐いたバイナリが自作CPUで動いたら嬉しいですよね。
+
+Rui Ueyama大先生が最強の本を書いてくれましたので全人類やりましょう。
+
+[低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
+
+### OSを作る
+
+いっぱい本出てるよ。自作CPUで自作OSを動かせ。
+
+<div align="right"> おわり </div>
 
 ---
 
