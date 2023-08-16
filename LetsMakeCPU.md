@@ -5591,7 +5591,7 @@ OoO実行という高速化技法を説明します。これはOut-of-Order実�
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_0.png)
 
-サイクル０とサイクル１の命令を見ると、この２つの命令の間にはG0についてデータ依存が存在しています。つまりSUB命令はADD命令が計算するG0の値が必要であるため、当然SUB命令はADD命令より先に実行することは不可能です。
+サイクル０とサイクル１の命令を見ると、この２つの命令の間にはG2についてデータ依存が存在しています。つまりSUB命令はADD命令が計算するG2の値が必要であるため、当然SUB命令はADD命令より先に実行することは不可能です。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/OoO_1.png)
 
