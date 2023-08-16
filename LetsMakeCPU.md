@@ -1,10 +1,10 @@
 ---
 layout: default
 title: 無から始める自作CPU
-image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/letsmakecpu.png"
+image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/letsmakecpu.png"
 ---
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/letsmakecpu.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/letsmakecpu.png)
 [クレイジーピエロ](https://x.com/Cra2yPierr0t) 著
 
 # 無から始める自作CPU
@@ -45,11 +45,11 @@ int main(){
 
 CPUとはCentral Processing Unit、中央演算装置の略で、石みたいなガラスみたいな物質で出来ています。見た目は大体こんな感じです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/cpu_image.jpeg)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/cpu_image.jpeg)
 
 この世に存在するプログラムは全てCPUの上で動いています。このCPUが無ければプログラムは動かせませんし、いくらプログラムを書いても意味がありません。我々の生活基盤はこの石に支えられているという訳ですね、ありがとうCPU。愛してるCPU。本記事ではそんなCPUを作ります。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/world_of_cpu.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/world_of_cpu.png)
 
 ### 二進数と16進数
 
@@ -97,7 +97,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 ディジタル**回路**と呼ぶからには、電気的な何かを扱う物体だと思われるかもしれません。正解です。ディジタル回路は電圧の高低を扱う回路です。具体的には0Vと5Vや、0Vと1.2Vなどを入力に取りますが、実際に何Vなのかは回路によってまちまちなので入力をHigh, Lowとするか、それすら見づらいし面倒なので電圧の高い入力を1、電圧の低い入力を0とする表記が一般的です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/digital.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/digital.png)
 
 では実際にどのようなディジタル回路が存在するのか見ていきましょう。
 
@@ -105,7 +105,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 一番シンプルなディジタル回路、**NOTゲート**です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/not.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/not.png)
 
 これは入力を反転します。例えば0が入力されたら1を出力し、1が入力されたら0を出力します。
 以下にNOTの真理値表(そういうのがある)を置いておきます。
@@ -121,7 +121,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 次は**ORゲート**です。これは入力の論理和、入力の少なくともどちらか一方が1なら1を出力します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/or.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/or.png)
 
 真理値表は以下の通りです。
 
@@ -138,7 +138,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 次は**ANDゲート**です。これは入力の論理積、入力の両方が1なら1を出力します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/and.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/and.png)
 
 真理値表は以下の通りです。
 
@@ -155,7 +155,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 次は**NANDゲート**、これはANDゲートの出力にNOTしたものです、入力の少なくともどちらか一方が0なら1を出力します。それ以外なら1を出力します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/nand.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/nand.png)
 
 真理値表は以下の通りです。
 
@@ -170,7 +170,7 @@ CPUは**ディジタル回路**というもので構成されています。デ�
 
 NANDゲートの面白い特徴として、NANDゲートから他の全ての論理回路を構成できるという性質があります(Functional completeness)。実際にNANDゲートからORゲートを作るとこんな感じになります。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/or_nand.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/or_nand.png)
 
 本当にORゲートになってるかわからない？真理値表を書くとこの通り、ORゲートになっている事が分かります。
 
@@ -189,7 +189,7 @@ NANDゲートの面白い特徴として、NANDゲートから他の全ての論
 
 論理回路ラスト、**XORゲート**です。これは**排他的論理和**と呼び、入力が異なる場合に1を出力し、同じ場合は0を出力します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/xor.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/xor.png)
 
 真理値表は以下の通りです。
 
@@ -206,7 +206,7 @@ NANDゲートの面白い特徴として、NANDゲートから他の全ての論
 
 少し発展したディジタル回路、**MUX(マルチプレクサ)**です。これは入力を選択する回路です。選択用信号Sが0の場合はAからの入力を出力し、Sが1の場合はBからの入力を出力します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/mux.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/mux.png)
 
 真理値表は以下の通りです。
 
@@ -227,7 +227,7 @@ NANDゲートの面白い特徴として、NANDゲートから他の全ての論
 
 次はディジタル回路で少し面白い回路を紹介します。HalfAdder、**半加算器**です。以下のANDとXORで構成された回路を見てください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/halfadder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/halfadder.png)
 
 この回路の真理値表を書いてみましょう。以下の通りです。
 
@@ -260,7 +260,7 @@ $$
 加算をやった事のある皆さんはご存知でしょうが、加算は**繰り上がり**が発生する演算です。よって、この半加算器を繰り上がり入力を受け取るように拡張する必要があります。
 その回路を**全加算器**、FullAdderと呼びます。実際に見てみましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/fulladder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/fulladder.png)
 
 半加算器２つとORで構成されていますね。新しく追加された全加算器の入力のXは繰り上がり入力を意味します。真理値表を見てみましょう。
 
@@ -292,7 +292,7 @@ $$
 
 この全加算器を用いる事で、以下のように複数桁の加算を作ることが可能となります。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/adder4.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/adder4.png)
 
 二進数の4桁の加算の例
 
@@ -309,18 +309,18 @@ $$
 
 さてD-FF、謎の物体が出てきました。高校数学でANDやORをなんか見たことあるなあ、という人もD-FFは高校数学で学びません。これは**D型フリップフロップ**というものです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/dff.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff.png)
 
 突然ですが、回路が情報を記憶する為には何が必須だと思いますか？それは**時間**です。時間の概念が無ければ記憶は意味を持ちえません。という訳で回路に時間の概念を導入します。
 ディジタル回路における時間の概念、それは**クロック**です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/clock.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/clock.png)
 
 クロックとは一定の周波数で0と1を行ったり来たりする信号を指します。クロックに関係する用語として、0から1になる**立ち上がりエッジ(posedge)**と、1から0になる**立ち下がりエッジ(negedge)**がありますので覚えておきましょう。
 
 クロックを理解した所でこのD-FF、これは信号を記憶する論理素子です。具体的な動作としては、クロックの立ち上がりエッジで入力を出力し、その他のタイミングでは出力を維持します。図にすると分かりやすいです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/dff_wave.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_wave.png)
 
 このフリップフロップ、別名レジスタ(register)とも呼ばれる事があります、覚えておいて損はないです。
 
@@ -330,11 +330,11 @@ $$
 
 以下では、MUXの`w_en`でD-FFへの入力を、D-FFからの出力か外部からの入力`w_data`かを選択できるようにしています。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/dff_improve.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_improve.png)
 
 波形は以下の通りです。`w_en`でD-FFに対する書き込みを制御出来ていますね。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/dff_improve_wave.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_improve_wave.png)
 
 以上で我々はディジタル回路の基礎を完全に理解することが出来ました。やったね。
 次はこのディジタル回路を作り出せる、FPGAの紹介です。
@@ -363,7 +363,7 @@ $$
 
 そして最後の選択肢、**FPGA**です。**FPGA**とはField Programmable Gate Arrayの略で、一言で言ってしまうとディジタル回路を内部で自由に生成できるチップです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/fpga.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/fpga.png)
 
 詳しい仕組みの説明はここでは省きますが、どんな論理ゲートにもなれる特殊な論理ゲートが大量に詰まっていると思って頂ければ十分です。このFPGAでディジタル回路を作る場合、HDLというディジタル回路を設計する為の言語を使い、まるでプログラミングの様に回路を作る事が出来ます。
 
@@ -373,7 +373,7 @@ $$
 
 この章ではVerilog HDLについて解説していきます。Verilog HDLとはハードウェア記述言語(Hardware Description Language)の一種で、ディジタル回路の設計・検証に用いられます。早い話**ハードウェア用のプログラミング言語**みたいなものです。Verilog HDLで記述されたディジタル回路は、**論理合成**という処理を通して回路に変換されます。その他のHDLとしてSystemVerilog, VHDL等が存在しています。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/learn_lsi/synthesis.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/learn_lsi/synthesis.png)
 
 本記事では、開発環境の快適さと対応ツールの多さからVerilog HDLを採用しています。
 
@@ -381,7 +381,7 @@ $$
 
 ここではVerilog HDLを用いた開発の流れを簡潔に説明します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/flow.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/flow.png)
 
 開発は**シミュレーション**と**実機検証**に分かれています。基本的に書いたコードの動作確認は上段のシミュレーションで行い、現実世界での動作の確認は下段の実機検証の流れで行います。
 
@@ -401,7 +401,7 @@ $$
 
 このページ([https://code.visualstudio.com](https://code.visualstudio.com))からダウンロードを行ってください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_download.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/vscode_download.png)
 
 [https://code.visualstudio.com](https://code.visualstudio.com)
 
@@ -411,25 +411,25 @@ $$
 
 このページ([http://bleyer.org/icarus/](http://bleyer.org/icarus/))の**Downloadの一番上のリンク**からダウンロードしてください。v12がv13とかv14とかになってるかもしれませんが、とりあえず**Downloadの一番上のリンク**です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/verilog_download.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/verilog_download.png)
 
 [http://bleyer.org/icarus/](http://bleyer.org/icarus/)
 
 またインストール時の注意点として**１つだけ絶対に押すボタンが存在します。** 以下の画像のSelect Additional TasksのAdd executable folder(s) to the user PATHです。**絶対にチェックを入れてください。** それ以外は適当にNextなりFinishなりポチポチ押してけばいいです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/verilog_install.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/verilog_install.png)
 
 インストールが終わりましたら、正しくインストール出来ているか確かめるためにソフトウェアの検索欄に`cmd`と入力してコマンドプロンプトを起動してください。起動方法をご存知ならPowerShellでもターミナルでも構いません。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/run_cmd.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/run_cmd.png)
 
 そして`iverlog`コマンドと`vvp`コマンドを実行してください。以下のような表示が出たら成功です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/check_iverilog.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/check_iverilog.png)
 
 また`gtkwave`コマンドを実行してください。何かウィンドウが出たら成功です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/check_gtkwave.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/check_gtkwave.png)
 
 ### 開発環境に慣れる
 
@@ -437,14 +437,14 @@ $$
 
 まずは`verilog_test`という名前で新たにフォルダを作成してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/make_folder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/make_folder.png)
 
 #### Verilogファイルとテストベンチ
 
 そしてVSCodeを開き、`New File..`から先程作成したフォルダに`adder8.v`という名前のファイルを作成します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_newfile.png)
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_newfile_adder8.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/vscode_newfile.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/vscode_newfile_adder8.png)
 
 そうしましたら以下のコードを`adder8.v`に書き写してください。何を書いているのか分からなくて不安でしょうが、今は写経していただくだけで結構です。
 
@@ -463,7 +463,7 @@ endmodule
 
 書き写しましたら上書き保存してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_write_adder8.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/vscode_write_adder8.png)
 
 次に`adder8_tb.v`という名前で新たにファイルを作成し、以下のコードを書き写してください。
 
@@ -505,7 +505,7 @@ endmodule
 
 書き写しましたら上書き保存してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/vscode_write_adder8_tb.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/vscode_write_adder8_tb.png)
 
 さて、今しがた`adder8.v`と`adder8_tb.v`というファイルを作りました。`adder8.v`はVerilog HDLで書いたディジタル回路です。また`adder8_tb.v`というファイルも書きましたね、これは**テストベンチ**というものです。Verilogをシミュレータ上で動かす為には、ディジタル回路を記述したVerilogファイルの他に、**テストベンチ**と呼ばれるVerilogファイルが必要です。
 
@@ -517,7 +517,7 @@ endmodule
 
 回路とテストベンチが書き終わりましたら、作成したファイルがあるフォルダを開き、白い部分をShiftを押しながら右クリックをして「ターミナルで開く」をクリックしてください。これで`verilog_test`フォルダ内でターミナルを開くことができます。起動したターミナルで`ls`コマンドを実行すると、フォルダ内のファイルの一覧を見ることが可能です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/open_terminal.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/open_terminal.png)
 
 以下のコマンドを実行してください。
 
@@ -526,7 +526,7 @@ iverilog adder8_tb.v adder8.v
 vvp a.out
 ```
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/run_iverilog.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/run_iverilog.png)
 
 実行が完了したらフォルダ内に`wave.vcd`というファイルが生成されている筈です。これは波形ファイルです。波形ファイルは以下のコマンドで開きます。
 
@@ -536,11 +536,11 @@ gtkwave wave.vcd
 
 このコマンドでGTKwaveが起動します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/run_gtkwave.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/run_gtkwave.png)
 
 GTKWaveでは信号名をダブルクリックか、信号名を選択してAppendボタンを押すと波形を見ることができます。適当に触ってみて気合で慣れてください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/use_gtkwave.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/use_gtkwave.png)
 
 以上のVerilog HDLでディジタル回路とテストベンチを記述し、シミュレーションを実行。波形を見てデバッグが開発の流れになります。この一連の流れは今後何度も繰り返します。今全てを覚える必要はありませんので大丈夫です、そのうち手癖で開発を回せるようになります。
 
@@ -557,7 +557,7 @@ GTKWaveでは信号名をダブルクリックか、信号名を選択してAppe
 
 Verilog HDLではシステム全体をモジュールという単位で分割して構成します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/module.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/module.png)
 
 モジュールのイメージ
 
@@ -665,7 +665,7 @@ endmodule
 
 以下の回路と同等のモジュール`problem1`を`problem1.v`という名前のファイルに作成してください。入出力は画像の通りです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem1.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem1.png)
 
 またテストベンチとテスト用のコマンドは以下のものを使ってください。
 
@@ -732,7 +732,7 @@ problem1_tb.v:35: $finish called at 6 (1s)
 
 以下の回路と同等のモジュール`problem2`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem2.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem2.png)
 
 またテストベンチとテスト用のコマンドは以下のものを使ってください。
 
@@ -799,7 +799,7 @@ problem2_tb.v:35: $finish called at 6 (1s)
 
 以下の回路と同等のモジュール`problem3`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem3.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem3.png)
 
 またテストベンチとテスト用のコマンドは以下のものを使ってください。
 
@@ -1341,7 +1341,7 @@ endmodule
 
 入出力は画像の通りです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem4.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem4.png)
 
 #### 練習問題２
 
@@ -1349,7 +1349,7 @@ endmodule
 
 入出力は画像の通りです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem5.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem5.png)
 
 #### 練習問題３
 
@@ -1357,7 +1357,7 @@ endmodule
 
 入出力は画像の通りです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/problem6.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem6.png)
 
 #### 模範解答１
 
@@ -1456,24 +1456,24 @@ endmodule
 
 アカウントを作成しましたら、「Gowin® EDAのダウンロード」からGowin EDAのEducation Editionをダウンロードします。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_download.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/gowin_download.png)
 
 そしてダウンロードしたファイルを解凍して、中のインストーラを実行してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_doubleclick.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/gowin_doubleclick.png)
 
 インストーラを実行するとなんかスゲー怖い画面が出ます。臆せず`詳細情報`から`実行`をクリックしましょう。これは日本が半導体産業をサボったツケです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_defender1.png)
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_defender2.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/gowin_defender1.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/gowin_defender2.png)
 
 インストールが開始した後は適当にNextなりYesなりポチポチしてけばいいです。たまに以下のようなスゲー怖い画面が出ますが`はい`を押しとけばいいです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_defender3.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/gowin_defender3.png)
 
 インストールが成功したらデスクトップにGowin EDAのアイコンが出来ます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/gowin_icon.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/gowin_icon.png)
 
 ### 論理合成
 ### ピンアサイン
@@ -1487,7 +1487,7 @@ endmodule
 
 CPUはプログラムをどのように実行しているのでしょうか？
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/prog_flow.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/prog_flow.png)
 
 CPUはプログラムをそのまま実行している訳ではありません。
 
@@ -1495,11 +1495,11 @@ CPUはプログラムをそのまま実行している訳ではありません�
 CPUとってプログラムはこのバイナリになって初めて実行可能な形式になるというわけです。
 
 - プログラム
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/helloworld.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/helloworld.png)
 - アセンブリ
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/assembly.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/assembly.png)
 - バイナリ
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/binary.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/binary.png)
 
 
 ### 命令セットアーキテクチャ 
@@ -1516,7 +1516,7 @@ Z16は筆者が独自に定義したISAであり、16-bitの固定長命令セ�
 
 RISC-Vみたいなイケてるロゴを持ってるISAに憧れがあるのでZ16のロゴを以下に置いておきます。ライセンスフリーです。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/z16_logo.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/z16_logo.png)
 
 #### Z16のレジスタ
 
@@ -1729,7 +1729,7 @@ ADD G2 G1 G7
 
 Z16ではレジスタは16個あると先に説明しましたが、このままではCPUはデータを16個しか持つ事が出来ません。これではあまり実用的なCPUとは言えません。そこで**メモリ**という記憶装置を作り、扱えるデータの量を増やします。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem.png)
 
 CPUがメモリを扱えるようにするため、メモリからデータを読み書きする専用の命令を定義します。
 
@@ -1737,7 +1737,7 @@ CPUがメモリを扱えるようにするため、メモリからデータを�
 
 Loadはメモリからデータを取り出す操作であり、Z16ではLOADというLoadを行う命令を一つ持っている。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_load.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem_load.png)
 
 LOAD命令のビットフィールドの形式は以下の通り、LSBから下位4bitはオペコード、そこから4bitずつにディスティネーションレジスタ、ソースレジスタ１、即値となっている。
 
@@ -1755,7 +1755,7 @@ $$
 
 Storeはメモリにデータを書き込む操作であり、Z16ではSTOREというStoreを行う命令を一つ持っている。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_store.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem_store.png)
 
 STORE命令のビットフィールドは以下の通り、LSBから下位4bitがオペコード、そこから4bitずつに即値、ソースレジスタ１、ソースレジスタ２となっている。
 
@@ -1785,7 +1785,7 @@ $$
 
 ジャンプ命令とは文字通りジャンプする命令であり、プログラムの流れを強制的に変更します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/jump.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/jump.png)
 
 ジャンプ命令のビットフィールドは以下の通り、LSBから下位4bitがオペコード、そこから4bitずつにディスティネーションレジスタ、ソースレジスタ１、即値となっている。
 
@@ -1930,21 +1930,21 @@ $$
 
 CPUは多くの部品で構成されていますが、各部品はそこまで複雑ではありません。本章ではCPUの各部品について説明し、実際に実装していきます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/computer_abst.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/computer_abst.png)
 
 #### Register File
 
 **Register File**、これは**レジスタファイル**と呼び、CPUが少量のデータを保持するのに使います。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/regfile.png)
 
 動作としてはアドレスを入力するとデータを出力する**読み出し**と、
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile_read.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/regfile_read.png)
 
 アドレスとデータを入力するとレジスタファイルに書き込まれる**書き込み**を行います。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/regfile_write.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/regfile_write.png)
 
 Z16において、レジスタファイルには2つの読み出しポートと1つの書き込みポートがあると都合が良いです。これはZ16では`ADD RS2 RS1 RD`のように、２つのソースレジスタと１つのディスティネーションレジスタを取る命令が多いためです。
 
@@ -2056,15 +2056,15 @@ gtkwave wave.vcd
 
 **Data Mem**、これは**データメモリ**と呼び。CPUがレジスタファイルに収まらない大量のデータを保存するのに使います。CPUはデータメモリ対してデータの書き込みと読み出しを行います。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem.png)
 
 メモリに対してのデータ書き込みと読み出しにはそれぞれ名前があり、メモリへのデータ書き込みを**ストア(Store)**、
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_store.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem_store.png)
 
 メモリからのデータ読み出しを**ロード(Load)**と呼びます。Store命令、Load命令とよく使われる単語ですので覚えておきましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_load.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem_load.png)
 
 以下が実際にデータメモリをVerilog HDLで実装したものです。入力信号としてクロック入力の`i_clk`、アドレス入力の`i_addr`、書き込み有効化信号の`i_wen`、データ入力の`i_data`が存在し、出力信号としてはデータ出力の`o_data`が存在しています。
 
@@ -2144,7 +2144,7 @@ endmodule
 
 **Instr Mem**、これは**命令メモリ(Instruction Memory)**と呼び、データメモリに似ていますが中には命令が入っています。命令メモリ内の各命令にはアドレスが振られており、命令メモリにアドレスを入力すると命令が出力されます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/instr_mem.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/instr_mem.png)
 
 以下が実際に命令メモリをVerilog HDLで実装したものです。ここでは初期値として1~10の総和を求めるプログラムを格納してあります。
 
@@ -2209,7 +2209,7 @@ endmodule
 
 次はALUです。これは**算術論理演算ユニット(Arithmetic Logic Unit)**の略称で、文字通り論理演算(and, or, xor, シフト, etc..)と算術演算(加算, 減算, etc...)を行うモジュールです。CPUにおいて"計算"はこのALUが行っていると考えていただいて構いません。ALUは制御信号と２つのデータを受け取り、１つのデータを出力します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/alu.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/alu.png)
 
 以下が実際にALUをVerilog HDLで実装したものです。このALUは入力として入力データ１の`i_data_a`、入力データ２の`i_data_b`、行う演算を制御する`i_ctrl`を持ち、出力として演算結果の`o_data`を持ちます。
 
@@ -2290,17 +2290,17 @@ endmodule
 
 このCPUの中にある**PC**は**プログラムカウンタ(Program Counter)**と呼び、命令メモリにアドレスを供給します。通常、プログラムは上から下に実行されるのでプログラムカウンタが出す値は毎クロック増えていきます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/pc_explain.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/pc_explain.png)
 
 プログラムカウンタ・命令メモリ・CPUの関係をまとめると、プログラムカウンタがアドレスを命令メモリに入力し、命令メモリが命令をCPUへを出力するという流れになります。このデータの流れを**フェッチ(Fetch)**と呼びます。覚えておきましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/fetch.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/fetch.png)
 
 #### Decoder
 
 最後は**Decoder**です。これは**デコーダ**と呼び、命令から各種制御信号を生成します。具体的な動作の説明はCPUを実際に作成する際に説明しますので、とりあえず今は命令に応じて各部品を制御するモジュールだと認識しておいてください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/decoder.png)
 
 ### マイクロアーキテクチャ
 
@@ -2345,13 +2345,13 @@ endmodule
 
 かなり手順が多いですね、実際LOAD命令はZ16の命令の中で最もデータの流れが長い命令となっています。CPUを実装する際はこのLOAD命令のようなデータの流れ、つまりデータパスが最も長い命令を最初に実装した方が楽です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_load.png)
 
 ##### 命令フェッチ
 
 ではまずは命令メモリから命令をフェッチする機構を作りましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_fetch.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_load_fetch.png)
 
 `Z16CPU.v`に書き込んでいきます。
 
@@ -2396,7 +2396,7 @@ endmodule
 
 これでフェッチ機構を実装できました。次はフェッチした命令を解釈するデコーダを作成していきましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_decoder.png)
 
 LOAD命令のビットフィールドは以下のように、LSBから順にオペコード、RDのアドレス、RS1のアドレス、即値となっていましたね。
 
@@ -2423,11 +2423,11 @@ endmodule
 
 次に即値ですが、これは命令内で符号付き4bitとなっています。ALUは符号付き16bitの値しか扱えませんので、4bitの値を16bitに変換する必要があります。しかし、4bitの値に12bitの0を結合するだけでは、負の値のおいて以下のような変換ミスが発生します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/imm_expand_be.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/imm_expand_be.png)
 
 よって正の値と負の値で結合する12bitの値を変える符号拡張という処理が必要になります。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/imm_expand_af.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/imm_expand_af.png)
 
 そこでデコーダにおいて、命令のオペコードがLOAD命令の場合に即値の符号拡張を行う関数を作成します。
 
@@ -2724,7 +2724,7 @@ endmodule
 
 次はRS1の値をレジスタから取り出すデータパスを作成しましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_readreg.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_load_readreg.png)
 
 以下ではCPUにレジスタファイルを設置し、デコーダが出力したRS1のアドレスである`w_rs1_addr`を接続しています。またRS1のデータの信号線である`w_rs1_data`を新たに定義し、レジスタファイルの出力に接続しています。
 
@@ -2797,7 +2797,7 @@ endmodule
 
 次はアドレス計算を行うデータパスを実装しましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_caladdr.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_load_caladdr.png)
 
 ALUを設置し、`w_rs1_data`、`w_imm`、`w_alu_ctrl`を接続します。またALUの演算結果の信号である`w_alu_data`を新たに定義し、ALUの演算結果出力に接続します。
 
@@ -2878,7 +2878,7 @@ endmodule
 
 アドレス計算のデータパスが完成したら、次はそのアドレスをメモリに入力し、データを取り出すデータパスを作りましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_readmem.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_load_readmem.png)
 
 データメモリにALUが計算したアドレスである`w_alu_data`とデコーダからの書き込み有効化信号である`w_mem_wen`を接続します。また、メモリから読み出したデータの信号線である`w_mem_rdata`を新たに定義し、データメモリに接続します。
 
@@ -2960,7 +2960,7 @@ endmodule
 
 最後にメモリから読み出したデータをレジスタファイルに書き込むデータパスを作成しましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_load_writereg.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_load_writereg.png)
 
 メモリから取り出したデータの信号線である`w_mem_rdata`をレジスタファイルのデータ書き込みポートに接続し、またデコーダからのRDのアドレスと書き込み有効化信号を接続します。
 
@@ -3113,7 +3113,7 @@ gtkwave wave.vcd
 
 ただし、値が何も書き込まれていないメモリからデータをロードしているので、レジスタには不定値`16'hxxxx`が書き込まれている事に注意してください。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_load.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_load.png)
 
 これで、LOAD命令のデータパスが完成した事が確認できました。
 
@@ -3121,7 +3121,7 @@ gtkwave wave.vcd
 
 次はSTORE命令のデータパスを作成し、CPUがSTORE命令を実行できるようにしましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_store.png)
 
 STORE命令の動作を箇条書きすると以下の通りになります。
 
@@ -3137,7 +3137,7 @@ STORE命令の動作を箇条書きすると以下の通りになります。
 
 ではデコーダの改造に着手しましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_decoder.png)
 
 STORE命令のビットフィールドは以下のように、LSBから順にオペコード、即値、RS1のアドレス、RS2のアドレスとなっていましたね。
 
@@ -3318,7 +3318,7 @@ endmodule
 
 次はレジスタファイルからRS2の値を読み出すデータパスを作成しましょう。これで読み出されたRS2の値がメモリに書き込まれる値になります。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store_readreg.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_store_readreg.png)
 
 まずはRS2の値の信号線である`w_rs2_data`を新たに定義します。
 
@@ -3433,7 +3433,7 @@ endmodule
 
 最後に、メモリへデータを書き込むデータパスを作成していきます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_store.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_store.png)
 
 レジスタファイルのRS2のデータ出力をデータメモリの書き込みデータ入力に接続します。
 
@@ -3550,7 +3550,7 @@ gtkwave wave.vcd
 
 実際にシミュレーションをした結果が以下の波形です。1サイクル目のSTORE命令でレジスタZRの値をメモリの`16'h0004`に書き込み、2サイクル目のLOAD命令でメモリの`16'h0004`の値をレジスタG1に書き込んでいる様子が分かります。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_store.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_store.png)
 
 これで、STORE命令のデータパスが完成した事が確認できました。
 
@@ -3558,7 +3558,7 @@ gtkwave wave.vcd
 
 さて、次は演算命令のデータパスを実装し、ADDやSUB、MUL命令などを実行できるようにしましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_exe.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_exe.png)
 
 演算命令の動作を箇条書すると以下の通りになります。
 
@@ -3574,7 +3574,7 @@ gtkwave wave.vcd
 
 ではデコーダの改造に着手します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_decoder.png)
 
 以下はデコーダの入出力信号です。演算命令を実行するにあたり、変更を加える必要がある信号はレジスタファイルへの書き込み制御信号である`o_rd_wen`とALUの制御信号である`o_alu_ctrl`です。改造していきましょう。
 
@@ -3699,7 +3699,7 @@ endmodule
 
 デコーダの改造が完了したら次はALUで演算を行うデータパスを実装しましょう。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_exe_alu.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_exe_alu.png)
 
 現状の`Z16CPU.v`の実装を見てみると、ALUのデータ入力には`w_rs1_data`と`w_imm`が入力されています。演算命令は`w_rs1_data`と`w_rs2_data`の値で演算を行う命令ですので、ALUに`w_rs2_data`を接続する必要があります。しかしながら`w_imm`を`w_rs2_data`に置き換えるだけでは先程実装したLOAD命令とSTORE命令が実行できなくなります。そこで、フェッチされた命令によってALUの`i_data_b`に入力される信号が変わるようにしましょう。
 
@@ -3904,7 +3904,7 @@ endmodule
 
 ではデコーダの改造に着手します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_decoder.png)
 
 Z16の即値命令であるADDIは、RDの値に即値を加算してRDに格納する命令でした。
 
@@ -4152,11 +4152,11 @@ gtkwave wave.vcd
 
 以下の波形が実際にシミュレーションを行った結果です。データメモリの信号を見てみると、後半にメモリのアドレス0に16進数で`16'h0223`が書き込まれています。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_imm.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_imm.png)
 
 これを10進数に直すと547であり、上記の数式の計算結果と一致しています。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/cal_imm.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/cal_imm.png)
 
 これで我々のCPUは演算命令と即値命令を実行できることが確認できました。やったね。
 
@@ -4164,7 +4164,7 @@ gtkwave wave.vcd
 
 どんどん行きましょう。次はジャンプ命令のデータパスを作成していきます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_jump.png)
 
 ジャンプ命令の動作を箇条書すると以下の通りになります。
 
@@ -4181,7 +4181,7 @@ gtkwave wave.vcd
 
 ではデコーダの改造に着手します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_decoder.png)
 
 ジャンプ命令のビットフィールドは以下のように、MSBから4bitに符号付き4bit即値が存在しています。
 
@@ -4247,7 +4247,7 @@ endfunction
 
 よってALUでジャンプ先のアドレスを計算するデータパスまでは完成しました。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump_caladdr.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_jump_caladdr.png)
 
 以下に改造が完了したデコーダの全体を載せておきます。
 
@@ -4391,7 +4391,7 @@ endmodule
 
 次にプログラムカウンタにジャンプ先のアドレスを書き込む機構を実装します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_jump.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_jump.png)
 
 今までは`r_pc`に対してリセット時以外はひたすらカウントアップしていく機構が組まれていましたが、ここにジャンプ命令のオペコードに対応して`r_pc`の値を変更する機構を追加します。
 
@@ -4567,7 +4567,7 @@ gtkwave wave.vcd
 
 以下の波形が実際にシミュレーションを行った結果です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_jump.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_jump.png)
 
 `r_pc`の値を見てみると0 -> 2 -> 8 -> 0とループしており、またレジスタにはジャンプ命令の次の命令のアドレスが格納されている事が確認できます。
 
@@ -4590,7 +4590,7 @@ gtkwave wave.vcd
 
 ではデコーダの改造に着手します。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/path_decoder.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/path_decoder.png)
 
 分岐命令のビットフィールドは他の命令と比べてかなり特異なものでした。
 
@@ -4942,7 +4942,7 @@ gtkwave wave.vcd
 
 以下の波形が実際にシミュレーションを行った結果です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_branch.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_branch.png)
 
 波形を見てみると、最後の方でレジスタB2に16進数で`16'h0037`が格納されています。これは10進数で55であり、1~10の総和です。そして最終的に`r_pc`の値が更新されなくなっています。これはJRLによってCPUを停止出来たという事です。理想通りの動作をしていますね。
 
@@ -4958,11 +4958,11 @@ gtkwave wave.vcd
 
 このような場合に使える仕組みが**MMIO**、メモリマップドIOです。MMIOとはデータメモリのアドレスの一部に外部入出力用のレジスタを割り当てる手法の事を指します。メモリアドレスに割り当てる事により、外部にデータを出力したい場合はSTORE命令を用い、外部からのデータを得たい場合はLOAD命令を用いる事が可能となります。下図の例ではメモリの`0x007A`にLEDの出力が割り当てられており、ここに`0x0013`をストアすると1番目と2番目と5番目のLEDが点灯します。また`0x007C`がボタンの入力に割り当てられており、ここから値をロードした際に1が得られた場合はボタンが押されており、0の場合はボタンが押されていない事を情報として得られます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/data_mem_mmio.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/data_mem_mmio.png)
 
 では実際にMMIOを実装してみましょう。今回はLEDとButtonをMMIOに割り当ててみます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/cpu_mmio.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/cpu_mmio.png)
 
 ##### LED
 
@@ -5292,7 +5292,7 @@ gtkwave wave.vcd
 
 実際にシミュレーションを走らせた結果が以下の波形です。数クロックの後、`o_led`に16進数で`0xF`が出力されています。これは10進数で15であり、1~5の総和に一致しています。これで計算結果を外部に出力出来るようになりました。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_mmio_led.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_mmio_led.png)
 
 続いてボタンのMMIOの動作確認を行いましょう。今回はテスト用プログラムとして、ボタンが押されるまではLEDに出力される値をひたすらカウントアップしていくプログラムを使いましょう。
 
@@ -5420,11 +5420,11 @@ gtkwave wave.vcd
 
 プログラムの実行開始時からLED出力がカウントアップされ、ボタンが押された途端にカウントが停止しました。自作CPU上でプログラムが意図した通りに動きましたね、最高の気分です。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/LetsMakeCPU/wave_mmio_button.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/wave_mmio_button.png)
 
 これで我々の自作CPUはボタン入力とLED出力を兼ね備えた物となりました。素晴らしい。
 
-#### 自作CPUを実機で動かす
+#### 実機向け：自作CPUを実機で動かす
 
 では我々の作り出したCPUを現実に存在させましょう。
 
@@ -5433,6 +5433,19 @@ gtkwave wave.vcd
 実用的でないCPUはカスですが、遅いCPUもカスです。ここでは偉大な先人たちが作り出した高速なCPUを作るための技術を紹介いたします。実装はしません。
 
 #### パイプライン化
+
+演算命令において、我々の作ったCPUは主に4つのステージに分けることが出来ます。まずは命令をフェッチする**IF(Instruction Fetch)ステージ**、そして命令をデコードする**ID(Instruction Decode)ステージ**、次に命令を実行する**EX(Execute)ステージ**、最後に計算結果をレジスタに書き戻す**WB(Write Back)ステージ**です。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/pipelined_cpu.png)
+
+我々が作成したZ16 CPUは、この4つのステージの処理を１クロックで行うシングルサイクルプロセッサでした。しかしながら、１クロックで全てのステージの処理を行うため、クロックの周波数を上げ、高速に動作させるのが非常に難しいという欠点があります。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/single_cycle_processor.png)
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/multi_cycle_processor.png)
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/pipelined_processor.png)
+
 #### キャッシュ
 #### より高度なアーキテクチャ
 

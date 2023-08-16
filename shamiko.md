@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Shamiko
-image: "https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/poster_shami.png"
+image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/poster_shami.png"
 ---
 # SHAMIKO (tentative) project.
 SHAMIKO stands for Side-cHannel Attack experiMents and Implements Kindly bOard. 
@@ -12,8 +12,8 @@ Specifications of the board will be determined.
 If you have any questions or want to join us, please let us know.
 We also welcome the alternative project name, or more suitable words for abbreviation of SHAMIKO.
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/poster_shami.png?raw=true)
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/poster_shami_jp.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/poster_shami.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/poster_shami_jp.png?raw=true)
 
 # Publications
 

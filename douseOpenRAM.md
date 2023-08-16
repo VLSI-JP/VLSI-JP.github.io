@@ -149,11 +149,11 @@ make sky130_sram_256byte
 生成物は`macros`以下に格納されている。
 
 生成されたSRAMのGDSIIファイルがこちら。かわいいね。
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/sky130_256.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/sky130_256.png?raw=true)
 
 生成されたhtmlファイルにはSRAMのダイサイズや動作周波数、消費電力、その他ファイルの説明等が書かれている。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/sram_info.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/sram_info.png?raw=true)
 
 ## OpenLANEで使ってみる
 

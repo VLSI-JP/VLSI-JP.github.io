@@ -75,11 +75,11 @@ SRAMの各IOの役割については以下の通り。後ろの数字は省略�
 
 データ書き込み、読み出しの方法は以下の波形の通りであり、読み出しには遅延が存在する。また`clk`の周期は20ns以上にする必要がある。[^1]
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/MPWRAM/wave.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/MPWRAM/wave.png?raw=true)
 
 ~~データ読み出しの遅延に関しては、SRAMのコード内に†FIXME: This delay is arbitrary†とか書いてあるので少し待ったほうが良い。~~
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/MPWRAM/arbi.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/MPWRAM/arbi.png?raw=true)
 
 筆者は半導体設計に詳しくないので推測だが、今回使うSRAMのようなメガセルは`user_project_wrapper.v`でしかインスタンス化出来ない。
 
@@ -164,7 +164,7 @@ rx_mem2 700 100 N
 
 以下が生成されたレイアウトであり、指定した通り(100, 100)にメモリの左下が来ている。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/MPWRAM/layout.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/MPWRAM/layout.png?raw=true)
 
 マニュアルには`MACRO_PLACEMENT_CFG`は設定しなくても良さげな事が書いてあるが、筆者が試した限りでは上手く行かなかった。
 

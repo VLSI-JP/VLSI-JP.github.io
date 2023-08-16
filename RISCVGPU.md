@@ -60,7 +60,7 @@ ISAの方針
 
 しかし、専用ハード向けのISAとレジスタをRISC-Vと互換性を保ったまま実装したり、専用ハードをプロセッサに接続する手法は、未だに確立していない。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/figure1.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/figure1.png?raw=true)
 
 GPUと専用ハードA, B, Cの位置関係をFigure.1に示している。専用ハードの位置としてコアの上流にあるAや下流にあるB、Cのような他の標準拡張と似たように各コアの内側に存在している場合などが考えられる。
 
@@ -89,7 +89,7 @@ GPUのハードウェア拡張は大部分をグラフィック用アクセラ�
 #### 2.2.2 User-Defined Extensions
 RISC-Vではユーザー定義用のオペコードに**0x0B**, **0x2B**, **0x5B**, **0x7B**が使える。命令フォーマットはFigure.2に沿うが、RISC-Vの整数命令のオペランドは最大2個、浮動小数点数命令だと最大3個であり、これだと十分でない場合がある。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/figure2.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/figure2.png?raw=true)
 
 #### 2.2.3 Hardware Performance Monitoring Counters
 性能の統計を評価するためにはハードウェアパフォーマンスカウンタ(そういうのがある)は必要不可欠であり、RISC-VではCSRのアドレス`0xB00`-`0xB1F`及び`0xB80`-`0xB9F`がHPM counter用に確保されている。
@@ -114,11 +114,11 @@ VortexはOpenCLコンパチらしいですね...おっとここに良質なOpenC
 ## 3 A TOPOLOGY OF HARDWARE EXTENSIONS
 普通のGPUにはハードウェア拡張として、浮動小数点数演算器(FPU)、固定小数点数積和演算器(IMADD)、SHA256変換器(sha256sum)、行列乗算器(MatMul)、ソフトウェアプリフェッチ(Prefetch)、頂点フェッチエンジン(VFetch)、ラスタライザ(Raster)、グラッフィクス属性補完(Interp)、テクスチャサンプリング(Tex)、アルファブレンド(Blend)がある。これらのプロセッサから見た分類をTable.1に示した。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/table1.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/table1.png?raw=true)
 
 各ハードウェア拡張のオペランドをTable.2に示した。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/table2.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/table2.png?raw=true)
 
 ### 3.1 Producer vs Consumer Extensions
 
@@ -174,7 +174,7 @@ R4フォーマットはオペランドの数が多い場合に最も良いフォ
 ソフトウェアレイヤにおいて、アプリケーションは新たに追加された命令を実行する必要がある。最も優先される方法はコンパイラへの新たな命令の実装である。この方法の主な利点が高レベルのコード変換が可能となることである(謎)。その他の利点としてアセンブラと逆アセンブラによるデバッグへの恩恵が挙げられる。
 コンパイラへの追加の代替案としてはListing 1のようなバイトコードをラップした組み込み関数がある。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/listing1.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/listing1.png?raw=true)
 
 ## 5. IMPLEMENTING EXTERNAL EXTENSIONS
 外部にハードウェア拡張を実装することは、複数のプロセッサによってそのハードウェアが共有される点において熟考に値する。
@@ -194,7 +194,7 @@ Figure 1で外部のハードウェアA, Bのためのローカルエージェ�
 ### 6.1 Hardware Implementation
 カウンタの上限の回避策として、カウンタをカテゴリ分けする方法が挙げられる。コンポーネントに基づくカテゴリ分けがオススメである。具体的にはプロセッサパイプラインをクラス0、命令キャッシュをクラス1、データキャッシュをクラス2とする。この実装ではクラスの選択に非標準のCSRを用いることが出来る。Figure 8にマルチプレクサを用いた単純な実装を示した。なお、HPMのスロット0, 1, 2は予約されているためマルチプレクサからは除外している。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/figure8.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/figure8.png?raw=true)
 
 ### 6.2 Software Support
 ハードウェアパフォーマンスカウンタからのデータを得る最も自然な方法は、カウンタの内容をメモリにダンプする方法である。ホストCPUが読むためのメモリ空間を予約して実装する。最長のキャプチャを得るために、プログラム終了時にカウンタをフラッシュするのが好ましい。これはmain関数からリターンした後の_exit()関数内でダンプを実行する形で実装する。
@@ -215,13 +215,13 @@ $$
 ### 7.2 Microarchitecture
 Figure 9はハードウェア拡張のマイクロアーキテクチャであり、これはAとBの乗算を複数サイクルに渡って行うパイプライン化された乗算器と、FとCを同期しながら加算器とシフタに渡すシフトレジスタから構成される。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/figure9.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/figure9.png?raw=true)
 
 ### 7.3 Evaluation
 Figure 10は固定小数点数演算命令を複数回呼び出すプログラムの、ハードウェア拡張とソフトウェア実装の比較である。なと200MHzのArria 10 FPGAで動作している。
 結果を見ると、ソフトウェアとハードウェア両方でコアの数に対してよくスケールしている。我々のハードウェア拡張はソフトウェア実装に対して17-20%程優れているが、これは大きな改善という程でもない。これはソースオペランドがメモリから値を読んでいるため、プログラム内でオーバヘッドが生じているのが原因である。
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/RISC-VGPU/figure10.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/RISC-VGPU/figure10.png?raw=true)
 
 ## 8. RELATED WORK
 Austinの論文ではVortex GPUにRISC-Vの暗号拡張を追加しており、筆者は公式のRISC-Vの暗号拡張を実装に用いた。彼らはハードウェアを各コアの内部に実装し、AES256とSHA256に対してそれぞれ6.6倍と1.6倍の高速化が得られた。

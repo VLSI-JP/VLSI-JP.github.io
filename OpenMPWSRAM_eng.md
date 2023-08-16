@@ -76,11 +76,11 @@ The role of each IO in the SRAM is described below. The numbers behind are omitt
 
 The data write and read methods are as shown in the waveform below, and there is a delay in the readout. Also, the period of `clk` needs to be 20ns or longer.[^1] 
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/MPWRAM/wave.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/MPWRAM/wave.png?raw=true)
 
 ~~As for the delay in data readout, it is better to wait a little because the description that causes the delay is written in the SRAM code.~~
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/MPWRAM/arbi.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/MPWRAM/arbi.png?raw=true)
 
 I am not familiar with semiconductor design, so I can only guess, but in OpenMPW, mega cells like SRAM can only be instantiated in user_project_wrapper.v.
 
@@ -172,7 +172,7 @@ rx_mem2 700 100 N
 
 The following is the generated layout, with the lower left corner of the memory at (100, 100) as specified.
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/MPWRAM/layout.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/MPWRAM/layout.png?raw=true)
 
 The manual says that `MACRO_PLACEMENT_CFG` does not need to be set, but it did not work as far as the author tried.
 

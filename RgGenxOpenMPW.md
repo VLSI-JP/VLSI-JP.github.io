@@ -1,7 +1,7 @@
 ---
 layout: default
 title: RgGen ✕ OpenMPWでLSIを焼こう！
-image: "https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/RISC5000choyen.png"
+image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/RISC5000choyen.png"
 ---
 # RgGen ✕ OpenMPWでLSIを焼こう！
 質問、修正案、その他連絡は@Cra2yPierr0tマデ
@@ -39,7 +39,7 @@ GoogleとEfablessとSkywaterが結託して始めたシャトルプログラム�
 OpenMPWではCaravelというフレームワークを使います。
 [https://github.com/efabless/caravel_user_project](https://github.com/efabless/caravel_user_project)
 
-![](https://github.com/Cra2yPierr0t/Cra2yPierr0t.github.io/blob/master/images/caravel_eng.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/master/images/caravel_eng.png?raw=true)
 
 CaravelはMGMT CoreとUser Project Areaに分かれています。MGMT CoreはRISC-Vのコアに周辺機器が領域で、ここは固定です。**User Project Areaはユーザーが自由に扱える領域**であり、ここに自分のデザインを挿入します。
 
@@ -98,7 +98,7 @@ Global Foundriesの180nmプロセスPDK。この前第一回目のシャトル�
 
 完成像はUARTで文字を受け取れるRISC-Vマイコンです。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/RISC5000choyen.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/RISC5000choyen.png?raw=true)
 
 なお、本記事で作成したファイルは全て`caravel_walkthrough_uart`に上げてあります。適宜ご参照下さい。
 [https://github.com/Cra2yPierr0t/caravel_walkthrough_uart](https://github.com/Cra2yPierr0t/caravel_walkthrough_uart)
@@ -398,7 +398,7 @@ ln -s rggen-verilog-rtl/rggen_rtl_macro.vh rggen_rtl_macro.vh
 
 次にUARTモジュールを作成します。ここでは送信を行う`uart_transmission.v`と受信を行う`uart_receive.v`と、これらに加えCSRを統合した`uart.v`を作成します。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/uart.drawio.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/uart.drawio.png?raw=true)
 
 
 ### 送信
@@ -828,7 +828,7 @@ make uart
 
 こちらがklayoutで見た`uart.gds`です。この中にRgGenで生成されたCSRも混ざってます。かわいいですね。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/uartgdsii.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/uartgdsii.png?raw=true)
 
 次はこれをCaravelのUser Project Area、つまり`user_project_wrapper.v`に挿入しましょう。
 
@@ -932,7 +932,7 @@ make user_project_wrapper
 
 生成されたGDSIIが以下の通りです。かわいいですね。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/wrappergdsii.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/wrappergdsii.png?raw=true)
 
 ## テストベンチを作成
 もうちょっとだけ続くんじゃ。正しく動作することを確認するためにテストベンチを書きましょう。
@@ -1038,7 +1038,7 @@ make verify-uart_test-rtl
 
 そして生成された波形ファイルの中身がこちら
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/uart_waves.png?raw=true)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/uart_waves.png?raw=true)
 
 `mprj_io[31]`からUARTで`0x41`が送信されてて、`tx_start`も書き込まれたあと自動で落ちてますね、すげえ！マジで動いてる！
 

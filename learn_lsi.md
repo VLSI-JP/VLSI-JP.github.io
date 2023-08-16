@@ -1,10 +1,10 @@
 ---
 layout: default
 title: OpenLANEと半導体設計入門
-image: "https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/learn_lsi/learn_lsi_header.png"
+image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/learn_lsi/learn_lsi_header.png"
 ---
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/learn_lsi/learn_lsi_header.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/learn_lsi/learn_lsi_header.png)
 
 # OpenLANEと半導体設計入門
 質問、修正案、その他連絡は@Cra2yPierr0tマデ
@@ -86,7 +86,7 @@ endmodule
 
 Logic Synthesis、またの名を**論理合成**とは、HDLで書かれた内容をより単純なANDやORのような論理ゲートやFF等のディジタル回路に変換する処理の事を指します。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/learn_lsi/synthesis.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/learn_lsi/synthesis.png)
 
 Yosysはこの論理合成を行うツールの一つです。HDLを単純なディジタル回路に変換すると言いましたが、例えばVerilog HDLで書いた回路が実際どんな形式のファイルに変換されるのか気になりませんか？気になりますね、気になるという事にしましょう。
 実はYosysの場合、Verilog HDLで書かれた回路は、より単純なVerilog HDLに変換されます。実際にYosysを動かして見てみましょう。
@@ -119,7 +119,7 @@ yosys> opt
 
 ちなみにここで`show`コマンドを使うと回路図が見られる。
 
-![](https://raw.githubusercontent.com/Cra2yPierr0t/Cra2yPierr0t.github.io/master/images/learn_lsi/circuit_draw.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/learn_lsi/circuit_draw.png)
 
 
 ディジタル回路を論理回路に変換してシンプルな最適化を掛ける
