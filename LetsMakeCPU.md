@@ -5858,7 +5858,7 @@ Hisa Ando大先生の最強の本がオススメです。重版してくれん�
 
 焼きたくないか、半導体を
 
-[OpenMPW入門](https://vlsi.jp/OpenMPW.html) ← これは僕のポジショントークです。
+[OpenMPW入門](https://vlsi.jp/OpenMPW.html)
 
 ### コンパイラを作る
 
