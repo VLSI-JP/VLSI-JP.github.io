@@ -331,11 +331,11 @@ $$
 
 最後にこのD-FFをMUXで少し改良して、データを記憶するタイミングを制御できるようにしましょう。
 
-以下では、MUXの`w_en`でD-FFへの入力を、D-FFからの出力か外部からの入力`w_data`かを選択できるようにしています。
+以下ではD-FFとMUXを組み合わせ、`w_en`という信号でD-FFの保持するデータを書き換えるタイミングを決められるようにしてます。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_improve.png)
 
-波形は以下の通りです。`w_en`でD-FFに対する書き込みを制御出来ていますね。
+波形は以下の通りです。`w_en`が1になるとD-FFの保持するデータが`w_data`のものになりました。D-FFに対する書き込みタイミングを`w_en`で制御出来ていますね。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_improve_wave.png)
 
