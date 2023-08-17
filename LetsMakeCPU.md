@@ -2807,10 +2807,10 @@ LOAD命令のビットフィールドは以下のように、LSBから順にオ�
 
 ```verilog
 module Z16Decoder(
-  input  wire   [15:0]  i_instr,
-  output wire   [3:0]   o_opcode,
-  output wire   [3:0]   o_rd_addr,
-  output wire   [3:0]   o_rs1_addr
+  input  wire   [15:0]  i_instr,    // 命令入力
+  output wire   [3:0]   o_opcode,   // オペコード出力
+  output wire   [3:0]   o_rd_addr,  // RDアドレス出力
+  output wire   [3:0]   o_rs1_addr  // RS1アドレス出力
 );
 
   assign o_opcode   = i_instr[3:0];
@@ -2828,7 +2828,7 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/imm_expand_af.png)
 
-そこでデコーダにおいて、命令のオペコードがLOAD命令の場合に即値の符号拡張を行う関数を作成します。
+そこでデコーダにおいて、命令のオペコードがLOAD命令の場合に即値の符号拡張を行う関数`get_imm()`を作成します。
 
 ```verilog
 function [15:0] get_imm(input [15:0] i_instr);
@@ -2841,7 +2841,7 @@ end
 endfunction
 ```
 
-こうして作成した関数を使い、即値のデコード結果を`o_imm`から出力しましょう。
+こうして作成した関数を使い、即値のデコード結果を即値出力である`o_imm`へ入力しましょう。
 
 ```verilog
 module Z16Decoder(
@@ -2849,7 +2849,7 @@ module Z16Decoder(
   output wire   [3:0]   o_opcode,
   output wire   [3:0]   o_rd_addr,
   output wire   [3:0]   o_rs1_addr,
-  output wire   [15:0]  o_imm
+  output wire   [15:0]  o_imm       // 即値出力
 );
 
   assign o_opcode   = i_instr[3:0];
@@ -2881,8 +2881,8 @@ module Z16Decoder(
   output wire   [3:0]   o_rd_addr,
   output wire   [3:0]   o_rs1_addr,
   output wire   [15:0]  o_imm,
-  output wire           o_rd_wen,
-  output wire           o_mem_wen
+  output wire           o_rd_wen,   // レジスタ書き込み有効化信号
+  output wire           o_mem_wen   // メモリ書き込み有効化信号
 );
 ```
 
@@ -2974,7 +2974,7 @@ module Z16Decoder(
   output wire   [15:0]  o_imm,
   output wire           o_rd_wen,
   output wire           o_mem_wen,
-  output wire   [3:0]   o_alu_ctrl
+  output wire   [3:0]   o_alu_ctrl  // ALU演算制御信号
 );
 ```
 
@@ -3075,12 +3075,12 @@ module Z16CPU(
   reg   [15:0]  r_pc;
 
   wire  [15:0]  w_instr;
-  wire [15:0]   w_rd_addr;
-  wire [15:0]   w_rs1_addr;
-  wire [15:0]   w_imm;
-  wire          w_rd_wen;
-  wire          w_mem_wen;
-  wire [3:0]    w_alu_ctrl;
+  wire [15:0]   w_rd_addr;  // RDアドレス信号線
+  wire [15:0]   w_rs1_addr; // RS1アドレス信号線
+  wire [15:0]   w_imm;      // 即値信号線
+  wire          w_rd_wen;   // レジスタ書き込み有効化信号線
+  wire          w_mem_wen;  // メモリ書き込み有効化信号線
+  wire [3:0]    w_alu_ctrl; // ALU演算制御信号線
 
 
   always @(posedge i_clk) begin
@@ -3170,6 +3170,7 @@ module Z16CPU(
     .o_alu_ctrl (w_alu_ctrl )
   );
 
+  // レジスタファイル
   Z16RegisterFile RegFile(
     .i_clk      (i_clk      ),
     .i_rs1_addr (w_rs1_addr ),  // RS1のアドレスを接続
@@ -3255,6 +3256,7 @@ module Z16CPU(
     .i_rd_wen   ()
   );
 
+  // ALU
   Z16ALU ALU(
     .i_data_a   (w_rs1_data ),  // RS1のデータを入力
     .i_data_b   (w_imm      ),  // 即値を入力
@@ -5901,7 +5903,7 @@ Hisa Ando大先生の最強の本がオススメです。重版してくれん�
 
 ## この次へ
 
-自作CPUに飽きたら次なにやる？
+次なにやる？
 
 ### CPUを作る
 
