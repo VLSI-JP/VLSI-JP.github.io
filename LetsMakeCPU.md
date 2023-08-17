@@ -1346,6 +1346,51 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem4.png)
 
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem4_tb.v`というファイル名で保存する。
+
+```verilog
+module problem4_tb;
+  reg           i_clk     = 0;
+  reg           i_rst     = 0;
+  wire  [15:0]  o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+
+  problem4 DUT(
+    .i_clk  (i_clk  ),
+    .i_rst  (i_rst  ),
+    .o_p    (o_p    )
+  );
+
+  always #1 begin    
+    i_clk <= ~i_clk;
+  end
+
+  initial begin
+    i_rst   = 1'b1;
+    #10
+    i_rst   = 1'b0;
+    #100
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem4_tb.v problem4.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+波形ファイルを開き、`i_rst`の値が0になってから`o_p`の値が1づつ増えていけば正しい動作です。
+
 #### 練習問題２
 
 以下の回路と同等のモジュール`problem5`を`problem5.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、`i_ctrl`によって格納するデータを選択できます。
@@ -1354,6 +1399,8 @@ endmodule
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem5.png)
 
+テストベンチは各自で作成してください。
+
 #### 練習問題３
 
 以下の回路と同等のモジュール`problem6`を`problem6.v`という名前のファイルに作成してください。以下の回路は3bitのレジスタを持っており、`i_data`の下位2bitによって格納するデータを選択できます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
@@ -1361,6 +1408,8 @@ endmodule
 入出力は画像の通りです。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem6.png)
+
+テストベンチは各自で作成してください。
 
 #### 模範解答１
 
