@@ -1712,8 +1712,8 @@ Gowin EDAで配置配線を行うためには上にある、右から二番目�
 これで**ディジタル回路とVerilog入門**は終わりです。次からは今まで学んだ技術を使い、CPUを自作していきます。
 
 <center>
-<a href="/Computer_Architecture.html"><img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/Computer_Architecture.png" style="border-radius: 30px;"></a>
-<a href="/Computer_Architecture.html"> VLSI.JP/Computer_Architecture.html </a>
+<a href="/Computer_Architecture.html#コンピュータアーキテクチャ入門"><img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/Computer_Architecture.png" style="border-radius: 30px;"></a>
+<a href="/Computer_Architecture.html#コンピュータアーキテクチャ入門"> VLSI.JP/Computer_Architecture.html </a>
 </center>
 
 ---
