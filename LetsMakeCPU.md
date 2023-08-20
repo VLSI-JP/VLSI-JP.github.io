@@ -31,8 +31,8 @@ image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/
 **ディジタル回路とVerilog入門**では、CPUを作る前に必要な基礎知識、そして作るために必要な道具の使い方を学んでいきます。もしVerilogを知っている、使った経験がある、という方は飛ばして頂いても構いません。
 
 <center>
-<a href="/DigitalCircuit_And_Verilog.html"><img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/DigitalCircuit_And_Verilog.png" style="border-radius: 30px;"></a>
-<a href="/DigitalCircuit_And_Verilog.html"> VLSI.JP/DigitalCircuit_And_Verilog.html </a>
+<a href="/DigitalCircuit_And_Verilog.html#ディジタル回路とverilog入門"><img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/DigitalCircuit_And_Verilog.png" style="border-radius: 30px;"></a>
+<a href="/DigitalCircuit_And_Verilog.html#ディジタル回路とverilog入門"> VLSI.JP/DigitalCircuit_And_Verilog.html </a>
 </center>
 
 ## コンピュータアーキテクチャ入門
@@ -40,8 +40,8 @@ image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/
 我々はついにCPUを作る道具を手に入れました。**コンピュータアーキテクチャ入門**ではその道具を用いて、CPUを作る方法を学んでいきます。
 
 <center>
-<a href="/Computer_Architecture.html"><img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/Computer_Architecture.png" style="border-radius: 30px;"></a>
-<a href="/Computer_Architecture.html"> VLSI.JP/Computer_Architecture.html </a>
+<a href="/Computer_Architecture.html#コンピュータアーキテクチャ入門"><img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/Computer_Architecture.png" style="border-radius: 30px;"></a>
+<a href="/Computer_Architecture.html#コンピュータアーキテクチャ入門"> VLSI.JP/Computer_Architecture.html </a>
 </center>
 
 ## この次へ
