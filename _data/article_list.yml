@@ -39,6 +39,12 @@
   link: Computer_Architecture.html#コンピュータアーキテクチャ入門
   icon: file
 
+- title: Z16Emulator.app
+  author: Cra2yPierr0t
+  date: 2023/08/20
+  link: Z16Emulator.html
+  icon: file
+
 - title: RgGen ✕ OpenMPWでLSIを焼こう！
   author: Cra2yPierr0t
   date: 2022/12/14

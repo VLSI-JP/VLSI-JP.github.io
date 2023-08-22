@@ -1,0 +1,662 @@
+---
+layout: null
+title: Z16Emulator
+---
+<html lang="ja">
+  <head>
+    <title id="title">Z16 Emulator</title>
+    <script language="javascript" type="text/javascript">
+      var assemble_error = 0;
+      function GetOpcode(opcode) {
+        let opcode_bin = "";
+        switch(opcode.trim()) {
+          case "ADD" :
+            opcode_bin = "0000";
+            assemble_error = 0;
+            break;
+          case "SUB" :
+            opcode_bin = "0001";
+            assemble_error = 0;
+            break;
+          case "MUL" :
+            opcode_bin = "0010";
+            assemble_error = 0;
+            break;
+          case "DIV" :
+            opcode_bin = "0011";
+            assemble_error = 0;
+            break;
+          case "OR"  :
+            opcode_bin = "0100";
+            assemble_error = 0;
+            break;
+          case "AND" :
+            opcode_bin = "0101";
+            assemble_error = 0;
+            break;
+          case "XOR" :
+            opcode_bin = "0110";
+            assemble_error = 0;
+            break;
+          case "SLL" :
+            opcode_bin = "0111";
+            assemble_error = 0;
+            break;
+          case "SRL" :
+            opcode_bin = "1000";
+            assemble_error = 0;
+            break;
+          case "ADDI" :
+            opcode_bin = "1001";
+            assemble_error = 0;
+            break;
+          case "LOAD" :
+            opcode_bin = "1010";
+            assemble_error = 0;
+            break;
+          case "STORE" :
+            opcode_bin = "1011";
+            assemble_error = 0;
+            break;
+          case "JAL" :
+            opcode_bin = "1100";
+            assemble_error = 0;
+            break;
+          case "JRL" :
+            opcode_bin = "1101";
+            assemble_error = 0;
+            break;
+          case "BEQ" :
+            opcode_bin = "1110";
+            assemble_error = 0;
+            break;
+          case "BLT" :
+            opcode_bin = "1111";
+            assemble_error = 0;
+            break;
+          default :
+            //alert("[ERROR] unknown opcode");
+            assemble_error = 1;
+            opcode_bin = "[存在しない命令]";
+            break;
+        }
+        return opcode_bin;
+      }
+      function GetRegisterAddr(RS) {
+        switch(RS.trim()) {
+          case "ZR" :
+            return "0000";
+          case "B1" :
+            return "0001";
+          case "B2" :
+            return "0010";
+          case "B3" :
+            return "0011";
+          case "G0" :
+            return "0100";
+          case "G1" :
+            return "0101";
+          case "G2" :
+            return "0110";
+          case "G3" :
+            return "0111";
+          case "G4" :
+            return "1000";
+          case "G5" :
+            return "1001";
+          case "G6" :
+            return "1010";
+          case "G7" :
+            return "1011";
+          case "G8" :
+            return "1100";
+          case "G9" :
+            return "1101";
+          case "G10":
+            return "1110";
+          case "G11":
+            return "1111";
+          default : 
+            //alert("[ERROR] Unknown Register Name");
+            assemble_error = assemble_error | 1;
+            return "[存在しないレジスタ]";
+        }
+      }
+      function GetImm(IMM, bitsize) {
+        let IMM_num = Number(IMM.trim())
+        if(((-1 * 2**(bitsize-1)) <= IMM_num) && (IMM_num < 2**(bitsize-1))) {
+          if(IMM_num >= 0) {
+            return ("0000000000" + IMM_num.toString(2)).slice(-1 * bitsize);
+          } else {
+            return ("1111111111" + (~IMM_num + 1).toString(2)).slice(-1 * bitsize);
+          }
+        } else {
+          //alert("[ERROR] Invalid IMM value");
+          assemble_error = assemble_error | 1;
+          return "[範囲外の即値]";
+        }
+      }
+
+      function LineAssembler(instr) {
+        let splited_instr = instr.split(/[,\s]/).filter(function(c) { return c !== ""; });
+        let opcode = splited_instr[0];
+        let OpcodeBin = "";
+        let RS2 = "";
+        let RS1 = "";
+        let RD  = "";
+        let IMM = "";
+        let binary = "";
+        switch(opcode) {
+          case "ADD" :
+          case "SUB" :
+          case "MUL" :
+          case "DIV" :
+          case "OR"  :
+          case "AND" :
+          case "XOR" :
+          case "SLL" :
+          case "SRL" :
+            OpcodeBin = GetOpcode(opcode);
+            RS2 = GetRegisterAddr(splited_instr[1]); 
+            RS1 = GetRegisterAddr(splited_instr[2]);
+            RD  = GetRegisterAddr(splited_instr[3]);
+            binary = RS2 + RS1 + RD + OpcodeBin;
+            return binary;
+          case "ADDI" :
+            OpcodeBin = GetOpcode(opcode);
+            IMM = GetImm(splited_instr[1], 8);
+            RD  = GetRegisterAddr(splited_instr[2]);
+            binary = IMM + RD + OpcodeBin;
+            return binary;
+          case "LOAD" :
+            OpcodeBin = GetOpcode(opcode);
+            IMM = GetImm(splited_instr[1], 4);
+            RS1 = GetRegisterAddr(splited_instr[2]);
+            RD  = GetRegisterAddr(splited_instr[3]);
+            binary = IMM + RS1 + RD + OpcodeBin;
+            return binary;
+          case "STORE" :
+            OpcodeBin = GetOpcode(opcode);
+            RS2 = GetRegisterAddr(splited_instr[1]);
+            RS1 = GetRegisterAddr(splited_instr[2]);
+            IMM = GetImm(splited_instr[3], 4);
+            binary = RS2 + RS1 + IMM + OpcodeBin;
+            return binary;
+          case "JAL" :
+          case "JRL" :
+            OpcodeBin = GetOpcode(opcode);
+            IMM = GetImm(splited_instr[1], 4);
+            RS1 = GetRegisterAddr(splited_instr[2]);
+            RD  = GetRegisterAddr(splited_instr[3]);
+            binary = IMM + RS1 + RD + OpcodeBin;
+            return binary;
+          case "BEQ" :
+          case "BLT" :
+            OpcodeBin = GetOpcode(opcode);
+            RS2 = GetRegisterAddr(splited_instr[1]);
+            switch(RS2) {
+              case "0000" :
+              case "0001" :
+              case "0010" :
+              case "0011" :
+                RS2 = RS2.slice(-2);
+                break;
+              default :
+                RS2 = "[非分岐命令用レジスタ]"
+                break;
+            }
+            RS1 = GetRegisterAddr(splited_instr[2]);
+            switch(RS1) {
+              case "0000" :
+              case "0001" :
+              case "0010" :
+              case "0011" :
+                RS1 = RS1.slice(-2);
+                break;
+              default :
+                assemble_error = assemble_error | 1;
+                RS1 = "[非分岐命令用レジスタ]"
+                break;
+            }
+            IMM = GetImm(splited_instr[3], 8);
+            binary = IMM + RS2 + RS1 + OpcodeBin;
+            return binary;
+          default :
+            //alert("[ERROR] Unknown Opcode");
+            assemble_error = assemble_error | 1;
+            return "[存在しない命令]";
+        }
+      }
+      function bit2hex_str(binstr) {
+        return ("0000" + parseInt(binstr, 2).toString(16)).slice(-4);
+      }
+      function Assemble() {
+        let assembly = document.assemblyForm.assemblyText.value.split('\n');
+        let binary_str = "";
+        let assemble_result = 0;
+        document.binaryForm.binaryText.value = "";
+        for(let i = 0; i < assembly.length; i++) {
+          if(assembly[i].trim() == "") {
+            //document.binaryForm.binaryText.value += "\n";
+          } else {
+            binary_str = LineAssembler(assembly[i]);
+            assemble_result = assemble_result | assemble_error;
+            if(assemble_error == 1) {
+              document.binaryForm.binaryText.value += "[ERROR]: " + binary_str + " // " + bit2hex_str(binary_str) + "\n";
+            } else {
+              document.binaryForm.binaryText.value += binary_str + " // " + bit2hex_str(binary_str) + "\n";
+            }
+          }
+        }
+        if(assemble_result == 1) {
+          document.getElementById("emulate_button").disabled = true;
+        } else {
+          document.getElementById("emulate_button").disabled = false;
+        }
+      }
+
+      let RegisterName = ["B1", "B2", "B3", "G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"];
+      let InstrType = ["RType", "IType", "LType", "SType", "JType", "BType"];
+      var DataMemory = new Array(1024);
+
+      function GetInstrType(instr) {
+        switch(instr.slice(-4)) {
+          case "0000" :
+          case "0001" :
+          case "0010" :
+          case "0011" :
+          case "0100" :
+          case "0101" :
+          case "0110" :
+          case "0111" :
+          case "1000" :
+            return "RType";
+          case "1001" :
+            return "IType";
+          case "1010" :
+            return "LType";
+          case "1011" :
+            return "SType";
+          case "1100" :
+          case "1101" :
+            return "JType";
+          case "1110" :
+          case "1111" :
+            return "BType";
+          default :
+            return "RType";
+        }
+      }
+
+      function GetOpcode_num(instr) {
+        return parseInt(instr.slice(-4), 2);
+      }
+      function GetRdAddr(instr) {
+        return parseInt(instr.slice(-8, -4), 2);
+      }
+      function GetRs1Addr(instr) {
+        switch(GetInstrType(instr)) {
+          case "RType":
+          case "LType":
+          case "SType":
+          case "JType":
+            return parseInt(instr.slice(-12, -8), 2);
+          case "BType":
+            return parseInt(instr.slice(-10, -8), 2);
+          default :
+            return 0;
+        }
+      }
+      function GetRs2Addr(instr) {
+        switch(GetInstrType(instr)) {
+          case "RType":
+          case "LType":
+          case "SType":
+          case "JType":
+            return parseInt(instr.slice(-16, -12), 2);
+          case "BType":
+            return parseInt(instr.slice(-14, -12), 2);
+          default :
+            return 0;
+        }
+      }
+      function GetImm_num(instr) {
+        switch(GetInstrType(instr)) {
+          case "IType":
+          case "BType":
+            if(instr[0] == '1') {
+              return parseInt(("1111111111111111" + instr.slice(-16, -8)).slice(-16), 2);
+            } else {
+              return parseInt(("0000000000000000" + instr.slice(-16, -8)).slice(-16), 2);
+            }
+          case "LType":
+          case "JType":
+            if(instr[0] == '1') {
+              return parseInt(("1111111111111111" + instr.slice(-16, -12)).slice(-16), 2);
+            } else {
+              return parseInt(("0000000000000000" + instr.slice(-16, -12)).slice(-16), 2);
+            }
+          case "SType":
+            if(instr[8] == '1') {
+              return parseInt(("1111111111111111" + instr.slice(-8, -4)).slice(-16), 2);
+            } else {
+              return parseInt(("0000000000000000" + instr.slice(-8, -4)).slice(-16), 2);
+            }
+          default :
+            return 0;
+        }
+      }
+
+      function ALU(opcode, rs2_data, rs1_data) {
+        switch(opcode) {
+          case 0x0 :
+            return rs2_data + rs1_data;
+            break;
+          case 0x1 :
+            return rs2_data - rs1_data;
+            break;
+          case 0x2 :
+            return rs2_data * rs1_data;
+            break;
+          case 0x3 :
+            return rs2_data / rs1_data;
+            break;
+          case 0x4 :
+            return rs2_data | rs1_data;
+            break;
+          case 0x5 :
+            return rs2_data & rs1_data;
+            break;
+          case 0x6 :
+            return rs2_data ^ rs1_data;
+            break;
+          case 0x7 :
+            return rs1_data << rs2_data;
+            break;
+          case 0x8 :
+            return rs1_data >> rs2_data;
+            break;
+          default :
+            return rs2_data + rs1_data;
+            break;
+        }
+      }
+
+      var PC = 0;
+      var RegisterFile = new Array(16);
+      
+      function NextCycle() {
+        document.getElementById("pc").value = PC;
+        binary_line = document.binaryForm.binaryText.value.split('\n')[PC >> 1].split(' ')[0];
+
+        let assembly_line = document.assemblyForm.assemblyText.value.split('\n')[PC >> 1];
+        document.getElementById("curinstr").value = assembly_line;
+
+        let rs1_data = 0;
+        let rs2_data = 0;
+        let rd_data = 0;
+        let imm_data = 0;
+        switch(GetInstrType(binary_line)) {
+          case "RType" :
+            rs1_data = RegisterFile[GetRs1Addr(binary_line)];
+            rs2_data = RegisterFile[GetRs2Addr(binary_line)];
+            RegisterFile[GetRdAddr(binary_line)] = ALU(GetOpcode_num(binary_line), rs2_data, rs1_data);
+            RegisterFile[0] = 0;
+            if(GetRdAddr(binary_line) != 0) {
+              document.getElementById(RegisterName[GetRdAddr(binary_line) - 1]).value = RegisterFile[GetRdAddr(binary_line)];
+            }
+            PC = PC + 2;
+            break;
+          case "IType" :
+            rd_data = RegisterFile[GetRdAddr(binary_line)];
+            imm_data = GetImm_num(binary_line);
+            RegisterFile[GetRdAddr(binary_line)] = ALU(GetOpcode_num(binary_line), imm_data, rd_data);
+            RegisterFile[0] = 0;
+            if(GetRdAddr(binary_line) != 0) {
+              document.getElementById(RegisterName[GetRdAddr(binary_line) - 1]).value = RegisterFile[GetRdAddr(binary_line)];
+            }
+            PC = PC + 2;
+            break;
+          case "LType" :
+            rs1_data = RegisterFile[GetRs1Addr(binary_line)];
+            imm_data = GetImm_num(binary_line);
+            if (ALU(GetOpcode_num(binary_line), imm_data, rs1_data) == 124) {
+              if(document.getElementById("mmio_button").checked) {
+                RegisterFile[GetRdAddr(binary_line)] = 1;
+              } else {
+                RegisterFile[GetRdAddr(binary_line)] = 0;
+              }
+            } else {
+              RegisterFile[GetRdAddr(binary_line)] = DataMemory[ALU(GetOpcode_num(binary_line), imm_data, rs1_data) >> 1];
+            }
+            RegisterFile[0] = 0;
+            if(GetRdAddr(binary_line) != 0) {
+              document.getElementById(RegisterName[GetRdAddr(binary_line) - 1]).value = RegisterFile[GetRdAddr(binary_line)];
+            }
+            PC = PC + 2;
+            break;
+          case "SType" :
+            rs1_data = RegisterFile[GetRs1Addr(binary_line)];
+            rs2_data = RegisterFile[GetRs2Addr(binary_line)];
+            imm_data = GetImm_num(binary_line);
+            DataMemory[ALU(GetOpcode_num(binary_line), imm_data, rs1_data) >> 1] = rs2_data;
+            RegisterFile[0] = 0;
+            if(GetRdAddr(binary_line) != 0) {
+              document.getElementById(RegisterName[GetRdAddr(binary_line) - 1]).value = RegisterFile[GetRdAddr(binary_line)];
+            }
+            PC = PC + 2;
+            break;
+          case "JType" :
+            rs1_data = RegisterFile[GetRs1Addr(binary_line)];
+            imm_data = GetImm_num(binary_line);
+            if(GetOpcode_num(binary_line) == 0xC) {
+              PC = ALU(GetOpcode_num(binary_line), imm_data, rs1_data);
+            } else {
+              PC = (PC + ALU(GetOpcode_num(binary_line), imm_data, rs1_data)) & 0xFFFF;
+            }
+            RegisterFile[GetRdAddr(binary_line)] = PC + 2;
+            RegisterFile[0] = 0;
+            break;
+          case "BType" :
+            rs1_data = RegisterFile[GetRs1Addr(binary_line)];
+            rs2_data = RegisterFile[GetRs2Addr(binary_line)];
+            imm_data = GetImm_num(binary_line);
+            if(GetOpcode_num(binary_line) == 0xE) {
+              if(rs2_data == rs1_data) {
+                PC = (PC + imm_data) & 0xFFFF;
+              } else {
+                PC = PC + 2;
+              }
+            } else if(GetOpcode_num(binary_line) == 0xF) {
+              if(rs2_data > rs1_data) {
+                PC = (PC + imm_data) & 0xFFFF;
+              } else {
+                PC = PC + 2;
+              }
+            }
+            break;
+        }
+        document.getElementById("mmio_led").value = ("000000" + (DataMemory[122 >> 1]).toString(2)).slice(-6);
+      }
+      function Emulate() {
+        // Disable Assemble Button
+        document.getElementById("assemble_button").disabled = true;
+        // Disable Run Button
+        document.getElementById("emulate_button").disabled = true;
+        // Enable Reset Button
+        document.getElementById("Reset_button").disabled = false;
+        // Enable NextCycle Button
+        document.getElementById("Next_button").disabled = false;
+        // init Regfile
+        RegisterFile[0] = 0;
+        for(let i = 0; i < RegisterName.length; i++) {
+          let regnum = Number(document.getElementById(RegisterName[i]).value);
+          document.getElementById(RegisterName[i]).disabled = true;
+          if (document.getElementById(RegisterName[i]).value.trim() == "") {
+            alert("[ERROR] Blank Register Value");
+            document.getElementById(RegisterName[i]).value = 0;
+            RegisterFile[i+1] = 0;
+          } else if((-1 < regnum ) && (regnum < 65536)) {
+            RegisterFile[i+1] = regnum;
+          } else {
+            alert("[ERROR] Invalid Register Value");
+            document.getElementById(RegisterName[i]).value = 0;
+            RegisterFile[i+1] = 0;
+          }
+        }
+        // init mmio
+        DataMemory[124 >> 1] = 0;
+        DataMemory[122 >> 1] = 0;
+        let assembly_line = document.assemblyForm.assemblyText.value.split('\n')[0];
+        document.getElementById("curinstr").value = assembly_line;
+        let binary_line = document.binaryForm.binaryText.value.split('\n')[0];
+        let binary_data = binary_line.split(' ')[0];
+        NextCycle();
+      }
+      function Reset() {
+        // Enable Assemble Button
+        document.getElementById("assemble_button").disabled = false;
+        // Enable Run Button
+        document.getElementById("emulate_button").disabled = false;
+        // Disable Reset Button
+        document.getElementById("Reset_button").disabled = true;
+        // Disable NextCycle Button
+        document.getElementById("Next_button").disabled = true;
+        // init regfile
+        RegisterFile[0] = 0;
+        for(let i = 0; i < RegisterName.length; i++) {
+          document.getElementById(RegisterName[i]).value = 0;
+          document.getElementById(RegisterName[i]).disabled = false;
+          RegisterFile[i+1] = 0;
+        }
+        // init PC
+        PC = 0;
+        document.getElementById("pc").value = 0;
+        // init cur instr
+        document.getElementById("curinstr").value = "";
+      }
+
+    </script>
+  </head>
+  <body>
+    <h1> Z16 Emulator </h1>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+
+    <form name="assemblyForm" action="#">
+      <textarea name="assemblyText" cols="30" rows="30" spellcheck="false"></textarea>
+    </form>
+    <button onclick="Assemble();" id="assemble_button" >assemble</button>
+
+          </td>
+          <td>
+
+    <form name="binaryForm" action="#">
+      <textarea disabled="true" name="binaryText" cols="30" rows="30"></textarea>
+    </form>
+    <button onclick="Emulate();" id="emulate_button" disabled >run</button>
+    <button onclick="Reset();" id="Reset_button" disabled >reset</button>
+
+          </td>
+          <td>
+
+<table border="1">
+  <caption>Register</caption>
+  <tbody>
+    <tr>
+      <td>ZR</td>
+      <td><input type="number" id="ZR" max=65535 min=0 value=0 disabled="true" /></td>
+    </tr>
+    <tr>
+      <td>B1</td>
+      <td><input type="number" id="B1" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>B2</td>
+      <td><input type="number" id="B2" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>B3</td>
+      <td><input type="number" id="B3" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G0</td>
+      <td><input type="number" id="G0" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G1</td>
+      <td><input type="number" id="G1" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G2</td>
+      <td><input type="number" id="G2" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G3</td>
+      <td><input type="number" id="G3" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G4</td>
+      <td><input type="number" id="G4" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G5</td>
+      <td><input type="number" id="G5" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G6</td>
+      <td><input type="number" id="G6" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G7</td>
+      <td><input type="number" id="G7" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G8</td>
+      <td><input type="number" id="G8" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G9</td>
+      <td><input type="number" id="G9" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G10</td>
+      <td><input type="number" id="G10" max=65535 min=0 value=0 /></td>
+    </tr>
+    <tr>
+      <td>G11</td>
+      <td><input type="number" id="G11" max=65535 min=0 value=0 /></td>
+    </tr>
+  </tbody>
+</table>
+
+    Current Instr : <input type="text" id="curinstr" disabled="true"/> <br>
+    PC : <input type="number" id="pc" min=0 value=0 disabled="true"/> <br>
+    <button onclick="NextCycle();" id="Next_button" disabled>next cycle</button>
+
+          </td>
+          <td>
+            <table border="1">
+              <caption>MMIO</caption>
+              <tbody>
+                <tr>
+                  <td>122</td>
+                  <td>LED</td>
+                  <td><input type="number" id="mmio_led" value="000000" disabled></td>
+                </tr>
+                <tr>
+                  <td>124</td>
+                  <td>button</td>
+                  <td><input type="checkbox" id="mmio_button"/></td>
+                </tr>
+              </tbody>
+            </table>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
