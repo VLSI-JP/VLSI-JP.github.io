@@ -302,7 +302,7 @@ title: Z16Emulator
           case "JType":
             return parseInt(instr.slice(-12, -8), 2);
           case "BType":
-            return parseInt(instr.slice(-10, -8), 2);
+            return parseInt(instr.slice(-6, -4), 2);
           default :
             return 0;
         }
@@ -315,7 +315,7 @@ title: Z16Emulator
           case "JType":
             return parseInt(instr.slice(-16, -12), 2);
           case "BType":
-            return parseInt(instr.slice(-14, -12), 2);
+            return parseInt(instr.slice(-8, -6), 2);
           default :
             return 0;
         }
@@ -350,16 +350,16 @@ title: Z16Emulator
       function ALU(opcode, rs2_data, rs1_data) {
         switch(opcode) {
           case 0x0 :
-            return rs2_data + rs1_data;
+            return (rs2_data + rs1_data) & 0xFFFF;
             break;
           case 0x1 :
-            return rs2_data - rs1_data;
+            return (rs2_data - rs1_data) & 0xFFFF;
             break;
           case 0x2 :
-            return rs2_data * rs1_data;
+            return (rs2_data * rs1_data) & 0xFFFF;
             break;
           case 0x3 :
-            return rs2_data / rs1_data;
+            return (rs2_data / rs1_data) & 0xFFFF;
             break;
           case 0x4 :
             return rs2_data | rs1_data;
@@ -371,13 +371,13 @@ title: Z16Emulator
             return rs2_data ^ rs1_data;
             break;
           case 0x7 :
-            return rs1_data << rs2_data;
+            return (rs1_data << rs2_data) & 0xFFFF;
             break;
           case 0x8 :
-            return rs1_data >> rs2_data;
+            return (rs1_data >> rs2_data) & 0xFFFF;
             break;
           default :
-            return rs2_data + rs1_data;
+            return (rs2_data + rs1_data) & 0xFFFF;
             break;
         }
       }
@@ -449,12 +449,15 @@ title: Z16Emulator
           case "JType" :
             rs1_data = RegisterFile[GetRs1Addr(binary_line)];
             imm_data = GetImm_num(binary_line);
+            RegisterFile[GetRdAddr(binary_line)] = PC + 2;
             if(GetOpcode_num(binary_line) == 0xC) {
               PC = ALU(GetOpcode_num(binary_line), imm_data, rs1_data);
             } else {
               PC = (PC + ALU(GetOpcode_num(binary_line), imm_data, rs1_data)) & 0xFFFF;
             }
-            RegisterFile[GetRdAddr(binary_line)] = PC + 2;
+            if(GetRdAddr(binary_line) != 0) {
+              document.getElementById(RegisterName[GetRdAddr(binary_line) - 1]).value = RegisterFile[GetRdAddr(binary_line)];
+            }
             RegisterFile[0] = 0;
             break;
           case "BType" :
@@ -468,6 +471,14 @@ title: Z16Emulator
                 PC = PC + 2;
               }
             } else if(GetOpcode_num(binary_line) == 0xF) {
+              if((rs1_data >> 15) == 1) {
+                rs1_data = -1 * ((~rs1_data + 1) & 0xFFFF);
+                console.log(rs1_data);
+              }
+              if((rs2_data >> 15) == 1) {
+                rs2_data = -1 * ((~rs2_data + 1) & 0xFFFF);
+                console.log(rs2_data);
+              }
               if(rs2_data > rs1_data) {
                 PC = (PC + imm_data) & 0xFFFF;
               } else {

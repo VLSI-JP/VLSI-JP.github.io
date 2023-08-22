@@ -23,25 +23,25 @@
 
 - title: 無から始める自作CPU
   author: Cra2yPierr0t
-  date: 2023/08/20
+  date: 2023/08/22
   link: LetsMakeCPU.html#無から始める自作cpu
   icon: dir
     
 - title: ディジタル回路とVerilog入門
   author: Cra2yPierr0t
-  date: 2023/08/20
+  date: 2023/08/22
   link: DigitalCircuit_And_Verilog.html#ディジタル回路とverilog入門
   icon: file
 
 - title: コンピュータアーキテクチャ入門
   author: Cra2yPierr0t
-  date: 2023/08/20
+  date: 2023/08/22
   link: Computer_Architecture.html#コンピュータアーキテクチャ入門
   icon: file
 
 - title: Z16Emulator.app
   author: Cra2yPierr0t
-  date: 2023/08/20
+  date: 2023/08/22
   link: Z16Emulator.html
   icon: file
 
