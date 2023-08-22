@@ -77,7 +77,13 @@ Rui Ueyama大先生が最強の本を書いてくれましたので全人類や�
 
 いっぱい本出てるよ。自作CPUで自作OSを動かせ。
 
-この記事が面白かったら友達やフォロワーに勧めてくれると嬉しいです。
+## 謝辞
+
+校閲にご協力していただいた方々に感謝いたします。
+
+- sksat ([@sksat_tty](https://x.com/@sksat_tty))
+- いしたに ([@taichi600730](https://x.com/@taichi600730))
+- IDA Kenta ([@ciniml](https://x.com/@ciniml))
 
 <div align="right"> おわり </div>
 ---
