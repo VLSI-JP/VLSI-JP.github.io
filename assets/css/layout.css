@@ -25,6 +25,12 @@ table {
   margin-bottom: 16px;
 }
 
+blockquote p {
+  padding: 15px;
+  background: #eee;
+  border-radius: 5px;
+}
+
 img{
  display: block;
  margin: 0px auto;
