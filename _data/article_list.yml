@@ -45,6 +45,12 @@
   link: Z16Emulator.html
   icon: file
 
+- title: SIMTって奴を完全に理解したい
+  author: Cra2yPierr0t
+  date: 2023/09/05
+  link: UnderstandSIMT.html
+  icon: file
+
 - title: RgGen ✕ OpenMPWでLSIを焼こう！
   author: Cra2yPierr0t
   date: 2022/12/14
