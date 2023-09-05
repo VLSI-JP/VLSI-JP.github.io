@@ -32,7 +32,17 @@ SIMTの概要をまずは知る。
 
 warpはスレッドの塊、OK。warpをSIMDユニットで実行、OK。
 
+---
+
 ちなみに、CPUの文脈のSIMDユニットとGPUの文脈のSIMDユニットは全く別物であることを知っておかないと大変沼る(一敗)。AVX-512に代表されるようなCPUにおけるSIMD命令は、演算器が横にズラッと並んだSIMD演算器とも呼ぶべき実行ユニットで実行される。対してGPUにおけるSIMDは、PEと呼ばれる比較的汎用的で小規模なプロセッサを並べて実現している。
+
+このGPUにおけるSIMDの実現方法は1997年からそう。
+
+[A mechanism for SIMD execution of SPMD programs](https://ieeexplore.ieee.org/document/592203)
+
+よってwarpをSIMDユニットで実行とは、スレッドの塊がPEの塊に突っ込まれている光景を想像してくれればよい。個人的にはPEの塊をSIMDユニットと呼ぶなよと思う。
+
+---
 
 Simty: generalized SIMT execution on RISC-V の方では
 
@@ -185,6 +195,8 @@ POMPはKeryll氏とParis氏が提案したPOMP並列計算機プロジェクト�
 
 言いたい事はわかる。divergenceとconvergenceを明示する命令より、CPUの普通の分岐命令に寄った命令セットにして汎用性は高めてるけど、スレッドを管理するための情報が足りなくなるのでdivergenceとconvergenceが発生した時の命令アドレスをどこかに保存してよしなに使うんだと思う。具体的な事は全くわからん。
 
+Divergence自体はChapやAMD GPUと同じくスタックで処理してるらしい。
+
 > "In particular, the matching between divergence pointsand reconvergence points is not explicit in the binary. Hence, the divergence stack needs to store the address of reconvergence points in addition to masks. This excludes an implementation based on activity counters."
 >
 > *"(訳) 特に、divergenceとreconvergence地点の一致はバイナリに明記されない。これにより、divergence stackはマスクに加えてreconvergenceの地点を保存する必要がある。そのためアクティビティカウンタに基づいた実装は行えない。"*
@@ -192,6 +204,23 @@ POMPはKeryll氏とParis氏が提案したPOMP並列計算機プロジェクト�
 
 divergenceとreconvergenceの地点の一致って何？ループ？なんか知らんけど分岐命令のアドレスをスタックに保存する必要があるみたいです。
 
+> "It is possible to transform an arbitrary control flow graph into properly nested conditional blocks and loops at compile time, at the possible expanse of replicated code when the graph is not reducible"
+
+> *"(訳) コンパイル時に任意の制御フローグラフをネストされた条件ブロックとループに適切に変換できる、ただしグラフが簡約化不可能な場合はコードが複製され増大する可能性がある。"*
+<p style="text-align:right">- <a href="https://hal.science/hal-00622654/document">Stack-less SIMT reconvergence at low cost</a></p>
+
+これは本当に謎。翻訳が適切かも怪しい。なんだろうねこれ、プログラムのコンパイル時に生成されるフローグラフを、GPUで実行可能なアセンブリに確実に変換できるけど、場合によってはループ周りでアセンブリのサイズが爆発するよって事かな。
+
+参考文献を頑張って読んでるけどこれ難しいわ。
+
+[Using Hammock Graphs to Structure Programs](https://ieeexplore.ieee.org/document/1274043)
+
+> "However, the mechanism used by Tesla can be extended to support indirect jumps, as offered by the Fermi architecture"
+<p style="text-align:right">- <a href="https://hal.science/hal-00622654/document">Stack-less SIMT reconvergence at low cost</a></p>
+
+この構造はFermiみたいに間接ジャンプが出来るように拡張できるらしい。あとなんか制御フローグラフの走査が柔軟になったり、スケジューリングの決定がアーキテクチャからマイクロアーキテクチャに移行するようになったりするらしい。よくわからん。
+
+とりあえずNVIDIAは汎用性を上げるために色々頑張ったんですね。
 
 ### 暗黙的な方法, スタックベース
 
