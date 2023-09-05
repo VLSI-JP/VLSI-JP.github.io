@@ -86,14 +86,20 @@ SIMTにおける分岐の実装にはどんなものがあるのか、Stack-less
 > "Traditional parallel architectures share a single stack pointer per warp. This ensures that concurrent accesses to the call stack from different threads are always kept synchronized. On the other hand, this restricts SIMT execution to threads that share the same stack pointer in addition to sharing the same instruction pointer. Threads that are at different call nesting levels cannot run together. "
 <p style="text-align:right">- <a href="https://hal.science/hal-00622654/document">Stack-less SIMT reconvergence at low cost</a></p>
 
-*"(訳) 古典的な並列アーキテクチャではwarpで単一のスタックポインタを共有する。これで異なるスレッドがコールスタックへ同時にアクセスしても同期が常に保たれる。"* まあスタックポインタが１つだけならどのスレッドも関数呼び出し時は完全に全てのスレッドで同期される気がする、divergenceとの関係はよくわからない。*"(訳) 一方で、これはSIMTが実行できるスレッドを、同じスタックポインタかつ同じ命令ポインタを共有しているスレッドのみに制限する。関数コールのネストの深さが異なるスレッドを同時に実行することは出来ない。"* 
+*"(訳) 古典的な並列アーキテクチャではwarpで単一のスタックポインタを共有する。これで異なるスレッドがコールスタックへ同時にアクセスしても同期が常に保たれる。"* 
+
+まあスタックポインタが１つだけならどのスレッドも関数呼び出し時は完全に全てのスレッドで同期される気がする、divergenceとの関係はよくわからない。
+
+*"(訳) 一方で、これはSIMTが実行できるスレッドを、同じスタックポインタかつ同じ命令ポインタを共有しているスレッドのみに制限する。関数コールのネストの深さが異なるスレッドを同時に実行することは出来ない。"* 
 
 これは、この実装だと命令ポインタが同じでもスタックポインタが違う場合、例えばスレッド0とスレッド1で再帰の深さが違うような場合に、実行する関数は同じにも関わらずスレッド0の実行が完了してからスレッド1を実行しなくてはならず、これは明らかに効率が悪い。そういう意味だと思う。
 
 > "The other solution consists in maintaining an independent stack pointer per thread. In case of recursion, control divergence is reduced. It is replaced by memory divergence: accesses to the stack become irregular."
 <p style="text-align:right">- <a href="https://hal.science/hal-00622654/document">Stack-less SIMT reconvergence at low cost</a></p>
 
-*"(訳) その他の手法としてスタックポインタをスレッド毎に持つ手法があり、この場合はcontrol divergenceが減少する代わりにスタックへのアクセスが異なるmemory divergenceに置き換わる。"* 難しい、control divergenceは多分分岐命令時にプログラムの流れが分裂する事を指してる、memory divergenceは何だろう。スレッド0とスレッド1で深さの異なる再帰を実行していったらスタックポインタの値だけが異なって行きそう、多分これがmemory divergenceかな。
+*"(訳) その他の手法としてスタックポインタをスレッド毎に持つ手法があり、この場合はcontrol divergenceが減少する代わりにスタックへのアクセスが異なるmemory divergenceに置き換わる。"* 
+
+難しい、control divergenceは多分分岐命令時にプログラムの流れが分裂する事を指してる、memory divergenceは何だろう。スレッド0とスレッド1で深さの異なる再帰を実行していったらスタックポインタの値だけが異なって行きそう、多分これがmemory divergenceかな。
 
 確かに再帰の対処って大事っすね。
 
@@ -126,10 +132,16 @@ Pixar Chapでは制御フローグラフの走査順序はISA側で明示して�
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/nest_kernel_single_mask.png)
 <p style="text-align:center"> <b>if文がネストされたプログラムの実行マスクの変化</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
 
+そこで実行マスクを保存するスタック、マスクスタックを用意する。このスタックの先頭に存在する実行マスクを有効な実行マスクとする。マスクスタックには、分岐時に新たに生成された実行マスクをpushし、コードブロックの終了時にpopする。
 
+マスクスタックにより、２番目のif文の終了時に`[1000]`がpopされ`[1100]`が先頭となり、T0とT1がアクティブになる。そしてelseでT1では真となるため、`[0100]`がpushされてelse内がT1で実行される。結果的に全てのスレッドが正しく動作する。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/mask_stack.png)
 <p style="text-align:center"> <b>マスクスタック</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+このmask stackの導入によりreconvergenceが実現できている。賢い。
+
+まとめるとPixar Chapでは制御フローグラフの走査はISAで行い、Reconvergenceはmask stackで行っている。
 
 現代のGPUではAMDが似たアプローチを取っている。実際にAMD Evergreenの命令セットを眺めてみると`LOOP_START`命令とかある。
 
@@ -139,6 +151,17 @@ Pixar Chapでは制御フローグラフの走査順序はISA側で明示して�
 
 POMPはKeryll氏とParis氏が提案したPOMP並列計算機プロジェクトの産物であり、スタックに保存されているマスクは常にヒストグラムの形状を取る事から着想を得た。
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/stack_histogram.png)
+<p style="text-align:center"> <b>マスクスタックの推移</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+スタックのdepth $$d$$で非アクティブのスレッドはスタックのdepth $$d + 1$$でも必ず非アクティブのままとなる。つまり先頭が`[1100]`の状態で`[1101]`のようなマスクがpushされることは絶対に無い。という事はマスクスタックは各スレッドの最後にアクティブになったネストの深さを記録する、アクティビティカウンタに置き換えられる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/activity_counter.png)
+<p style="text-align:center"> <b>マスクスタックの推移</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+この実装により$$N$$をネストの深さとして、保存するデータ量をマスクスタックの$$O(N)$$から$$O(\log(N))$$に落とせる。
+
+このアクティビティカウンタの実装はintelのSandy Bridge以前の内蔵GPUで使用されている。
 
 #### NVIDIA Tesla
 
