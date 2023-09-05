@@ -59,16 +59,6 @@ divergenceとか謎の単語が出てきたが、divergenceは最初は足並み
 
 このdivergenceとconvergenceを管理する特別な命令を持つ命令セットが存在してないので、SIMT実行モデルの汎用プロセッサの採用が辛いみたいな事も書いてあるが、これをRISC-Vで解決するのがSIMTYである。
 
-## GPUのSIMDとCPUのSIMD
-
-ここまで知ってくると次は具体的な実装が気になってくる。分岐の扱いがSIMTの実装にとってのボトルネックなのは分かるが、そもそもSIMDユニットが何なのか謎。
-
-参考文献を眺めてみたらいい感じの論文があったので読んでみる。徳島大の御人が書いた論文らしい。名前をどこかで見たと思ったらB. ウィルキンソンの並列計算機設計技法を翻訳した御方だった。
-
-- [A mechanism for SIMD execution of SPMD programs](https://ieeexplore.ieee.org/document/592203)
-
-
-
 ## SIMTにおける分岐の実装
 
 SIMTにおける分岐の実装にはどんなものがあるのか、Stack-less SIMT reconvergence at low costの2. Related workに紹介があるので読んでみる。
@@ -110,7 +100,24 @@ SIMTにおける分岐の実装にはどんなものがあるのか、Stack-less
 ### 明示的な方法, スタックベース
 
 #### Pixar Chap
+
+Pixar ChapなるPixar製の古の画像処理用プロセッサは、命令セットに`if`, `else`, `fi`, `while-do`, `done`といった、プログラミング言語によくある制御構文を反映した制御命令を持っている。`if-else-then`といった条件分岐はcurrent prediction maskが扱い、ループはtwo mask stackというものが扱うらしい。
+
+Pixar Chapでは制御フローグラフの走査順序はISA側で明示して、ReconvergenceはISAに加えてmask stackで検知するらしい。謎。
+
+謎すぎるのでCaroline Collange先生の資料を読んでみる。23ページあたりから読むとアツい。
+
+[GPU architecture part 2: SIMT control flow management](http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf)
+
+現代のGPUではAMDが似たアプローチを取っている。実際にAMD Evergreenの命令セットを眺めてみると`LOOP_START`命令とかある。
+
+[Evergreen Family Instruction Set Architecture: Instructions and Microcode](https://www.amd.com/content/dam/amd/en/documents/radeon-tech-docs/instruction-set-architectures/AMD_Evergreen-Family_Instruction_Set_Architecture.pdf)
+
 #### POMP
+
+POMPはKeryll氏とParis氏が提案したPOMP並列計算機プロジェクトの産物であり、スタックに保存されているマスクは常にヒストグラムの形状を取る事から着想を得た。
+
+
 #### NVIDIA Tesla
 
 ### 暗黙的な方法, スタックベース
