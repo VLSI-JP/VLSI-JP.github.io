@@ -16,7 +16,7 @@ title: SIMTってやつを完全に理解したい
 
 ## SIMTとは
 
-SIMTの概要をまずは理解する。
+SIMTの概要をまずは知る。
 
 > "All current-generation GPUs operate according to the SIMT (Single Instruction, Multiple Threads) execution model. From the programmer’s and compiler’s point of view, this model is similar to SPMD (Single Program, Multiple Data). The programmer writes a single program or *kernel*. A large number of instances of the kernel (or *threads*) are then run in parallel. "
 <p style="text-align:right">- <a href="https://hal.science/hal-00622654/document">Stack-less SIMT reconvergence at low cost</a></p>
@@ -30,7 +30,7 @@ SIMTの概要をまずは理解する。
 
 *"(訳)ハードウェアがスレッドをまとめてwarpと呼ばれる塊にして、命令をSIMDユニットで実行する。"* warpはスレッドの塊、OK。warpをSIMDユニットで実行、OK。
 
-Simty: generalized SIMT execution on RISC-V の方でも
+Simty: generalized SIMT execution on RISC-V の方では
 
 > "The Single Instruction, Multiple Threads (SIMT) execution model as implemented in NVIDIA Graphics Processing Units (GPUs) associates a multi-thread programming model with an SIMD execution model."
 <p style="text-align:right">- <a href="https://carrv.github.io/2017/papers/collange-simty-carrv2017.pdf">Simty: generalized SIMT execution on RISC-V</a></p>
@@ -40,21 +40,13 @@ Simty: generalized SIMT execution on RISC-V の方でも
 > "The SIMT execution model consists in assembling vector instructions across different scalar threads of SPMD programs at the microarchitectural level."
 <p style="text-align:right">- <a href="https://carrv.github.io/2017/papers/collange-simty-carrv2017.pdf">Simty: generalized SIMT execution on RISC-V</a></p>
 
-*"(訳)SIMT実行モデルはマイクロアーキテクチャレベルでSPMDプログラムのスレッド群からベクトル命令を構成する。"* とか言っているので、大量のスレッドを合成してベクトル命令を作り、それをSIMDユニットで実行する。これをハードウェアでやるのがSIMTな計算機なんだと思う。
+*"(訳)SIMT実行モデルはマイクロアーキテクチャレベルでSPMDプログラムのスレッド群からベクトル命令を構成する。"* とか言ってる。わからん。
 
-つまりSIMDとSIMTの違いはこんな感じ、信じるか信じないかはあなた次第です。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/SIMD.png)
-<p style="text-align:center"> <b>SIMDの実行モデル</b> </p>
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/SIMT.png)
-<p style="text-align:center"> <b>SIMTの実行モデル</b> </p>
-
-図にすると理解した気になれて嬉しい。
-
+多分SPMDなプログラムをそのまま実行できる計算機がSIMTなんだと思います。
 
 ## SIMTの利点と欠点
 
-とりあえずSIMTの実行方法は理解した。次はSIMTの何が嬉しいのか、そして何が辛いのか理解していく。
+とりあえずSIMTの概要を知ることが出来た。次はSIMTの何が嬉しいのか、そして何が辛いのか理解していく。
 
 SIMTの利点と欠点は一言でまとめられている。
 
@@ -67,9 +59,9 @@ divergenceとか謎の単語が出てきたが、divergenceは最初は足並み
 
 このdivergenceとconvergenceを管理する特別な命令を持つ命令セットが存在してないので、SIMT実行モデルの汎用プロセッサの採用が辛いみたいな事も書いてあるが、これをRISC-Vで解決するのがSIMTYである。
 
-## SIMTにおける命令のベクトル化
+## GPUのSIMDとCPUのSIMD
 
-ここまで知ってくると次は具体的な実装が気になってくる。分岐の扱いがSIMTの実装にとってのボトルネックなのは分かるが、それ以前にスレッド群からどうやってSIMD命令を作ってSIMDユニットで実行するのかが気になる。vaddの場合は全てのスレッドでadd命令が発行されているからデータだけSIMDユニットに突っ込むとかそんな感じだろうか、でもSPMDって`int b = a;`みたいな感じで普通に値のムーブとか行うけど、どうやって対処してるんだろうとか色々納得してない。
+ここまで知ってくると次は具体的な実装が気になってくる。分岐の扱いがSIMTの実装にとってのボトルネックなのは分かるが、そもそもSIMDユニットが何なのか謎。
 
 参考文献を眺めてみたらいい感じの論文があったので読んでみる。徳島大の御人が書いた論文らしい。名前をどこかで見たと思ったらB. ウィルキンソンの並列計算機設計技法を翻訳した御方だった。
 
