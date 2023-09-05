@@ -109,6 +109,28 @@ Pixar Chapでは制御フローグラフの走査順序はISA側で明示して�
 
 [GPU architecture part 2: SIMT control flow management](http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf)
 
+あー完全に理解した。ありがとうCaroline Collange先生。
+
+まずはシンプルな実行マスクを考える。このマスクはi-bit目が1ならi番目のスレッドが実行されるものであり、その値は分岐命令が実行されたときに変化する。以下の例では、最初のif文までは全てのスレッドが実行されるが、if文の条件式ではスレッド番号が2未満の場合に真となるため、実行マスクの値は`[1100]`となり、T0とT1しか実行されなくなる。その後if文を抜け、実行マスクの値は`[1111]`となるが、次のif文の条件式はスレッド番号が5より大きい場合に真となるため、実行マスクの値は`[0000]`となり、if文のブロックの最後まで、処理がスキップされる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/single_mask.png)
+<p style="text-align:center"> <b>分岐命令時の実行マスクの変化</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+次に、以下のようなif文がネストされ、またelseの存在するプログラムの場合に、実行マスクの値がどのように変化するか考えてみる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/nest_kernel.png)
+<p style="text-align:center"> <b>if文がネストされたプログラム</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+単一の実行マスクの実装の場合、else以前までは正常に処理されるが、elseの実行時点でアクティブになっているスレッドはT0のみであるため、T0のelseの評価は偽となり実行マスクの値は`[0000]`となる。その結果if文のブロックの最後まで、処理がスキップされる。結果的に本来ならばT1が実行するはずのelseの処理が実行されなくなる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/nest_kernel_single_mask.png)
+<p style="text-align:center"> <b>if文がネストされたプログラムの実行マスクの変化</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/mask_stack.png)
+<p style="text-align:center"> <b>マスクスタック</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
 現代のGPUではAMDが似たアプローチを取っている。実際にAMD Evergreenの命令セットを眺めてみると`LOOP_START`命令とかある。
 
 [Evergreen Family Instruction Set Architecture: Instructions and Microcode](https://www.amd.com/content/dam/amd/en/documents/radeon-tech-docs/instruction-set-architectures/AMD_Evergreen-Family_Instruction_Set_Architecture.pdf)
