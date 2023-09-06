@@ -240,6 +240,32 @@ Sandy Bridgeではスタックやアクティビティカウンタではなく�
 
 * [SIMD re-convergence at thread frontiers](https://ieeexplore.ieee.org/document/7851496)
 
+まずは、スレッド毎に存在するプログラムカウンタ(Per-Thread Program Counters)、略してPTPCsを定義する。これは各スレッドが実行している命令のアドレスを指す。またWarpが持つプログラムカウンタとしてWarp PCを定義する。PTPCsの内、このWarp PCと値が一致するスレッドをアクティブなスレッドとする。
+
+続いて`if-else-endif`命令を考える。これは条件が偽ならif文のブロックを飛ばしてelseの部分を実行する命令である。真の場合はif文ブロックを実行してelseを飛ばす(多分)。
+
+以下は全てのスレッドでelse部分が実行されるプログラムにおける、Warp PCとPTPCsの挙動となっている。
+
+if文の条件式が評価された際に、全てのスレッドで偽となるためif文のブロックを飛ばしてPTPCsの値が全て3になる。PTPCsの値が全て同一であるので、Warp PCの値も3となり、その後はPCの値がインクリメントされていく。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/pc_skipif.png)
+<p style="text-align:center"> <b>PTPCs, 全て分岐した場合</b></p>
+
+次に、if文でdivergenceが発生するプログラムにおけるWarp PCとPTPCsの挙動は以下の通りになる。
+
+if文の条件式が評価されると、T0とT1では真であるのでPCの値は1になり、またT2とT3では偽であるのでPCの値はif文のブロックを飛ばしてelseブロックを指す3となる。この時のWarp PCの値がどうなるかはISAに寄るが、ここではif文のブロックを指す1になるとする。
+
+この時、PTPCsの内でWarp PCと値が一致しているのはT0とT1であるので、T2とT3は非アクティブになり、T0とT1が実行される。その後elseに到達すると、T0とT1はelseブロックを飛ばしてPCは5となるが、この時Warp PCの値とPTPCsにおけるT2とT3の値が一致するため、今度はT0とT1が非アクティブになり、T2とT3が実行される。
+
+そしてelseの最後でPTPCsの全ての値とWarp PCの値が一致することで、全てのスレッドがアクティブになる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/pc_divergence.png)
+<p style="text-align:center"> <b>PTPCs, Divergenceが発生した場合</b></p>
+
+このWarp PCとPTPCsの導入により、Reconvergenceも実現できている。
+
+この実装方法では、ネストの深さ$$N$$として、保存するデータ量をアクティビティカウンタの$$O(\log(N))$$から$$O(1)$$に落とせる。
+
 #### Lorie-Strong
 
 ### 暗黙的な方法, アクティビティビット
