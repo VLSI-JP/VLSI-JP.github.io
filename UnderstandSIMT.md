@@ -38,7 +38,7 @@ warpはスレッドの塊、OK。warpをSIMDユニットで実行、OK。
 
 このGPUにおけるSIMDの実現方法は1997年からそう。
 
-[A mechanism for SIMD execution of SPMD programs](https://ieeexplore.ieee.org/document/592203)
+* [A mechanism for SIMD execution of SPMD programs](https://ieeexplore.ieee.org/document/592203)
 
 よってwarpをSIMDユニットで実行とは、スレッドの塊がPEの塊に突っ込まれている光景を想像してくれればよい。個人的にはPEの塊をSIMDユニットと呼ぶなよと思う。
 
@@ -134,7 +134,7 @@ Pixar Chapでは制御フローグラフの走査順序はISA側で明示して�
 
 謎すぎるのでCaroline Collange先生の資料を読んでみる。23ページあたりから読むとアツい。
 
-[GPU architecture part 2: SIMT control flow management](http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf)
+* [GPU architecture part 2: SIMT control flow management](http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf)
 
 あー完全に理解した。ありがとうCaroline Collange先生。
 
@@ -182,9 +182,9 @@ POMPはKeryll氏とParis氏が提案したPOMP並列計算機プロジェクト�
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/activity_counter.png)
 <p style="text-align:center"> <b>アクティビティカウンタ</b><br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
 
-この実装により$$N$$をネストの深さとして、保存するデータ量をマスクスタックの$$O(N)$$から$$O(\log(N))$$に落とせる。
+この実装により$$N$$をネストの深さとして、保存するデータ量をマスクスタックの$$O(N)$$から$$O(\log(N))$$に落とせる。これスタックベースじゃなくない？
 
-このアクティビティカウンタの実装はintelのSandy Bridge以前の内蔵GPUで使用されている。
+このアクティビティカウンタの実装はintelのSandy Bridgeより前の内蔵GPUで使用されている。
 
 #### NVIDIA Tesla
 
@@ -224,9 +224,22 @@ divergenceとreconvergenceの地点の一致って何？ループ？なんか知
 
 ### 暗黙的な方法, スタックベース
 
+コンパイラの手助け無しにdivergenceとconvergenceの管理が出来ると嬉しいが、そもそのスタックベースの手法には様々な問題点が存在する。
+
+まずスタックから溢れたエントリを保存するためのキャッシュが必要になるが、Teslaではwarp毎に3KBのキャッシュが必要になる。またバグを含んだプログラムを動かすとスタックが溢れたり逆にアンダーフローを起こしたりする。またコンテキストスイッチに対処するためにスタックのデータを保存し回復する機構が必要になる。
+
+そんな訳でスタックベースはやめといた方がいい。
+
 ### 明示的な方法, スタックレス
 
 #### Sandy Bridge
+
+Sandy Bridgeではスタックやアクティビティカウンタではなく、スレッド毎にプログラムカウンタ(PC)を持つことでdivergenceとconvergenceを管理している。
+
+スレッド毎のプログラムカウンタ(PTPCs)による管理方法の解説はこっちの方が詳しい。
+
+* [SIMD re-convergence at thread frontiers](https://ieeexplore.ieee.org/document/7851496)
+
 #### Lorie-Strong
 
 ### 暗黙的な方法, アクティビティビット
