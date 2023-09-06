@@ -269,3 +269,65 @@ if文の条件式が評価されると、T0とT1では真であるのでPCの値
 #### Lorie-Strong
 
 ### 暗黙的な方法, アクティビティビット
+
+ISAにDivergenceとConvergenceを管理する為の専用の命令無しにSIMTを動かす手法として、高橋氏の手法が存在する。
+
+* [A mechanism for SIMD execution of SPMD programs](https://ieeexplore.ieee.org/document/592203)
+
+この手法は各スレッドでPCを持つ。分岐命令が実行された際は、分岐先のアドレスが最も小さいスレッドが優先的に実行される。
+
+### 暗黙的な方法, スタックレス
+
+もう一つの複数のPCを持つ暗黙的な方法として、Stack-less SIMT reconvergence at low costが提案する手法が存在する。
+
+- [Stack-less SIMT reconvergence at low cost](https://hal.science/hal-00622654/document)
+
+この手法では、Intelの手法と同じくスレッド毎にPCを持ち、またこれらのPCの値からCommon PCというPCを計算する。
+
+##### Reconvergence
+
+> "We identify reconvergence situations by comparing the values of individual PCs with the selected common PC. Unlike the technique used in Intel GPUs, we operate the comparison continuously, on each cycle. It is thus unnecessary to signal explicitly potential reconvergence points in machine code."
+
+> *"(訳) Reconvergenceの検知は各PCとCommon PCとの比較によって行われる。Intel GPUとは異なりこの比較を継続的に各サイクルで行う。これにより、機械語内で潜在的なReconvergenceの地点を明示する必要がなくなる。"*
+
+PCsとCommon PCの比較を毎サイクル行うことで`if-else-endif`命令みたいなのが必要なくなるらしいが、正直よくわからない。
+
+> "Branch instructions are handled in a distributed way: each thread computes and update its own PC, as in a MIMD processor. Divergence happens when the local PC of a thread receives a different value than the PC of other
+threads."
+
+> *"(訳) 分岐命令が実行されると、各スレッドはMIMDプロセッサのように自身のPCの値を更新する。Divergenceはこのスレッドが持つPCの値と、他のスレッドのPCが異なる時に発生する。"*
+
+これはわかる。PTPCsと同じ。
+
+##### Traversal Order
+
+アービタはスレッドが持つPC達の値からCommon PCを決定する。Common PCの値は次にFetchする命令のアドレスとなる。このCommon PCは各スレッドが持つPC達から最も小さいものが選ばれる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/pc_stackless.png)
+<p style="text-align:center"> <b>PTPCsの内、最小の値が選択される</b></p>
+
+これの値の決定方法は、Reconvergenceが発生する地点が、現在実行している地点より大きいアドレスに存在するという仮定に基づいたものとなっている。実際、Collins, Tullsen, Wangの計測によるとこの仮定はSPECintに存在する分岐のうち94%で正しい。
+
+ただ、このCommon PCを各PCの最小値から選ぶ方法は、以下のような関数がプログラムの下で定義されているような場合に非効率となる。
+
+```c
+void kernel() {
+    ...
+    if(c) {      // Divergence発生
+        f();
+    }
+    ...
+}
+
+void f() {
+    ...
+}
+```
+
+この例ではif文でDivergenceが発生した際に、`f()`は`kernel()`より大きいアドレスに存在しているため、if文で真となりPCが`f()`を指しているスレッドより先に、偽となったスレッドでif文以降のプログラムが最後まで実行される。その後に`f()`を指しているスレッドが実行が開始され、returnしてからもう一度if文以降のプログラムがそのスレッドで実行される。これは効率が良いとは言えない。
+
+解決方法としてはプログラムのリンク時に関数は全て`kernel()`より小さいアドレスに配置するという方法がある。ただ再コンパイルや再リンクが実用的とは限らない。
+
+もっと一般化出来る解決方法としては各スレッド毎にスタックポインタを持つことである。スレッド$$i$$が持つスタックポインタをSP$$_i$$とする。コールスタックがアドレスが減少する方向に伸びると仮定して、最も深く関数コールをしている、最小のSP$$_i$$を持つスレッドが選択される。また全てのスレッドのSP$$_i$$が同じ場合は先の場合と同じく最小のプログラムカウンタを持つスレッドが選ばれる。
+
+この手法では制御フローグラフの走査順序を、最小のPCとSPのスレッドを選ぶとアーキテクチャレベルで決めているため、DivergenceとConvergenceを管理するための命令が必要なくなる。
