@@ -381,8 +381,3 @@ SIMTYでは、PathはCPCと実行マスクに加えてスタックポインタ�
 
 またConvergenceを行うための比較は、現在アクティブなPathと次点でアクティブになり得るPathとの間でのみ行われる。
 
-### Speculative Reconvergence
-
-調べてたらnVIDIAがSpecutlative Reconvergence for Improved SIMT Efficiencyとかいう論文を出してた。Speculativeな物体にはロマンが詰まっているのでちょっと読んでみる。
-
-* [Speculative Reconvergence for Improved SIMT Efficiency](https://research.nvidia.com/publication/2020-02_speculative-reconvergence-improved-simt-efficiency)
