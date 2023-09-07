@@ -284,7 +284,7 @@ ISAにDivergenceとConvergenceを管理する為の専用の命令無しにSIMT�
 
 この手法では、Intelの手法と同じくスレッド毎にPCを持ち、またこれらのPCの値からCommon PCというPCを計算する。
 
-##### Reconvergence
+#### Reconvergence
 
 > "We identify reconvergence situations by comparing the values of individual PCs with the selected common PC. Unlike the technique used in Intel GPUs, we operate the comparison continuously, on each cycle. It is thus unnecessary to signal explicitly potential reconvergence points in machine code."
 
@@ -299,7 +299,7 @@ threads."
 
 これはわかる。PTPCsと同じ。
 
-##### Traversal Order
+#### Traversal Order
 
 アービタはスレッドが持つPC達の値からCommon PCを決定する。Common PCの値は次にFetchする命令のアドレスとなる。このCommon PCは各スレッドが持つPC達から最も小さいものが選ばれる。
 
@@ -331,3 +331,58 @@ void f() {
 もっと一般化出来る解決方法としては各スレッド毎にスタックポインタを持つことである。スレッド$$i$$が持つスタックポインタをSP$$_i$$とする。コールスタックがアドレスが減少する方向に伸びると仮定して、最も深く関数コールをしている、最小のSP$$_i$$を持つスレッドが選択される。また全てのスレッドのSP$$_i$$が同じ場合は先の場合と同じく最小のプログラムカウンタを持つスレッドが選ばれる。
 
 この手法では制御フローグラフの走査順序を、最小のPCとSPのスレッドを選ぶとアーキテクチャレベルで決めているため、DivergenceとConvergenceを管理するための命令が必要なくなる。
+
+### SIMTYにおける実装
+
+SIMTYとはRISC-VのSIMTプロセッサであり、拡張命令やコンパイラの支援無しにSPMDコードを並列実行できる。すげえ。どうやってDivergenceとConvergenceを実装してるのか気になるよな。
+
+- [Simty: generalized SIMT execution on RISC-V](https://carrv.github.io/2017/papers/collange-simty-carrv2017.pdf)
+
+Simtyの解説は先のCaroline Collange先生の資料に載ってるので嬉しい。
+
+* [GPU architecture part 2: SIMT control flow management](http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf)
+
+まずはPathという概念を定義する。PathはCommon Program Counter(CPC)とマスクから構成される。マスクの各ビットはCPCと同じPCを持つスレッドを意味する。以下の画像では、T1, T2, T4のPCが17を指しているという事を意味する。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/path.png)
+<p style="text-align:center"> <b>Pathの構造</b> <br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+そしてPathのリストはPTPCsと同等になる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/path_ptpcs.png)
+<p style="text-align:center"> <b>PTPCsとPath listは同等</b> <br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+プロセッサは、このPathのリストからアクティブなパスを選択し、CPCにある命令アドレスの命令をフェッチする。そして実行マスクにあるスレッドでその命令を実行する。分岐命令を実行しDivergenceが発生した場合、選択されているPathは分岐命令でnot takenのパスとtakenのパスに分割される。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/path_list_branch.png)
+<p style="text-align:center"> <b>分岐命令時のPath list</b> <br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+そして新たに生成されたPathはPathのリストに挿入される。Path listはこのようにDivergenceを扱っている。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/new_path_list.png)
+<p style="text-align:center"> <b>分岐命令後のPath list</b> <br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+また、PathのリストにおいてCPCが一致するエントリが存在する場合はマージされる。Path listではConvergenceはPath同士のORによって行われる。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/UnderstandSIMT/path_list_convergence.png)
+<p style="text-align:center"> <b>Path listにおけるConvergence</b> <br>(<a href="http://www.irisa.fr/alf/downloads/collange/cours/ada2020_gpu_2.pdf">GPU architecture part 2: SIMT control flow management</a>より作成)</p>
+
+PathにおけるDivergenceとConvergenceが理解できたところで、次の疑問が生じる。
+
+- アクティブなパスをどう選択するか？
+- 新たなパスはどこに挿入するか？
+- Convergenceの為のCPCの比較はどう行うか？
+
+これらの問題に対する解答によって、制御フローグラフの走査とReconvergenceの戦略が変わってくる。
+
+SIMTYでは、PathはCPCと実行マスクに加えてスタックポインタを持ち、先で挙げた手法と同じくこのスタックポインタを用いて最も深くネストしているPathがアクティブなPathとなる。また全てのPathのスタックポインタが同じ場合は、最も小さいCPCを持つPathがアクティブなPathとなる。
+
+実際にはPathのリストがPathがアクティブになり得る優先度によってソートされ、先頭に存在するPathがアクティブなPathとなる。
+
+またConvergenceを行うための比較は、現在アクティブなPathと次点でアクティブになり得るPathとの間でのみ行われる。
+
+### Speculative Reconvergence
+
+調べてたらnVIDIAがSpecutlative Reconvergence for Improved SIMT Efficiencyとかいう論文を出してた。Speculativeな物体にはロマンが詰まっているのでちょっと読んでみる。
+
+* [Speculative Reconvergence for Improved SIMT Efficiency](https://research.nvidia.com/publication/2020-02_speculative-reconvergence-improved-simt-efficiency)
