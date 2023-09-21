@@ -3,7 +3,7 @@ layout: default
 title: SIMTってやつを完全に理解したい
 ---
 
-院落ちた＼(^o^)／
+~~院落ちた＼(^o^)／~~ 受かった
 
 # SIMTってやつを完全に理解したい
 
@@ -381,3 +381,36 @@ SIMTYでは、PathはCPCと実行マスクに加えてスタックポインタ�
 
 またConvergenceを行うための比較は、現在アクティブなPathと次点でアクティブになり得るPathとの間でのみ行われる。
 
+賢いなあ。
+
+## SIMTYのアーキテクチャ
+
+実際にRISC-V SIMTの実装がある事だし見てみよう。
+
+SIMTYは10ステージで構成されている。
+
+### Fetch steering
+
+Fetch steeringではwarpを選択し、現在アクティブなPathの投機的CPC(おそらくCPCの投機的なアドレスを持つレジスタ)を選択する。warpのスケジューリングはラウンドロビンで行う。そして投機的CPCの値を更新する。現状は値をインクリメントするだけだが、分岐予測器を実装してもよい。
+
+### Instruction Fetch / Predecode
+
+Instruction Fetchでは命令を命令キャッシュまたは直接メモリからフェッチする。Predecodeではオペランドに対応するレジスタをチェックし、命令間のデータ依存を確認してレジスタからデータを取り出す。こうしてPredecodeされた命令はWarp毎に１つある命令バッファに格納される。
+
+### Scheduler
+
+Schedulerでは命令のオペランドが全て有効になったら命令を発行する。
+
+### Register File
+
+### Execute
+
+### Membership, HCT1 and HCT2
+
+### Writeback
+
+### Branch
+
+### Memory coalescing and Memory access
+
+### Memory gather
