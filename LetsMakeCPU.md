@@ -85,6 +85,15 @@ Rui Ueyama大先生が最強の本を書いてくれましたので全人類や�
 - いしたに ([@taichi600730](https://x.com/@taichi600730))
 - IDA Kenta ([@ciniml](https://x.com/@ciniml))
 
+## 謝辞2
+
+記事の改善に協力していただいた皆様に感謝いたします。
+
+- [@kekemoto](https://github.com/kekemoto)
+- [@funera1a](https://github.com/funera1)
+- [@azure17581](https://github.com/azure17581)
+ 
+
 <div align="right"> おわり </div>
 ---
 Copyright (C) Cra2yPierr0t, ALL RIGHTS RESERVED
