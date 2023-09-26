@@ -1760,6 +1760,24 @@ assign w_slice2 = w_signal[7];
 
 このスライスはwire型とreg型両方に対して行うことが可能です。
 
+#### 二次元配列
+
+Verilogではreg型を用いて自由な長さのレジスタを定義することが出来ました。例えば`reg [7:0] r_line;`と宣言することで、8bit幅の`r_line`という名前のレジスタを定義できました。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/reg_line.png)
+<p style="text-align:center"><b>8bit幅のレジスタ</b></p>
+
+しかし、複数の同じ長さのレジスタを定義したい時に、`reg [7:0] r_line1;`, `reg [7:0] r_line2`, ... のように名前を変えて何度も定義する必要があり、効率的ではありません。そこで使うのが**二次元配列**です。
+
+Verilogではレジスタの宣言の後ろに`[最後の番号:最初の番号]`を付けることで、同じ長さの複数のレジスタを定義することが可能です。以下の例では、`[3:0]`を付けており、0番から3番の計4つの8bitのレジスタが定義されています。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/reg_array.png)
+<p style="text-align:center"><b>8bit幅のレジスタ x 4</b></p>
+
+二次元のレジスタにアクセスする際は`レジスタ名[レジスタ番号][ビット番号:ビット番号]`でアクセス出来ます。今回の例では`r_array[0][1:0]`で`r_array`の0番の1bit目から0bit目にアクセスでき、`r_array[1][7]`で1番のレジスタの7bit目にアクセス出来ます。また、ビット番号を省略することも可能であり、例えば`r_array[3]`で3番のレジスタの全体にアクセスが可能です。
+
+またwire型でも同様の事が可能です。二次元配列は非常によく使いますので覚えておきましょう。
+
 #### if文
 
 if文とは条件に応じて処理を変える文法であり、always文と後述するfunction文で記述可能です。
