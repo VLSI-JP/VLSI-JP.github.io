@@ -54,7 +54,7 @@ CPUを現実世界で作成する場合、選択肢として主にロジックIC
 ![](https://2.bp.blogspot.com/-khfR1UvFhbw/XDXbZILRDOI/AAAAAAABQ_k/FVT0GCYVkV4PgTySWyA63UIkk29pP0DkwCLcBGAs/s800/computer_ic_syusekikairo_long.png)
 <p style="text-align:center"> <b>黒いムカデ</b></p>
 
-このロジックICを用いた自作CPUに関しては、**CPUの創り方**という2003年出版の伝説的な名著が存在しています。このメイドが描かれた最高の本をご存知の方も居るのではないでしょうか。
+このロジックICを用いた自作CPUに関しては、**CPUの創り方**という2003年出版の伝説的な名著が存在しています。このメイドが描かれた本をご存知の方も居るのではないでしょうか。
 
 <p style="text-align:center"><iframe src="https://book.mynavi.jp/ec_products_detail_html/id=22065" frameborder="0" width="220" height="250" scrolling="yes"></iframe></p>
 
@@ -94,7 +94,7 @@ VLSIは他の工業製品と同じく工場(ファブと呼ばれる)で大量�
 <p style="text-align:center"><b>FPGA</b></p>
 
 詳しい仕組みの説明はここでは省きますが、どんな論理ゲートにもなれる特殊な回路が大量に詰まっていると思って頂ければ十分です。このFPGAでCPUを作る場合、HDLという回路を設計する為の言語を使い、まるでプログラミングの様に回路を作る事が出来ます。
-
+設置
 一昔前はこのFPGA、１万円は余裕で超える程度には値が張り、値段の時点で既に入門のハードルが高いものとなっていました。しかし現在、安価なFPGAも出現し始め、勇気の要らない値段でFPGAが手に入るようになってきました。
 
 本記事では入手性、値段、開発の容易さから、CPUの作成手段としてFPGAを採用しています。
