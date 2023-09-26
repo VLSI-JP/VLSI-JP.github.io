@@ -855,9 +855,9 @@ vvp a.out
 
 ```bash
 VCD info: dumpfile wave.vcd opened for output.
-o_p = ffff
-o_p = eebb
-o_p = fffb
+o_p = 0000
+o_p = 4411
+o_p = 4448
 problem3_tb.v:30: $finish called at 6 (1s)
 ```
 
@@ -909,7 +909,7 @@ module problem3(
   wire [15:0] w_p;
 
   assign w_p = ~i_p0;
-  assign o_p = w_p | i_p1;
+  assign o_p = w_p & i_p1;
 
 endmodule
 ```
