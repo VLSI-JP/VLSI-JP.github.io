@@ -1929,6 +1929,406 @@ endmodule
 {10{1'b1}} -> 10'11111111111
 ```
 
+### 練習問題
+
+実際に手を動かしてVerilogに慣れましょう。
+
+#### 練習問題１
+
+以下の回路と同等のモジュール`problem1`を`problem1.v`という名前のファイルに作成してください。入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem1.png)
+
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem1_tb.v`というファイル名で保存する。
+
+```verilog
+module problem1_tb;
+  reg [7:0] i_p0;
+  reg [7:0] i_p1;
+  reg [7:0] i_p2;
+  wire [7:0] o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+    
+  problem1 DUT(
+    .i_p0   (i_p0   ),
+    .i_p1   (i_p1   ),
+    .i_p2   (i_p2   ),
+    .o_p    (o_p    )
+  );
+    
+  initial begin
+    i_p0 = 8'h00;
+    i_p1 = 8'h00;
+    i_p2 = 8'h00;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'h0f;
+    i_p1 = 8'h55;
+    i_p2 = 8'h88;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'h74;
+    i_p1 = 8'h81;
+    i_p2 = 8'h11;
+    #2
+    $display("o_p = %02x", o_p);
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem1_tb.v problem1.v
+vvp a.out
+```
+
+以下の出力が得られたら正解です。
+
+```bash
+VCD info: dumpfile wave.vcd opened for output.
+o_p = 00
+o_p = 8d
+o_p = 11
+problem1_tb.v:35: $finish called at 6 (1s)
+```
+
+#### 練習問題２
+
+以下の回路と同等のモジュール`problem2`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem2.png)
+
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem2_tb.v`というファイル名で保存する。
+
+```verilog
+module problem2_tb;
+  reg [7:0] i_p0;
+  reg [7:0] i_p1;
+  reg [7:0] i_p2;
+  wire [7:0] o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+    
+  problem2 DUT(
+    .i_p0   (i_p0   ),
+    .i_p1   (i_p1   ),
+    .i_p2   (i_p2   ),
+    .o_p    (o_p    )
+  );
+    
+  initial begin
+    i_p0 = 8'h55;
+    i_p1 = 8'h77;
+    i_p2 = 8'h01;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'hf0;
+    i_p1 = 8'h55;
+    i_p2 = 8'h5a;
+    #2
+    $display("o_p = %02x", o_p);
+    i_p0 = 8'hff;
+    i_p1 = 8'h88;
+    i_p2 = 8'h11;
+    #2
+    $display("o_p = %02x", o_p);
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem2_tb.v problem2.v
+vvp a.out
+```
+
+以下の出力が得られたら正解です。
+
+```bash
+VCD info: dumpfile wave.vcd opened for output.
+o_p = 56
+o_p = 40
+o_p = ff
+problem2_tb.v:35: $finish called at 6 (1s)
+```
+
+#### 練習問題３
+
+以下の回路と同等のモジュール`problem3`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem3.png)
+
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem3_tb.v`というファイル名で保存する。
+
+```verilog
+module problem3_tb;
+  reg [15:0] i_p0;
+  reg [15:0] i_p1;
+  wire [15:0] o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+    
+  problem3 DUT(
+    .i_p0   (i_p0   ),
+    .i_p1   (i_p1   ),
+    .o_p    (o_p    )
+  );
+    
+  initial begin
+    i_p0 = 16'h0f0f;
+    i_p1 = 16'h0f0f;
+    #2
+    $display("o_p = %04x", o_p);
+    i_p0 = 16'h3366;
+    i_p1 = 16'h6633;
+    #2
+    $display("o_p = %04x", o_p);
+    i_p0 = 16'h1234;
+    i_p1 = 16'h5678;
+    #2
+    $display("o_p = %04x", o_p);
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem3_tb.v problem3.v
+vvp a.out
+```
+
+以下の出力が得られたら正解です。
+
+```bash
+VCD info: dumpfile wave.vcd opened for output.
+o_p = 0000
+o_p = 4411
+o_p = 4448
+problem3_tb.v:30: $finish called at 6 (1s)
+```
+
+#### 練習問題４
+
+以下の回路と同等のモジュール`problem4`を`problem4.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、クロック毎に1つづ値が増えていきます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
+
+入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem4.png)
+
+またテストベンチとテスト用のコマンドは以下のものを使ってください。
+
+テストベンチ、これを`problem4_tb.v`というファイル名で保存する。
+
+```verilog
+module problem4_tb;
+  reg           i_clk     = 0;
+  reg           i_rst     = 0;
+  wire  [15:0]  o_p;
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, DUT);
+  end
+
+  problem4 DUT(
+    .i_clk  (i_clk  ),
+    .i_rst  (i_rst  ),
+    .o_p    (o_p    )
+  );
+
+  always #1 begin    
+    i_clk <= ~i_clk;
+  end
+
+  initial begin
+    i_rst   = 1'b1;
+    #10
+    i_rst   = 1'b0;
+    #100
+    $finish;
+  end
+endmodule
+```
+
+テスト用コマンド
+
+```bash
+iverilog problem4_tb.v problem4.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+波形ファイルを開き、`i_rst`の値が0になってから`o_p`の値が1づつ増えていけば正しい動作です。
+
+#### 練習問題５
+
+以下の回路と同等のモジュール`problem5`を`problem5.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、`i_ctrl`によって格納するデータを選択できます。
+
+入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem5.png)
+
+テストベンチは各自で作成してください。
+
+#### 練習問題６
+
+以下の回路と同等のモジュール`problem6`を`problem6.v`という名前のファイルに作成してください。以下の回路は3bitのレジスタを持っており、`i_data`の下位2bitによって格納するデータを選択できます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
+
+入出力は画像の通りです。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem6.png)
+
+テストベンチは各自で作成してください。
+
+### 模範解答
+
+#### 模範解答１
+
+```verilog
+module problem1(
+  input       [7:0] i_p0,
+  input       [7:0] i_p1,
+  input       [7:0] i_p2,
+  output wire [7:0] o_p
+);
+
+  wire [7:0] w_p;
+
+  assign w_p = i_p0 & i_p1;
+  assign o_p = w_p | i_p2;
+
+endmodule
+```
+
+#### 模範解答２
+
+```verilog
+module problem2(
+  input       [7:0] i_p0,
+  input       [7:0] i_p1,
+  input       [7:0] i_p2,
+  output wire [7:0] o_p
+);
+
+  wire [7:0] w_p;
+
+  assign w_p = i_p1 & i_p2;
+  assign o_p = i_p0 + w_p;
+
+endmodule
+```
+
+#### 模範解答３
+
+```verilog
+module problem3(
+  input       [15:0] i_p0,
+  input       [15:0] i_p1,
+  output wire [15:0] o_p
+);
+
+  wire [15:0] w_p;
+
+  assign w_p = ~i_p0;
+  assign o_p = w_p & i_p1;
+
+endmodule
+```
+
+#### 模範解答４
+
+```verilog
+module problem4(
+  input             i_clk,
+  input             i_rst,
+  output reg [15:0] o_p
+);
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      o_p   <= 16'h0000;
+    end else begin
+      o_p   <= o_p + 16'h0001;
+    end
+  end
+
+endmodule
+```
+
+#### 模範解答５
+
+```verilog
+module problem5(
+  input         i_clk,
+  input [15:0]  i_data_0,
+  input [15:0]  i_data_1,
+  input [15:0]  i_data_2,
+  input [15:0]  i_data_3,
+  input [1:0]   i_ctrl,
+  output reg [15:0] o_data
+);
+
+  always @(posedge i_clk) begin
+    case(i_ctrl)
+      2'b00 : o_data <= i_data_0;
+      2'b01 : o_data <= i_data_1;
+      2'b10 : o_data <= i_data_2;
+      2'b11 : o_data <= i_data_3;
+    endcase
+  end
+
+endmodule
+```
+
+#### 模範解答６
+
+```verilog
+module problem6(
+  input             i_clk,
+  input             i_rst,
+  input      [15:0] i_data,
+  output reg [2:0]  o_data
+);
+
+  always @(posedge i_clk) begin
+    if(i_rst) begin
+      o_data <= 3'b000;
+    end else begin
+      case(i_data[1:0])
+        2'b00 : o_data <= i_data[4:2];
+        2'b01 : o_data <= i_data[7:5];
+        2'b10 : o_data <= i_data[10:8];
+        2'b11 : o_data <= i_data[13:11];
+      endcase
+    end
+  end
+
+endmodule
+```
+
+
 以上でディジタル回路の基礎とVerilogの基礎は終了です。これでCPUを作る為の技能を身につける事が出来ました。お疲れ様でした。
 
 次はVerilogで書いた回路を実機で動かしてみるか、一番下のコンピュータアーキテクチャ入門へ進みましょう。
