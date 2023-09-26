@@ -1,12 +1,12 @@
 ---
 layout: default
-title: ディジタル回路とVerilog入門
+title: ディジタル回路とVerilog入門v2(WIP)
 image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/DigitalCircuit_And_Verilog.png"
 ---
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/DigitalCircuit_And_Verilog.png)
 
-# ディジタル回路とVerilog入門
+# ディジタル回路とVerilog入門v2(WIP)
 
 ディジタル回路とVerilog入門では、CPUを作る前に必要な基礎知識、そして作るために必要な道具の使い方を学んでいきます。
 
@@ -705,7 +705,7 @@ gtkwave wave.vcd
 
 <p style="text-align:center"> <b>マルチプレクサの真理値表</b></p>
 
-このマルチプレクサ、次のようにNOTとANDとORで作ることが出来ます。`Y = (A & S) | (B & ~S)`。
+このマルチプレクサ、次のようにNOTとANDとORで作ることが出来ます。`Y = (A & ~S) | (B & S)`。
 
 実際にVerilogでマルチプレクサを使ってみる前に、`Basic.v`に少し手を加えます。かなり長いのでコピペで結構です。
 
@@ -725,7 +725,7 @@ module Basic;
 
   wire w_x;
 
-  assign w_x = (r_a & r_s) | (r_b & ~r_s);
+  assign w_x = (r_a & ~r_s) | (r_b & r_s);
 
   // --- おまじないここから ---
   initial begin
@@ -771,7 +771,7 @@ endmodule
 `Basic.v`のassign文の部分でマルチプレクサを作成しています。
 
 ```verilog
-  assign w_x = (r_a & r_s) | (r_b & ~r_s);
+  assign w_x = (r_a & ~r_s) | (r_b & r_s);
 ```
 
 以下のコマンドを打ち、シミュレータで実際にマルチプレクサになっている事を確認しましょう。
@@ -782,20 +782,20 @@ vvp a.out
 gtkwave wave.vcd
 ```
 
-`r_a`, `r_b`, `r_s`, `w_x`の波形を覗いてみると、`r_s`が1の時は`w_x`に`r_a`の値が入力され、`r_s`が0の時は`w_x`に`w_b`の値が入力されており、マルチプレクサが出来ている事が確認できると思います。
+`r_a`, `r_b`, `r_s`, `w_x`の波形を覗いてみると、`r_s`が0の時は`w_x`に`r_a`の値が入力され、`r_s`が1の時は`w_x`に`w_b`の値が入力されており、マルチプレクサが出来ている事が確認できると思います。
 
 論理ゲートを用いてマルチプレクサを作ることが出来ましたが、信号を選択したい時に毎回ANDとNOTを使ってマルチプレクサを作るのは非常に面倒です。そこでVerilogでは**三項演算子**というものを用いて簡単にマルチプレクサを表す事が出来ます。
 
 三項演算子は`?`と`:`の２つの記号を組み合わせて使います。
 
 ```
-S ? A : B
+S ? B : A
 ```
 
 これは信号Sが1の場合は信号Aが選択され、信号Sが0の場合は信号Bが選択されます。`Basic.v`をこの三項演算子を使って書き直してみましょう。
 
 ```verilog
-  assign w_x = r_s ? r_a : r_b;
+  assign w_x = r_s ? r_b : r_a;
 ```
 
 以下のコマンドを打ち、シミュレータで実際にマルチプレクサになっている事を確認しましょう。
@@ -1106,6 +1106,11 @@ Verilogには様々な演算子が存在し、これらの演算子は複数ビ�
 | 減算 | `-` | `A - B` |
 | 乗算 | `*` | `A * B` |
 | 除算 | `/` | `A / B` |
+| 左シフト | `<<` | `A << Bj` |
+| 右シフト | `>>` | `A >> B` |
+| 算術右シフト | `>>>` | `A >>> B` |
+
+<p style="text-align:center"><b>Verilogの演算子</b></p>
 
 ### ディジタル回路の構造化
 
@@ -1292,6 +1297,7 @@ module FullAdder(
 
 endmodule
 ```
+<p style="text-align:center"><b>FullAdder.v</b></p>
 
 これにて半加算器を用いて全加算器を作成することが出来ました。先程に比べてイケてる見た目になりましたね。
 
@@ -1328,11 +1334,11 @@ gtkwave wave.vcd
 
 ### ディジタル回路と時間
 
-先程まで
+今まで学んだ回路は、現在の入力から出力が決定する**組み合わせ回路**と呼ばれるものでした。この次は、現在に加え過去の状態から出力が決定する**順序回路**について学んでいきます。
 
 #### D-FF
 
-さてD-FF、謎の物体が出てきました。高校数学でANDやORをなんか見たことあるなあ、という人もD-FFは高校数学で学びません。これは**D型フリップフロップ**というものです。
+さてD-FF、謎の物体が出てきました。高校数学でANDやORをなんか見たことあるなあ、という人もD-FFは高校数学で学びません。これは**D型フリップフロップ**という情報を記憶するディジタル回路です。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff.png)
 
@@ -1352,9 +1358,9 @@ gtkwave wave.vcd
 
 #### reg型
 
-`wire`は信号線を作成するためのキーワードでしたが、信号線はデータを保持する事が出来ません。基礎知識でも書きましたが、ディジタル回路がデータを保持するためには**フリップフロップ**(以後レジスタ)が必要でしたね。
+`wire`は信号線を作成するためのキーワードでしたが、信号線はデータを保持する事が出来ません。先程説明した通り、ディジタル回路がデータを保持するためには**フリップフロップ**(以後レジスタ)が必要でしたね。
 
-Verilogでは`reg`というキーワードでレジスタを生成することが可能です。`reg`の使い方は以下のように。`reg サイズ レジスタ名;`の順で記述します。
+Verilogでは`reg`というキーワードでレジスタを生成することが可能です。`reg`の使い方は以下のように。`reg サイズ レジスタ名;`の順で記述します。行の最後にセミコロン`;`を忘れずに付けてください。
 
 ```verilog
 reg [31:0] test_32reg;
@@ -1370,7 +1376,7 @@ reg test_1reg;
 
 `reg`で作られたレジスタにはalways文というものを用いて信号を入力することが可能です。
 
-基礎知識で述べたように、情報の記録とはクロックという信号に密接に関係してします。そこでalways文は殆どの場合においてクロック信号と一緒に用います。
+先程述べたように、情報の記録とはクロックという信号に密接に関係してします。そこでalways文は殆どの場合においてクロック信号と一緒に用います。
 
 always文は`always @(posedge クロック信号) begin ~ end`または`always @(negedge クロック信号) begin ~ end`という文法で記述し、`begin ~ end`の間に回路を記述します。`posedge`の場合はクロック信号が立ち上がりエッジのタイミングで処理が実行され、`negedge`の場合はクロック信号の立ち下がりのタイミングで処理が実行されます。
 
@@ -1400,317 +1406,178 @@ endmoudle
 
 最後にこのD-FFをMUXで少し改良して、データを記憶するタイミングを制御できるようにしましょう。
 
-以下ではD-FFとMUXを組み合わせ、`w_en`という信号でD-FFの保持するデータを書き換えるタイミングを決められるようにしてます。
+以下ではD-FFとMUXを組み合わせ、`i_en`という信号でD-FFの保持するデータを書き換えるタイミングを決められるようにしてます。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_improve.png)
 
-波形は以下の通りです。`w_en`が1になるとD-FFの保持するデータが`w_data`のものになりました。D-FFに対する書き込みタイミングを`w_en`で制御出来ていますね。
+実際にVerilogで作成してみましょう。`AdvancedDff.v`というファイルを新たに作り、そこに作成していきます。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/dff_improve_wave.png)
+まずはモジュールと入出力ポートを定義します。今回は実装を楽にするためDFFと`o_data`を同じものにします。よって、`output`で出力ポートをする際に`reg`と組み合わせて出力ポート兼レジスタの`o_data`を定義しています。
+
+```verilog
+module AdvancedDff(
+  input i_clk,
+  input i_data,
+  input i_en,
+  output reg o_data
+);
+endmodule
+```
+
+続いて、`i_clk`をクロックとしたalways文を書き、三項演算子を用いて`i_en`が1の場合に`o_data`に`i_data`の値が入力されるようにします。
+
+```verilog
+  always @(posedge i_clk) begin
+    o_data <= i_en ? i_data : o_data;
+  end
+```
+
+こうして完成したマルチプレクサで改良したDFFのコードが以下の通りです。
+
+```verilog
+module AdvancedDff(
+  input i_clk,
+  input i_data,
+  input i_en,
+  output reg o_data
+);
+  
+  always @(posedge i_clk) begin
+    o_data <= i_en ? i_data : o_data;
+  end
+
+endmodule
+```
+<p style="text-align:center"><b>AdvancedDff.v</b></p>
+
+動作を確認するため以下のテストベンチを`AdvancedDff_tb.v`という名前で保存してください。
+
+```verilog
+module AdvancedDff_tb;
+
+  // --- おまじないここから ---
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, AD);
+  end
+
+  reg i_clk = 1'b0;
+  reg i_data = 1'b0;
+  reg i_en = 1'b0;
+  wire o_data;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+  // --- おまじないここまで ---
+  
+  AdvancedDff AD(
+    .i_clk  (i_clk  ),
+    .i_data (i_data ),
+    .i_en   (i_en   ),
+    .o_data (o_data )
+  );
+  
+  // --- おまじないここから ---
+  initial begin
+    // 初期状態
+    i_data  = 1'b0;
+    i_en    = 1'b0;
+    #2
+    // データ入力
+    i_data  = 1'b1;
+    i_en    = 1'b0;
+    #6
+    // 書き込みを有効化
+    i_data  = 1'b1;
+    i_en    = 1'b1;
+    #2
+    // 書き込みを無効化
+    i_data  = 1'b1;
+    i_en    = 1'b0;
+    #4
+    // データ0に
+    i_data  = 1'b0;
+    i_en    = 1'b0;
+    #4
+    $finish;
+  end
+  // --- おまじないここまで ---
+
+endmodule
+```
+<p style="text-align:center"><b>AdvancedDff_tb.v</b></p>
+
+そして以下のコマンドで動作を確認します。
+
+```bash
+iverilog AdvancedDff_tb.v AdvancedDff.v
+vvp a.out
+gtkwave wave.vcd
+```
+
+`i_clk`, `i_data`, `i_en`, `o_data`の波形を覗いてみると、D-FFに対する書き込みタイミングを`i_en`で制御出来ている事が確認出来ると思います。`o_data`の値が赤くなっていると思いますが、これは**不定値**と呼ばれ、最初は`o_data`の値が決まっていませんのでこの値になります。正しい動作です。
 
 以上で我々はディジタル回路の基礎を完全に理解することが出来ました。やったね。
 
-### Verilogの文法を学ぼう(基礎１)
-
-では本格的にVerilog HDLを学んでいきましょう。最初は必須の構文です。
-
-
-
-
-
-また`test_wire1`に入力している`test_input`の直後に書いてある`[7:0]`は**スライス**という操作であり、`test_input`の7ビット目から0ビット目の計8ビットを抜き出して、`test_wire1`に入力しています。スライスはよく使う操作ですので覚えておきましょう。
-
-### Verilogの文法を学ぼう(練習１)
-
-覚えてばかりもつまらないでしょうし、ここで少し手を動かしてみましょう。
-
-#### 練習問題１
-
-以下の回路と同等のモジュール`problem1`を`problem1.v`という名前のファイルに作成してください。入出力は画像の通りです。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem1.png)
-
-またテストベンチとテスト用のコマンドは以下のものを使ってください。
-
-テストベンチ、これを`problem1_tb.v`というファイル名で保存する。
-
-```verilog
-module problem1_tb;
-  reg [7:0] i_p0;
-  reg [7:0] i_p1;
-  reg [7:0] i_p2;
-  wire [7:0] o_p;
-
-  initial begin
-    $dumpfile("wave.vcd");
-    $dumpvars(0, DUT);
-  end
-    
-  problem1 DUT(
-    .i_p0   (i_p0   ),
-    .i_p1   (i_p1   ),
-    .i_p2   (i_p2   ),
-    .o_p    (o_p    )
-  );
-    
-  initial begin
-    i_p0 = 8'h00;
-    i_p1 = 8'h00;
-    i_p2 = 8'h00;
-    #2
-    $display("o_p = %02x", o_p);
-    i_p0 = 8'h0f;
-    i_p1 = 8'h55;
-    i_p2 = 8'h88;
-    #2
-    $display("o_p = %02x", o_p);
-    i_p0 = 8'h74;
-    i_p1 = 8'h81;
-    i_p2 = 8'h11;
-    #2
-    $display("o_p = %02x", o_p);
-    $finish;
-  end
-endmodule
-```
-
-テスト用コマンド
-
-```bash
-iverilog problem1_tb.v problem1.v
-vvp a.out
-```
-
-以下の出力が得られたら正解です。
-
-```bash
-VCD info: dumpfile wave.vcd opened for output.
-o_p = 00
-o_p = 8d
-o_p = 11
-problem1_tb.v:35: $finish called at 6 (1s)
-```
-
-#### 練習問題２
-
-以下の回路と同等のモジュール`problem2`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem2.png)
-
-またテストベンチとテスト用のコマンドは以下のものを使ってください。
-
-テストベンチ、これを`problem2_tb.v`というファイル名で保存する。
-
-```verilog
-module problem2_tb;
-  reg [7:0] i_p0;
-  reg [7:0] i_p1;
-  reg [7:0] i_p2;
-  wire [7:0] o_p;
-
-  initial begin
-    $dumpfile("wave.vcd");
-    $dumpvars(0, DUT);
-  end
-    
-  problem2 DUT(
-    .i_p0   (i_p0   ),
-    .i_p1   (i_p1   ),
-    .i_p2   (i_p2   ),
-    .o_p    (o_p    )
-  );
-    
-  initial begin
-    i_p0 = 8'h55;
-    i_p1 = 8'h77;
-    i_p2 = 8'h01;
-    #2
-    $display("o_p = %02x", o_p);
-    i_p0 = 8'hf0;
-    i_p1 = 8'h55;
-    i_p2 = 8'h5a;
-    #2
-    $display("o_p = %02x", o_p);
-    i_p0 = 8'hff;
-    i_p1 = 8'h88;
-    i_p2 = 8'h11;
-    #2
-    $display("o_p = %02x", o_p);
-    $finish;
-  end
-endmodule
-```
-
-テスト用コマンド
-
-```bash
-iverilog problem2_tb.v problem2.v
-vvp a.out
-```
-
-以下の出力が得られたら正解です。
-
-```bash
-VCD info: dumpfile wave.vcd opened for output.
-o_p = 56
-o_p = 40
-o_p = ff
-problem2_tb.v:35: $finish called at 6 (1s)
-```
-
-#### 練習問題３
-
-以下の回路と同等のモジュール`problem3`を作成してください。入出力は画像の通りです。名前の書かれていない信号線は各自で定義してください。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem3.png)
-
-またテストベンチとテスト用のコマンドは以下のものを使ってください。
-
-テストベンチ、これを`problem3_tb.v`というファイル名で保存する。
-
-```verilog
-module problem3_tb;
-  reg [15:0] i_p0;
-  reg [15:0] i_p1;
-  wire [15:0] o_p;
-
-  initial begin
-    $dumpfile("wave.vcd");
-    $dumpvars(0, DUT);
-  end
-    
-  problem3 DUT(
-    .i_p0   (i_p0   ),
-    .i_p1   (i_p1   ),
-    .o_p    (o_p    )
-  );
-    
-  initial begin
-    i_p0 = 16'h0f0f;
-    i_p1 = 16'h0f0f;
-    #2
-    $display("o_p = %04x", o_p);
-    i_p0 = 16'h3366;
-    i_p1 = 16'h6633;
-    #2
-    $display("o_p = %04x", o_p);
-    i_p0 = 16'h1234;
-    i_p1 = 16'h5678;
-    #2
-    $display("o_p = %04x", o_p);
-    $finish;
-  end
-endmodule
-```
-
-テスト用コマンド
-
-```bash
-iverilog problem3_tb.v problem3.v
-vvp a.out
-```
-
-以下の出力が得られたら正解です。
-
-```bash
-VCD info: dumpfile wave.vcd opened for output.
-o_p = ffff
-o_p = eebb
-o_p = fffb
-problem3_tb.v:30: $finish called at 6 (1s)
-```
-
-#### 模範解答１
-
-```verilog
-module problem1(
-  input       [7:0] i_p0,
-  input       [7:0] i_p1,
-  input       [7:0] i_p2,
-  output wire [7:0] o_p
-);
-
-  wire [7:0] w_p;
-
-  assign w_p = i_p0 & i_p1;
-  assign o_p = w_p | i_p2;
-
-endmodule
-```
-
-#### 模範解答２
-
-```verilog
-module problem2(
-  input       [7:0] i_p0,
-  input       [7:0] i_p1,
-  input       [7:0] i_p2,
-  output wire [7:0] o_p
-);
-
-  wire [7:0] w_p;
-
-  assign w_p = i_p1 & i_p2;
-  assign o_p = i_p0 + w_p;
-
-endmodule
-```
-
-#### 模範解答３
-
-```verilog
-module problem3(
-  input       [15:0] i_p0,
-  input       [15:0] i_p1,
-  output wire [15:0] o_p
-);
-
-  wire [15:0] w_p;
-
-  assign w_p = ~i_p0;
-  assign o_p = w_p | i_p1;
-
-endmodule
-```
-
-お疲れ様です。
-
 ### Verilogのシミュレーションを学ぶ
 
-練習問題では特に説明なしにテストベンチを出しました。このタイミングでテストベンチの書き方を説明します。
+今までは特に説明なしにテストベンチを出しました。このタイミングでテストベンチの書き方を説明します。
 
 以下のテストベンチのコードを例にテストベンチ用のVerilogの構文を学んでいきましょう。
 
 ```verilog
-module test_sim;
-  reg           clk     = 0;
-  reg   [7:0]   data_i  = 8'h00;
-  wire  [7:0]   data_o;
+module AdvancedDff_tb;
 
+  // --- おまじないここから ---
   initial begin
-    $dumpfile("wave.vcd");  // 波形ファイル
-    $dumpvars(0, DUT);      // DUTインスタンスの全信号を出力
+    $dumpfile("wave.vcd");
+    $dumpvars(0, AD);
   end
 
-  test_module DUT(
-    .clk        (clk        ), 
-    .input_data (data_i     ),
-    .output_data(data_o     )
+  reg i_clk = 1'b0;
+  reg i_data = 1'b0;
+  reg i_en = 1'b0;
+  wire o_data;
+
+  always #1 begin
+    i_clk <= ~i_clk;
+  end
+  // --- おまじないここまで ---
+  
+  AdvancedDff AD(
+    .i_clk  (i_clk  ),
+    .i_data (i_data ),
+    .i_en   (i_en   ),
+    .o_data (o_data )
   );
-
-  always #1 begin    // クロックの生成 1秒毎に反転
-    clk <= ~clk;
-  end
-
+  
+  // --- おまじないここから ---
   initial begin
-    data_i  = 8'h11;
-    #2     // 2秒待機
-    data_i  = 8'h20;
+    // 初期状態
+    i_data  = 1'b0;
+    i_en    = 1'b0;
     #2
-    data_i  = 8'h30;
-    #10    // 10秒待機
-    $finish;    // 終了
+    // データ入力
+    i_data  = 1'b1;
+    i_en    = 1'b0;
+    #6
+    // 書き込みを有効化
+    i_data  = 1'b1;
+    i_en    = 1'b1;
+    #2
+    // 書き込みを無効化
+    i_data  = 1'b1;
+    i_en    = 1'b0;
+    #4
+    // データ0に
+    i_data  = 1'b0;
+    i_en    = 1'b0;
+    #4
+    $finish;
   end
+  // --- おまじないここまで ---
+
 endmodule
 ```
 
@@ -1718,32 +1585,34 @@ endmodule
 
 作成した回路の動作を検証するためには、回路に様々な信号を入力し、出力を検査する必要があります。テストベンチにおいて回路に入力する信号は`reg ビット幅 信号名;`で定義します。また回路からの出力を受ける信号は`wire ビット幅 信号名;`で定義します。両方ともビット幅を省略した場合は1bitの幅になります。
 
-実際に入出力用信号を定義した例が以下になります。この場合、`clk`、`data_i`が入力用の信号で、`data_o`が出力を受ける信号になります。
+実際に入出力用信号を定義した例が以下になります。この場合、`i_clk`、`i_data`、`i_en`が入力用の信号で、`o_data`が出力を受ける信号になります。
 
 ```verilog
-  reg           clk     = 0;
-  reg   [7:0]   data_i  = 8'h00;
-  wire  [7:0]   data_o;
+  reg i_clk = 1'b0;
+  reg i_data = 1'b0;
+  reg i_en = 1'b0;
+  wire o_data;
 ```
 
 #### テスト用回路の生成
 
 テストベンチで回路をテストするためにはテストベンチ内で回路を生成する必要があります。そこで行うのがテスト用回路の生成です。
 
-Verilogにおいて、回路は`モジュール名 インスタンス名`で生成する事が可能です。以下の例では`test_module`という名前のモジュールから`DUT`という名前の回路(インスタンス)を生成しています。
-また入出力信号は`.インターフェイス名(信号線名)`で接続します。以下の例では`test_module`が`clk`, `input_data`, `output_data`というインターフェイスを持っているとして、先程定義した入出力信号をそれぞれのインターフェイスに接続しています。
+Verilogにおいて、回路は`モジュール名 インスタンス名`で生成する事が可能です。以下の例では`AdvancedDff`という名前のモジュールから`AD`という名前の回路(インスタンス)を生成しています。
+また入出力信号は`.インターフェイス名(信号線名)`で接続します。以下の例では`AdvancedDff`は`i_clk`, `i_data`, `i_en`,`o_data`というインターフェイスを持っていますので、先程定義した入出力信号をそれぞれのインターフェイスに接続しています。
 
 カンマの有無に注意してください。
 
 ```verilog
-  test_module DUT(
-    .clk        (clk        ), 
-    .input_data (data_i     ),
-    .output_data(data_o     )
+  AdvancedDff AD(
+    .i_clk  (i_clk  ),
+    .i_data (i_data ),
+    .i_en   (i_en   ),
+    .o_data (o_data )
   );
 ```
 
-ちなみにDUTはDevice Under Testの略です。
+ちなみにインスタンス名としてDUTが使われる事がありますが、これはDevice Under Testの略です。
 
 #### システムタスク
 
@@ -1766,8 +1635,8 @@ Verilogにおいて、回路は`モジュール名 インスタンス名`で生�
 
 ```verilog
   initial begin
-    $dumpfile("wave.vcd");  // 波形ファイル
-    $dumpvars(0, DUT);      // DUTインスタンスの全信号を出力
+    $dumpfile("wave.vcd");  
+    $dumpvars(0, AD);      
   end
 ```
 
@@ -1777,11 +1646,11 @@ Verilogにおいて、回路は`モジュール名 インスタンス名`で生�
 
 基礎知識のD-FFの部分で説明しましたが、回路が情報を記録するためには**クロック**という信号がしばしば必要になります。先程の練習問題ではクロックを用いませんでしたが、今後は殆どの場合においてクロックを必要とする回路を作ることになりますので、今のうちにテストベンチでクロックを生成する方法を学んでおきましょう。
 
-テストベンチにおいてはクロック信号の生成に以下の記述を用います。以下の記述では先程定義した入力用信号である`clk`の値を1秒毎にNOT演算子で反転し、再び`clk`に入力しています。この結果、`clk`の値は0, 1, 0, 1, 0, 1と振動するようになります。これをクロック信号として利用しています。
+テストベンチにおいてはクロック信号の生成に以下の記述を用います。以下の記述では先程定義した入力用信号である`i_clk`の値を1秒毎にNOT演算子で反転し、再び`i_clk`に入力しています。この結果、`i_clk`の値は0, 1, 0, 1, 0, 1と振動するようになります。これをクロック信号として利用しています。
 
 ```verilog
   always #1 begin
-    clk <= ~clk;
+    i_clk <= ~i_clk;
   end
 ```
 
@@ -1789,23 +1658,37 @@ Verilogにおいて、回路は`モジュール名 インスタンス名`で生�
 
 テスト対象の回路に対してずっと同じ信号を入力するのはあまり効果的なテストとは言えません。そこで時間に応じて入力信号を変化させる必要があります。そのために以下の記述を用います。
 
-以下の`initial begin ~ end`で囲まれた記述では、入力信号の`data_i`に値を格納してから`#2`という記述をしています。この`#`は遅延と呼び、`#数値`で指定した秒数だけ待機する事が出来ます。待っている間にもクロックは動作します。つまり以下の例では回路に`8'h11`という値を入力して2秒待機しています。
+以下の`initial begin ~ end`で囲まれた記述では、入力信号の`data_i`に値を格納してから`#2`という記述をしています。この`#`は遅延と呼び、`#数値`で指定した秒数だけ待機する事が出来ます。待っている間にもクロックは動作します。
 
 その後何回か信号を変化させ、最終的にシステムタスクの`$finish`が実行されます。この`$finish`が実行されるとシミュレーションが終了します。テストベンチには`$finish`を必ず記述する必要があります。
 
 ```verilog
   initial begin
-    data_i  = 8'h11;
-    #2     // 2秒待機
-    data_i  = 8'h20;
+    // 初期状態
+    i_data  = 1'b0;
+    i_en    = 1'b0;
     #2
-    data_i  = 8'h30;
-    #10    // 10秒待機
-    $finish;    // 終了
+    // データ入力
+    i_data  = 1'b1;
+    i_en    = 1'b0;
+    #6
+    // 書き込みを有効化
+    i_data  = 1'b1;
+    i_en    = 1'b1;
+    #2
+    // 書き込みを無効化
+    i_data  = 1'b1;
+    i_en    = 1'b0;
+    #4
+    // データ0に
+    i_data  = 1'b0;
+    i_en    = 1'b0;
+    #4
+    $finish;
   end
 ```
 
-なぜ2秒待機しているのか一応説明すると、先程のクロック生成で`clk`は`#1`で0 -> 1と変化しますが、これでは半クロック分しか待機できていません。そこで`#2`とすると`clk`は0 -> 1 -> 0と変化し、1クロック待機することが可能となるためです。
+なぜ2の倍数の秒数だけ待機しているのか一応説明すると、先程のクロック生成で`clk`は`#1`で0 -> 1と変化しますが、これでは半クロック分しか待機できていません。そこで`#2`とすると`clk`は0 -> 1 -> 0と変化し、1クロック待機することが可能となるためです。
 
 #### シミュレーションを実行
 
@@ -1837,15 +1720,15 @@ gtkwave wave.vcd
 
 テストベンチを書くのは非常に面倒で退屈ですが、Verilog HDLでディジタル回路を設計する事とテストベンチを書くことは切っても切れない関係にあります。今後何度も書くことになりますので適宜参照するようにしてください。
 
-### Verilogの文法を学ぼう(基礎２)
+### Verilogの便利な文法
 
-さて、少し進んだ回路を作るための文法を学んでいきましょう。
+さて、次はより進んだ回路を作るためのVerilogの便利な文法を学んでいきましょう。
 
 #### 定数
 
 Verilogでもプログラミング言語と同じように、数値に別名を付けたい場合が存在します。そこで使うのが定数です。Verilogには定数として`define`と`parameter`という２つの方法が存在しますが、`define`はキモいので`parameter`を使うことを推奨します。
 
-`parameter`は`parameter 定数名 = 数値;`のように使います。
+`parameter`は`parameter 定数名 = 数値;`のように使います。最後にセミコロン`;`を忘れずに付けてください。
 
 ```verilog
 module test_module(
@@ -1860,6 +1743,22 @@ module test_module(
 endmodule
 ```
 
+#### スライス
+
+Verilogにおいて、複数ビットある信号の特定のビットを取り出したい場合が多く存在します。そこで使うのが**スライス**という操作です。
+
+スライスは`信号名[先頭ビット:末尾ビット]`か`信号名[ビット番号]`で行います。以下の例では`w_signal`という8bit幅の信号線が存在するとして、`w_slice1`という4bit幅の信号線へ6から3bit目までを取り出して入力しており、また`w_slice2`へは7bit目のみを取り出して入力しています。
+
+```verilog
+wire [7:0] w_signal;
+wire [4:0] w_slice1;
+wire       w_slice2;
+
+assign w_slice1 = w_signal[6:3];
+assign w_slice2 = w_signal[7];
+```
+
+このスライスはwire型とreg型両方に対して行うことが可能です。
 
 #### if文
 
@@ -1876,6 +1775,19 @@ end else begin
   処理C
 end
 ```
+
+またif文で記述する条件には**比較演算子**と呼ばれるものを使います。
+
+| 演算子 | 例 | 意味 |
+| --- | --- | --- |
+| `==` | `A == B` | AとBが同じ |
+| `!=` | `A != B` | AとBが異なる |
+| `<=` | `A <= B` | AはB以下 |
+| `>=` | `A >= B` | AはB以上 |
+| `<` | `A < B` | AはB未満 |
+| `>` | `A > B` | AはBより大きい |
+
+<p style="text-align:center"><b>Verilogの比較演算子</b></p>
 
 実際にif文を使った例が以下になります。以下の例では`i_condition`の値が`4'h1`の場合は加算が実行され、`4'hE`の場合は減算が実行され、それ以外の場合はOR演算が実行されます。
 
@@ -1894,6 +1806,27 @@ module test_module(
       o_data <= i_data_a - i_data_b;
     end else begin
       o_data <= i_data_a | i_data_b;
+    end
+  end
+
+endmodule
+```
+
+また[MUXによるD-FFの改良](#muxによるd-ffの改良)で作った回路をif文で書き直したものが以下になります。
+
+```verilog
+module AdvancedDff(
+  input i_clk,
+  input i_data,
+  input i_en,
+  output reg o_data
+);
+  
+  always @(posedge i_clk) begin
+    if(i_en == 1'b1) begin
+      o_data <= i_data;
+    end else begin
+      o_data <= o_data;
     end
   end
 
@@ -1965,13 +1898,13 @@ function文もそれなりに使いますので覚えておきましょう。
 
 #### 連結演算子
 
-三項演算子に続いて便利な演算子をもう一つ紹介します。連結演算子です。これは以下のようにビットを結合する演算子です。
+便利な演算子をもう一つ紹介します。連結演算子です。これは以下のようにビットを結合する演算子です。
 
 ```
 {4'h0011, 4'b1100} -> 8'b00111100
 ```
 
-この連結演算子も演算子ですのでassign文やalways文やfunction文で利用可能です。
+この連結演算子はassign文やalways文やfunction文で利用可能です。
 
 ```verilog
 module test_module(
@@ -1996,153 +1929,9 @@ endmodule
 {10{1'b1}} -> 10'11111111111
 ```
 
+以上でディジタル回路の基礎とVerilogの基礎は終了です。これでCPUを作る為の技能を身につける事が出来ました。お疲れ様でした。
 
-
-### Verilogの文法を学ぼう(練習２)
-
-#### 練習問題１
-
-以下の回路と同等のモジュール`problem4`を`problem4.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、クロック毎に1つづ値が増えていきます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
-
-入出力は画像の通りです。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem4.png)
-
-またテストベンチとテスト用のコマンドは以下のものを使ってください。
-
-テストベンチ、これを`problem4_tb.v`というファイル名で保存する。
-
-```verilog
-module problem4_tb;
-  reg           i_clk     = 0;
-  reg           i_rst     = 0;
-  wire  [15:0]  o_p;
-
-  initial begin
-    $dumpfile("wave.vcd");
-    $dumpvars(0, DUT);
-  end
-
-  problem4 DUT(
-    .i_clk  (i_clk  ),
-    .i_rst  (i_rst  ),
-    .o_p    (o_p    )
-  );
-
-  always #1 begin    
-    i_clk <= ~i_clk;
-  end
-
-  initial begin
-    i_rst   = 1'b1;
-    #10
-    i_rst   = 1'b0;
-    #100
-    $finish;
-  end
-endmodule
-```
-
-テスト用コマンド
-
-```bash
-iverilog problem4_tb.v problem4.v
-vvp a.out
-gtkwave wave.vcd
-```
-
-波形ファイルを開き、`i_rst`の値が0になってから`o_p`の値が1づつ増えていけば正しい動作です。
-
-#### 練習問題２
-
-以下の回路と同等のモジュール`problem5`を`problem5.v`という名前のファイルに作成してください。以下の回路は16bitのレジスタを持っており、`i_ctrl`によって格納するデータを選択できます。
-
-入出力は画像の通りです。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem5.png)
-
-テストベンチは各自で作成してください。
-
-#### 練習問題３
-
-以下の回路と同等のモジュール`problem6`を`problem6.v`という名前のファイルに作成してください。以下の回路は3bitのレジスタを持っており、`i_data`の下位2bitによって格納するデータを選択できます。また`i_rst`はリセット信号であり、これが1になるとレジスタの値が0に戻ります。
-
-入出力は画像の通りです。
-
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/problem6.png)
-
-テストベンチは各自で作成してください。
-
-#### 模範解答１
-
-```verilog
-module problem4(
-  input             i_clk,
-  input             i_rst,
-  output reg [15:0] o_p
-);
-
-  always @(posedge i_clk) begin
-    if(i_rst) begin
-      o_p   <= 16'h0000;
-    end else begin
-      o_p   <= o_p + 16'h0001;
-    end
-  end
-
-endmodule
-```
-
-#### 模範解答２
-
-```verilog
-module problem5(
-  input         i_clk,
-  input [15:0]  i_data_0,
-  input [15:0]  i_data_1,
-  input [15:0]  i_data_2,
-  input [15:0]  i_data_3,
-  input [1:0]   i_ctrl,
-  output reg [15:0] o_data
-);
-
-  always @(posedge i_clk) begin
-    case(i_ctrl)
-      2'b00 : o_data <= i_data_0;
-      2'b01 : o_data <= i_data_1;
-      2'b10 : o_data <= i_data_2;
-      2'b11 : o_data <= i_data_3;
-    endcase
-  end
-
-endmodule
-```
-
-#### 模範解答３
-
-```verilog
-module problem6(
-  input             i_clk,
-  input             i_rst,
-  input      [15:0] i_data,
-  output reg [2:0]  o_data
-);
-
-  always @(posedge i_clk) begin
-    if(i_rst) begin
-      o_data <= 3'b000;
-    end else begin
-      case(i_data[1:0])
-        2'b00 : o_data <= i_data[4:2];
-        2'b01 : o_data <= i_data[7:5];
-        2'b10 : o_data <= i_data[10:8];
-        2'b11 : o_data <= i_data[13:11];
-      endcase
-    end
-  end
-
-endmodule
-```
+次はVerilogで書いた回路を実機で動かしてみるか、一番下のコンピュータアーキテクチャ入門へ進みましょう。
 
 ## 実機向け：FPGA入門
 
