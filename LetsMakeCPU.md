@@ -85,7 +85,7 @@ Rui Ueyama大先生が最強の本を書いてくれましたので全人類や�
 - いしたに ([@taichi600730](https://x.com/@taichi600730))
 - IDA Kenta ([@ciniml](https://x.com/@ciniml))
 
-## Contributer
+## Contributers
 
 Pull request, Issueで記事に貢献して頂いた皆様に感謝いたします。
 
