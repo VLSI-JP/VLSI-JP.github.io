@@ -26,9 +26,11 @@ title: 記事のタイトル
   date: 書いた日
   link: ファイル名.html
 ```
-7. HAPPY
+7. 保存
 
 Optional : `_data/article_list.yml`に`icon: `でアイコンを変更できる。`dir`, `file`, `link`が使用可能。無指定なら`file`になります。
+
+Markdownのレンダリングの確認は[Hackmd](https://hackmd.io/)を使うことをオススメします。
 
 記事内で自己紹介とかはガンガンやってください
 
@@ -41,7 +43,7 @@ Optional : `_data/article_list.yml`に`icon: `でアイコンを変更できる�
 3. 編集ボタンをクリック
 4. 記事を編集
 5. `_data/article_list.yml`の`date`の日付を編集
-6. HAPPY
+6. 保存
 
 ## リンクの追加方法
 
@@ -58,7 +60,6 @@ Index of VLSI.JPから別サイトに飛ばしたい場合の手順
   icon: out
 ```
 4. 保存
-5. HAPPY
 
 ## Gitコマンドで色々やる方法
 
