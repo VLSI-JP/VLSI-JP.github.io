@@ -60,25 +60,43 @@ title: OpenMPW入門 改訂版
 * Git 2.22+
 * Docker 19.03.12+
 
-以下のコマンドはarchlinuxを対象としたのもですが、pipとvirtualenvとdockerがインストールさえ出来ればどんなOSでも構いません。
+以下のコマンドはUbuntuとArchlinuxを対象としたのもですが、pipとvirtualenvとdockerがインストールさえ出来ればどんなOSでも構いません。
 
 pipとvirtualenvのインストール
+
+Ubuntu 
+```bash
+sudo apt install python3-venv python3-pip
+```
+
+Archlinux
 ```bash
 sudo pacman -S python-virtualenv python-pip
 ```
+
 dockerのインストール
+
+Ubuntu
+```bash
+sudo apt install docker.io
+```
+
+Archlinux
 ```bash
 sudo pacman -S docker
 ```
 
 自分をdockerグループに追加しましょう。これはセキュリティ上大変よろしくありませんが、これを回避するためにpodmanを使ったり色々試したが結局無理だったので諦めました。回避出来るなら教えてほしい。
+
+Ubuntu, Archlinux共通
 ```bash
 sudo usermod -a -G docker $(whoami)
 ```
 一旦再起動する。
 
-
 Dockerデーモンの起動
+
+Ubuntu, Archlinux共通
 ```bash
 systemctl start docker
 ```
@@ -93,7 +111,7 @@ OpenLANEはDockerコンテナが提供されており、Dockerでインストー
 ### OpenLANEのインストール
 次にOpenLANEをインストールしますが、後述するCaravel経由でインストールした方がなにかと都合が良いので先にcaravelをインストールします。
 
-最初にcaravelをダウンロード。`<tag>`は次のページから最新のものを指定してください。執筆時点ではSkywaterの130nmを使うシャトルの場合は`mpw-8c`でGlobalFoundriesの180nmを使う場合は`gfmpw-0d`です。[https://github.com/efabless/caravel_user_project/tags](https://github.com/efabless/caravel_user_project/tags)
+最初にcaravelをダウンロード。`<tag>`は次のページから最新のものを指定してください。執筆時点ではSkywaterの130nmを使うシャトルの場合は`mpw-9e`でGlobalFoundriesの180nmを使う場合は`gfmpw-0d`です。[https://github.com/efabless/caravel_user_project/tags](https://github.com/efabless/caravel_user_project/tags)
 ```bash
 git clone -b <tag> https://github.com/efabless/caravel_user_project.git
 ```
