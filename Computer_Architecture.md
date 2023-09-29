@@ -86,9 +86,11 @@ Z16は16bitのレジスタを16個持っています。その内訳は以下の�
 
 加算命令。レジスタ同士の足し算を行う命令であり、`ADD RS2 RS1 RD`と記述し、RS2とRS1の値を加算してRDに格納する。オペコードは`4'h0`。例として`ADD G3 G2 G1`は`16'h7650`となる。また、RS2にゼロレジスタZRを指定することで、RS1からRDに値を移動させるだけの命令として使うことが可能です。
 
+<p>
 $$
 \text{RS2} + \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 実際にZ16のエミュレータでADD命令を使ってみましょう。以下のページにアクセスし、エミュレータにアクセスします。
 
@@ -104,57 +106,71 @@ $$
 
 減算命令。レジスタ同士の引き算を行う命令であり、`SUB RS2 RS1 RD`と記述し、RS2からRS1の値を減算してRDに格納する。オペコードは`4'h1`。例として`SUB G3 G2 G1`は`16'h7651`となる。
 
+<p>
 $$
 \text{RS2} - \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 ##### MUL
 
 乗算命令。レジスタ同士の掛け算を行う命令であり、`MUL RS2 RS1 RD`と記述し、RS2とRS1の値を乗算してRDに格納する。オペコードは`4'h2`。例として`MUL G3 G2 G1`は`16'h7652`となる。
 
+<p>
 $$
 \text{RS2}\times \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 ##### DIV
 
 除算命令。レジスタ同士の割り算を行う命令であり、`DIV RS2 RS1 RD`と記述し、RS2をRS1で割った商をRDに格納する。オペコードは`4'h3`。例として`DIV G3 G2 G1`は`16'h7653`となる。
 
+<p>
 $$
 \text{RS2} \div \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 ##### OR
 
 OR命令。レジスタ同士のOR演算を行う命令であり、`OR RS2 RS1 RD`と記述し、RS2とRS1の値のORをRDに格納する。オペコードは`4'h4`。例として`OR G3 G2 G1`は`16'h7654`となる。
 
+<p>
 $$
 \text{RS2} \parallel \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 ##### AND
 
 AND命令。レジスタ同士のAND演算を行う命令であり、`AND RS2 RS1 RD`と記述し、RS2とRS1の値のANDをRDに格納する。オペコードは`4'h5`。例として`AND G3 G2 G1`は`16'h7655`となる。
 
+<p>
 $$
 \text{RS2} \& \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 ##### XOR
 
 XOR命令。レジスタ同士のXOR演算を行う命令であり、`XOR RS2 RS1 RD`と記述し、RS2とRS1の値のXORをRDに格納する。オペコードは`4'h6`。例として`XOR G3 G2 G1`は`16'h7656`となる。
 
+<p>
 $$
 \text{RS2} \oplus \text{RS1} \rightarrow \text{RD}
 $$
+</p>
 
 ##### SLL
 
 論理左シフト命令。レジスタの値の左シフトを行う命令であり、`SLL RS2 RS1 RD`と記述し、RS1の値をRS2の値だけ論理左シフトしてRDに格納する。オペコードは`4'h7`。例として`SLL G3 G2 G1`は`16'h7657`となる。
 
+<p>
 $$
 \text{RS1} << \text{RS2} \rightarrow \text{RD}
 $$
+</p>
 
 ##### SRL
 
@@ -168,9 +184,11 @@ $$
 
 以下の計算を行いたい場合、アセンブリとそのバイナリは以下の通りになります。
 
+<p>
 $$
 f(x, y) = x\times y + x - y
 $$
+</p>
 
 xの値をG0、yの値をG1、結果をG7に格納する事にします。
 
@@ -226,9 +244,11 @@ ADD G2 G3 G7
 
 即値加算命令。即値とレジスタで足し算を行う命令であり、`ADDI IMM RD`と記述し、RDにIMMを加算してRDに格納します。IMMが取れる値の範囲は符号付き8bitなので-128~127。オペコードは`4'h9`。例として`ADDI 100 G0`は`16'h6449`、`ADDI -1 G2`は`16'hFF69`となります。
 
+<p>
 $$
 \text{IMM} + \text{RD} \rightarrow \text{RD}
 $$
+</p>
 
 実際に即値命令を動かしてみましょう。エミュレータにアクセスし、`ADDI 57 G0`と入力して実行してみてください。
 
@@ -240,9 +260,11 @@ $$
 
 以下の計算を行いたい場合、アセンブリとそのバイナリは以下の通りになります。
 
+<p>
 $$
 f(x, y) = 3\times x + 100 + y
 $$
+</p>
 
 xの値をG0、yの値をG1、結果をG7に格納する事にします。
 
@@ -294,9 +316,11 @@ LOAD命令のビットフィールドの形式は以下の通り、LSBから下�
 
 LOAD命令。`LOAD IMM RS1 RD`と記述し、IMMとRS1の値の和をメモリアドレスとし、メモリのそのアドレスにあるデータをRDに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hA`であるため、仮に`LOAD 0 G0 G1`は`16'h045A`となる。
 
+<p>
 $$
 \text{Memory}[\text{IMM} + \text{RS1}] \rightarrow \text{RD}
 $$
+</p>
 
 ##### STORE
 
@@ -312,9 +336,11 @@ STORE命令のビットフィールドは以下の通り、LSBから下位4bit�
 
 STORE命令。`STORE RS2 RS1 IMM`と記述し、IMMとRS1の値の和をメモリアドレスとし、RS2の値をメモリのそのアドレスに格納する。IMMが取れる値の範囲は符号付き4bitであるため-8~7。オペコードは`4'hB`であるため、仮に`STORE G1 G0 0`は`16'h540B`となる。
 
+<p>
 $$
 \text{RS2} \rightarrow \text{Memory}[\text{RS1} + \text{IMM}]
 $$
+</p>
 
 ##### メモリ命令まとめ
 
@@ -359,12 +385,14 @@ LOAD 0 ZR G1
 
 即値のフィールドは符号付き4bitであり、-8~7の値を取る。
 
+<p>
 $$
 \begin{align}
 \text{PC} + 2 &\rightarrow \text{RD} \\
 \text{IMM} + \text{RS1} &\rightarrow \text{PC}
 \end{align}
 $$
+</p>
 
 実際にJAL命令を使ってみましょう。エミュレータにアクセスし、以下の命令列を実行します。
 
@@ -385,12 +413,14 @@ next cycleボタンを押していくと、JAL命令が実行された際に、�
 
 即値のフィールドは符号付き4bitであり、-8~7の値を取る。
 
+<p>
 $$
 \begin{align}
 \text{PC} + 2 &\rightarrow \text{RD} \\
 \text{IMM} + \text{RS1} + \text{PC} &\rightarrow \text{PC}
 \end{align}
 $$
+</p>
 
 特殊な使い方として、`JRL 0 ZR ZR`とすることでプログラムを停止させる事が可能である。
 
@@ -464,12 +494,14 @@ E: ADD G0 G1 G2
 
 即値のフィールドは符号付き8bitであり、-128~127の値を取る。
 
+<p>
 $$
 \begin{align}
 \text{if}\ \text{RS2}\ &== \text{RS1} \\
 \text{then}\ \text{imm} &+ \text{PC} \rightarrow \text{PC}
 \end{align}
 $$
+</p>
 
 実際にBEQ命令を使ってみましょう。エミュレータにアクセスし、以下の命令列を実行します。
 
@@ -490,12 +522,14 @@ next cycleボタンを押していくと、B1とB2の値が異なる場合はBEQ
 
 即値のフィールドは符号付き8bitであり、-128~127の値を取る。
 
+<p>
 $$
 \begin{align}
 \text{if}\ \text{RS2}\ &> \text{RS1} \\
 \text{then}\ \text{imm} &+ \text{PC} \rightarrow \text{PC}
 \end{align}
 $$
+</p>
 
 実際にBEQ命令を使ってみましょう。エミュレータにアクセスし、以下の命令列を実行します。
 
@@ -1567,9 +1601,11 @@ module Z16Decoder(
 
 LOAD命令では、即値とRS1の値を加算してアドレスを作っていましたね。
 
+<p>
 $$
 \text{Memory}[\text{IMM} + \text{RS1}] \rightarrow \text{RD}
 $$
+</p>
 
 よってALUには加算を行ってもらう必要があります。ALUの実装を見返すと`i_ctrl`に`4'h0`を入力すると加算を行ってくれるように実装してありますね。よってLOAD命令のオペコードの場合は`4'h0`を出力する関数を作成します。
 
@@ -2199,9 +2235,11 @@ endfunction
 
 次にALUの制御信号ですが、STORE命令のアドレス計算もRS1と即値の加算ですので、ALUには加算をしてもらう必要があります。
 
+<p>
 $$
 \text{RS2} \rightarrow \text{Memory}[\text{RS1} + \text{IMM}]
 $$
+</p>
 
 これはLOAD命令と同じですので、とりあえず今はALUには常に加算をやってもらうように改造します。
 
@@ -2914,9 +2952,11 @@ endmodule
 
 Z16の即値命令であるADDIは、RDの値に即値を加算してRDに格納する命令でした。
 
+<p>
 $$
 \text{IMM} + \text{RD} \rightarrow \text{RD}
 $$
+</p>
 
 現状、レジスタファイルから値を読み出すには`o_rs1_addr`か`o_rs2_addr`にアドレスを入力する必要があります。そこで今回はRDの値をRS1のポートから取り出す事にします。
 
@@ -3107,6 +3147,7 @@ endmodule
 
 動作確認用のプログラムとして、ADDIの説明の際に用いたサンプルプログラムを改造して使いましょう。
 
+<p>
 $$
 \begin{align}
 x &= 120 \\
@@ -3114,6 +3155,7 @@ y &= 87 \\
 f(x, y) &= 3\times x + 100 + y
 \end{align}
 $$
+</p>
 
 以下のプログラムはG0とG1とG4を0で初期化した後、G0に120を格納、G1に87を格納して計算を行い、計算結果をメモリのアドレス0に格納しています。
 
@@ -3228,21 +3270,25 @@ endfunction
 
 - JAL
 
+<p>
 $$
 \begin{align}
 \text{PC} + 2 &\rightarrow \text{RD} \\
 \text{IMM} + \text{RS1} &\rightarrow \text{PC}
 \end{align}
 $$
+</p>
 
 - JRL
 
+<p>
 $$
 \begin{align}
 \text{PC} + 2 &\rightarrow \text{RD} \\
 \text{IMM} + \text{RS1} + \text{PC} &\rightarrow \text{PC}
 \end{align}
 $$
+</p>
 
 よって`get_rd_wen()`を改造して対応します。
 
