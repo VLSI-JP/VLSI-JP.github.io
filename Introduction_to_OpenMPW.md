@@ -49,20 +49,35 @@ Minimum requirements are here
 * Git 2.22+ with pip and virtualenv
 * Docker 19.03.12+.
 
-The following commands are targeted at archlinux, but can be used on any OS with pip, virtualenv and docker.
+The following commands are targeted at Ubuntu and Archlinux, but can be used on any OS with pip, virtualenv and docker.
 
 Installing pip and virtualenv
+
+Ubuntu
+```bash
+sudo apt install python3-venv python3-pip
+```
+
+Archlinux
 ```bash
 sudo pacman -S python-virtualenv python-pip
 ```
 
 Installing docker
+
+Ubuntu
+```bash
+sudo apt install docker.io
+```
+
+Archlinux
 ```bash
 sudo pacman -S docker
 ```
 
 Add yourself to the docker group. This is very bad for security. I tried using podman and other ways to get around this, but in the end it was impossible in my environment, so I gave up. If you can work around this, please let me know.
 
+Ubuntu, Archlinux
 ```bash
 sudo usermod -a -G docker $(whoami)
 ```
@@ -70,6 +85,8 @@ sudo usermod -a -G docker $(whoami)
 Restart once.
 
 Start the Docker daemon
+
+Ubuntu, Archlinux
 ```bash
 systemctl start docker
 ```
@@ -78,7 +95,7 @@ systemctl start docker
 
 Next, install OpenLANE, but install caravel first because it is more convenient to install via caravel, which is described later.
 
-Download caravel first. The `<tag>` should be the latest one from the following page. At the time of writing, it is `mpw-8c` for shuttles using Skywater's 130nm and `gfmpw-0d` for GlobalFoundries' 180nm.
+Download caravel first. The `<tag>` should be the latest one from the following page. At the time of writing, it is `mpw-9e` for shuttles using Skywater's 130nm and `gfmpw-0d` for GlobalFoundries' 180nm.
 [https://github.com/efabless/caravel_user_project/tags](https://github.com/efabless/caravel_user_project/tags)
 
 ```bash
