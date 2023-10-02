@@ -95,7 +95,7 @@ systemctl start docker
 
 Next, install OpenLANE, but install caravel first because it is more convenient to install via caravel, which is described later.
 
-Download caravel first. The `<tag>` should be the latest one from the following page. At the time of writing, it is `mpw-9e` for shuttles using Skywater's 130nm and `gfmpw-0d` for GlobalFoundries' 180nm.
+Download caravel first. The `<tag>` should be the latest one from the following page. At the time of writing, it is `mpw-8c` for shuttles using Skywater's 130nm and `gfmpw-0d` for GlobalFoundries' 180nm.
 [https://github.com/efabless/caravel_user_project/tags](https://github.com/efabless/caravel_user_project/tags)
 
 ```bash
