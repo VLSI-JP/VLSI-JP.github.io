@@ -111,7 +111,7 @@ OpenLANEはDockerコンテナが提供されており、Dockerでインストー
 ### OpenLANEのインストール
 次にOpenLANEをインストールしますが、後述するCaravel経由でインストールした方がなにかと都合が良いので先にcaravelをインストールします。
 
-最初にcaravelをダウンロード。`<tag>`は次のページから最新のものを指定してください。執筆時点ではSkywaterの130nmを使うシャトルの場合は`mpw-9e`でGlobalFoundriesの180nmを使う場合は`gfmpw-0d`です。[https://github.com/efabless/caravel_user_project/tags](https://github.com/efabless/caravel_user_project/tags)
+最初にcaravelをダウンロード。`<tag>`は次のページから最新のものを指定してください。執筆時点ではSkywaterの130nmを使うシャトルの場合は`mpw-8c`でGlobalFoundriesの180nmを使う場合は`gfmpw-0d`です。[https://github.com/efabless/caravel_user_project/tags](https://github.com/efabless/caravel_user_project/tags)
 ```bash
 git clone -b <tag> https://github.com/efabless/caravel_user_project.git
 ```
