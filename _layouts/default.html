@@ -32,8 +32,11 @@
         <div class="sidebar">
             {% include navigation.html %}
         </div>
+        {% if page.tenant == true %}
         <div class="tenant">
+          aaaaa
         </div>
+        {% endif %}
         <div class="content">
             {% include anchor_headings.html html=content beforeHeading=true %}
         </div>
