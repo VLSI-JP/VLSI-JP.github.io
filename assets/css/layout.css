@@ -62,6 +62,14 @@ pre.highlight {
     height: 100%;
     width: 25%;
 }
+
+.tenant {
+    position: fixed;
+    margin-left: 81%;
+    height: 100%;
+    width: 18%;
+}
+
 .content {
     margin-left: 27%;
     margin-right: 20%;
@@ -125,5 +133,13 @@ pre.highlight {
         width: 94%;
         margin-left: 3%;
         margin-right: 3%;
+    }
+    .tenant {
+        overflow: auto;
+        margin-left: 3%;
+        margin-right: 3%;
+        height: auto;
+        width: 94%;
+        position: relative;
     }
 }
