@@ -8,7 +8,7 @@ image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/
 
 # コンピュータアーキテクチャ入門
 
-さあ始めましょう
+さあ始めましょう。
 
 ## プログラムが動く流れ
 
