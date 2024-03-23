@@ -1,5 +1,5 @@
 ---
-layout: defualt
+layout: default
 title: EthernetのCRCを実装した
 image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/CRC/CRC32.png"
 ---
