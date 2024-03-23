@@ -25,7 +25,7 @@ LANケーブルを流れるEthernet frameは、DST MAC ADDR、SRC MAC ADDR、Eth
 | Payload | 46 ~ 1500 Byte | データ |
 | FCS | 4 Byte | 受信エラー検出用の値 |
 
-表1. Ethernet frameの各フィールドの説明
+<p style="text-align:center"> <b>表1. Ethernet frameの各フィールドの説明</b></p>
 
 ## FCS
 
