@@ -4,6 +4,12 @@
   date: 
   link: Shrine.html
 
+- title: EthernetのCRCを実装した
+  author: Cra2yPierr0t
+  date: 2024/03/24
+  link: EthernetCRCimpl.html#ethernetのcrcを実装した
+  icon: file
+
 - title: 半導体初学者むけ単語集
   author: jun1okamura
   date: 2023/07/15
