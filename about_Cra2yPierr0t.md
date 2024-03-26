@@ -31,5 +31,5 @@ title: About Cra2yPierr0t
 - 2023/12 - Present : Intern at Turing  Inc.
 - 2022/05 - Present : Intern at PEZY Computing Inc.
 - 2022/05 - 2023/12 : Intern at TIER IV  Inc.
-- 2019/04 - Preesnt : Student at Information Security Engineering Program, University of Electro-Communications
+- 2019/04 - 2024/3 : Student at Information Security Engineering Program, University of Electro-Communications
 - 2020/09 - 2020/09 : Engineer at ConnectFree Inc.
