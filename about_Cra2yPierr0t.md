@@ -28,8 +28,9 @@ title: About Cra2yPierr0t
 - 2023/03 情報処理学会 第85回全国大会 学生奨励賞
 
 ## Background
+- 2024/04 - Present : Graduate Student at National Institute of Informatics
 - 2023/12 - Present : Intern at Turing  Inc.
-- 2022/05 - Present : Intern at PEZY Computing Inc.
+- 2022/05 - 2024/03 : Intern at PEZY Computing Inc.
 - 2022/05 - 2023/12 : Intern at TIER IV  Inc.
-- 2019/04 - 2024/3 : Student at Information Security Engineering Program, University of Electro-Communications
+- 2019/04 - 2024/03 : Student at Information Security Engineering Program, University of Electro-Communications
 - 2020/09 - 2020/09 : Engineer at ConnectFree Inc.
