@@ -3,7 +3,7 @@ layout: default
 title: About Cra2yPierr0t
 ---
 ## Profile
-- Student at Information Security Engineering Program, University of Electro-Communications
+- Graduate Student at National Institute of Informatics, The Graduate University for Advanced Studies
 - Twitter : @Cra2yPierr0t
 - Github : @Cra2yPierr0t
 - blog(hatena) : [VVVVVVVVVVVVLSI](https://cra2ypierr0t.hatenablog.jp/)
