@@ -15,7 +15,7 @@ LANケーブルを流れるEthernet frameは、DST MAC ADDR、SRC MAC ADDR、Eth
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/CRC/ethernet_frame.png)
 <p style="text-align:center"> <b>図1. Ethernet frameの構造</b></p>
 
-それぞれのフィールドの役割は、DST MAC ADDRが送信先MACアドレス、SRC MAC ADDRは送信元アドレス、EtheTypeはペイロードの種別またはペイロード長、FCSはFrame Check Sequenceの略で受信エラー検出用の値となっている。(表1)
+それぞれのフィールドの役割は、DST MAC ADDRが送信先MACアドレス、SRC MAC ADDRは送信元アドレス、EtherTypeはペイロードの種別またはペイロード長、FCSはFrame Check Sequenceの略で受信エラー検出用の値となっている。(表1)
 
 | フィールド名 | サイズ | 説明 |
 | --- | ---- | ---- |
@@ -70,7 +70,7 @@ FCSとCRCの概要が分かった所で、CRC32について詳しく見ていく
 
 というかこの資料が無かったら私は実装できてない。ありがとう七誌さん、こうやって知識を残してくれる先達のお陰で人類社会は発展していくのだなあと思いました。(小並感)
 
-標準的なCRC32は、CRCを計算以前・以後でいくつか処理が存在している。まずは計算の前処理として、入力データの各バイトのビット順序を反転させる。この操作はRefInに対応している。その後、入力データの先頭4バイトのみビット反転を行う。この前処理を行った後にCRCを計算する。CRC値を算出後CRC値のビット順序を反転する。この操作はRefOutに対応している。そして最後にビット反転を行う。この処理はXorOutの`9xFFFFFFFF`に対応している。そうして得られた値をCRC値とする。(図5)
+標準的なCRC32は、CRCを計算以前・以後でいくつか処理が存在している。まずは計算の前処理として、入力データの各バイトのビット順序を反転させる。この操作はRefInに対応している。その後、入力データの先頭4バイトのみビット反転を行う。この前処理を行った後にCRCを計算する。CRC値を算出後CRC値のビット順序を反転する。この操作はRefOutに対応している。そして最後にビット反転を行う。この処理はXorOutの`0xFFFFFFFF`に対応している。そうして得られた値をCRC値とする。(図5)
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/CRC/CRCalgo.png)
 <p style="text-align:center"> <b>図5. CRC32の計算順序</b></p>
@@ -84,7 +84,7 @@ FCSとCRCの概要が分かった所で、CRC32について詳しく見ていく
 
 ここで気になるのがRefInとRefOutである。ソフトウェア屋さんからすると何故こんな処理が入るのか不思議に思うかもしれないが、Ethernetの仕様を知っているとそこまで不自然ではない。
 
-Ethernet frameはDST MAC ADDRから順に送られていくが(図7)、各フィールドの各バイトはFCSを除いてLSBから最初に送信される。受信したデータをそのままシフトレジスタに入力していくとレジスタにはビット順序が反転された値が格納されることになる。この理由から、バイト毎にビット順序を反転した値を利用する決まりにした方が回路を実装する上では都合がいい。ただソフトウェアでCRCを実装するとなるとこの仕様は自然であるため、RefIn, RefOutで区別を付けている。
+Ethernet frameはDST MAC ADDRから順に送られていくが(図7)、各フィールドの各バイトはFCSを除いてLSBから最初に送信される。受信したデータをそのままシフトレジスタに入力していくとレジスタにはビット順序が反転された値が格納されることになる。この理由から、バイト毎にビット順序を反転した値を利用する決まりにした方が回路を実装する上では都合がいい。ただソフトウェアでCRCを実装するとなるとこの仕様は不自然であるため、RefIn, RefOutで区別を付けている。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/CRC/frame_sending.png)
 <p style="text-align:center"> <b>図7. Ethernet frameの送信方向</b></p>
