@@ -1192,7 +1192,7 @@ module Z16ALU(
 
   assign o_data = alu(i_data_a, i_data_b, i_ctrl);
 
-  function function alu;
+  function [15:0] alu;
     input [15:0]    i_data_a;
     input [15:0]    i_data_b;
     input [3:0]     i_ctrl;
