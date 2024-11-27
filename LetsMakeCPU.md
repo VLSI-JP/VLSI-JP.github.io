@@ -90,9 +90,9 @@ Rui Ueyama大先生が最強の本を書いてくれましたので全人類や�
 Pull request, Issueで記事に貢献して頂いた皆様に感謝いたします。
 
 - [@kekemoto](https://github.com/kekemoto)
-- [@funera1a](https://github.com/funera1)
+- [@funera1](https://github.com/funera1)
 - [@azure17581](https://github.com/azure17581)
- 
+- [@RZYN2020](https://github.com/RZYN2020)
 
 <div align="right"> おわり </div>
 ---
