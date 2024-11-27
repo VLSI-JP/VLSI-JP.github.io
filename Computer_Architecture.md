@@ -2133,7 +2133,7 @@ endmodule
 以下のコマンドでシミュレーションを実行します。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
@@ -2581,7 +2581,7 @@ endmodule
 テストベンチに変更を行う必要はありません。以下のコマンドでシミュレーションを行い、波形を見ることが出来ます。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
@@ -3203,7 +3203,7 @@ endmodule
 テストベンチに変更を行う必要はありません。以下のコマンドでシミュレーションを行い、波形を見ることが出来ます。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
@@ -3627,7 +3627,7 @@ endmodule
 そして以下のコマンドでシミュレーションを走らせます。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
@@ -4010,7 +4010,7 @@ endmodule
 そして以下のコマンドでシミュレーションを実行します。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
@@ -4358,7 +4358,7 @@ endmodule
 そして以下のコマンドでシミュレーションを実行します。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
@@ -4484,7 +4484,7 @@ endmodule
 後はいつものコマンドでシミュレーションを実行します。
 
 ```bash
-iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.sv Z16InstrMemory.v Z16RegisterFile.v
+iverilog Z16CPU_tb.v Z16ALU.v Z16CPU.v Z16DataMemory.v Z16Decoder.v Z16InstrMemory.v Z16RegisterFile.v
 vvp a.out
 gtkwave wave.vcd
 ```
