@@ -17,23 +17,47 @@ MMUなんもわからん。本記事ではRISC-VにおけるMMUの仕様であ�
 
 ## Sv32のアドレス変換
 
+Sv32ではS-mode, U-modeでのデータアクセス・命令フェッチにおいて、メモリアクセス前に 仮想アドレス -> 物理アドレス の変換を行いますが、
+
 ### Sv32の仮想アドレス
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_va.png)
 
 ### Sv32のsatpレジスタ
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_satp.png)
+
 ### Sv32のPTE
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_pte.png)
+
 ### Sv32のアドレス変換手順
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Translation.png)
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Megapage.png)
 
 ## Sv39のアドレス変換
 
 ### Sv39の仮想アドレス
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_vapa.png)
+
 ### Sv39のsatpレジスタ
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_satp.png)
 
 ### Sv39のPTE
 
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_pte.png)
+
 ### Sv39のアドレス変換手順
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_Translation.png)
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_Megapage.png)
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_Gigapage.png)
 
 ### Sv39を試してみる
 
