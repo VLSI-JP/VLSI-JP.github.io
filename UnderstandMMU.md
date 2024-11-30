@@ -1,6 +1,7 @@
 ---
 layout: default
 title: RISC-V Sv32,Sv39を理解する
+image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_Translation.png"
 ---
 
 # RISC-V Sv32,Sv39を理解する
