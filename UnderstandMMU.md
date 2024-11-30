@@ -62,41 +62,41 @@ RWXの全てが0の場合、`PTE.PPN`は次の段のページテーブルの先�
 
 Sv32のアドレス変換の手順は以下の通り。なお原文はRISC-V Specification Volume2の10.3.2. Virtual Address Translation Processにある。
 
-1. satp.PPN x PAGESIZE(0x1000)をaとする。
+1 . satp.PPN x PAGESIZE(0x1000)をaとする。
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step1.png)
 
 
-2. aにVPN[1] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
+2 . aにVPN[1] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step2.png)
 
 
-3. validかどうかアレする。
+3 . validかどうかアレする。
 
 
-4. PTE.PPN x PAGESIZE(0x1000)をaとする。
+4 . PTE.PPN x PAGESIZE(0x1000)をaとする。
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step4.png)
 
 
-2(2回目). aにVPN[0] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
+2(2回目) . aにVPN[0] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step22.png)
 
 
-3(2回目). validかどうかアレする。
+3(2回目) . validかどうかアレする。
 
 
-4(2回目). なんかアレだったら落とす。
+4(2回目) . なんかアレだったら落とす。
 
 
-5. これは物理アドレスを保持するPTEなのでLeaf PTEと呼ぶ。アクセスチェック。
+5 . これは物理アドレスを保持するPTEなのでLeaf PTEと呼ぶ。アクセスチェック。
 
 
-6. よぐわがんね、これいる？ちなSuperpageはデカいページ、MegapageとかGigapage全般を指す
+6 . よぐわがんね、これいる？ちなSuperpageはデカいページ、MegapageとかGigapage全般を指す
 
 
-7. PTE.AとかDとかチェック
+7 . PTE.AとかDとかチェック
 
 
-8. PTE.PPN x PAGESIZE(0x1000)にPage Offsetを加算した値が物理アドレスとなる。
+8 . PTE.PPN x PAGESIZE(0x1000)にPage Offsetを加算した値が物理アドレスとなる。
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step8.png)
 
 
