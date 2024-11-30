@@ -19,6 +19,8 @@ Sv32において、アドレス変換はページテーブルを２回引くこ�
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/AddressTranslation_2L.png)
 
+便宜上、一段目のページテーブルをL2 Page Table、二段目のページテーブルをL1 Page Tableと表記する。
+
 
 ### Sv32の仮想アドレス
 
@@ -80,6 +82,63 @@ RWXの全てが0の場合、`PTE.PPN`は次の段のページテーブルの先�
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv39_Gigapage.png)
 
 ### Sv39を試してみる
+
+```c
+typedef unsigned long uint64_t;
+
+#define M_MODE 0x11
+#define S_MODE 0x01
+#define U_MODE 0x00
+
+#define PTE_V 0x1
+#define PTE_R 0x2
+#define PTE_W 0x4
+#define PTE_X 0x8
+
+#define MMU_EN 0x8000000000000000
+
+void init_pmp() {
+  //S-mode can access 0x00000000 ~ 0xffffffff range
+  asm volatile("li    t0      , 0x0000001f");
+  asm volatile("csrw  pmpcfg0 , t0");
+  asm volatile("li    t0      , 0xffffffff");
+  asm volatile("csrw  pmpaddr0, t0");
+  return;
+}
+
+void enter_smode() {
+  uint64_t mstatus;
+  asm volatile("csrr  %0      , mstatus" : "=r" (mstatus));
+  mstatus = mstatus | (S_MODE << 11);
+  asm volatile("csrw  mstatus , %0" : : "r" (mstatus));
+  asm volatile("la    t0      , _now_smode");
+  asm volatile("csrw  mepc    , t0");
+  asm volatile("mret");
+  asm volatile("_now_smode:"); // here is in S-mode
+  return;
+}
+
+void init_mmu() {
+  uint64_t satp = 0;
+  uint64_t *pte;
+
+  // なんかやる
+
+  asm volatile("csrw satp, %0" : : "r" (satp));
+  asm volatile("sfence.vma zero, zero");
+}
+
+int main() {
+  init_pmp();
+
+  enter_smode();
+
+  init_mmu();
+
+  int a = 0x114514;
+  return 0;
+}
+```
 
 ## 参考
 
