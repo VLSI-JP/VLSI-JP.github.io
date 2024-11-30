@@ -7,25 +7,32 @@ title: RISC-V Sv32,Sv39を理解する
 
 MMUなんもわからん。本記事ではRISC-VにおけるMMUの仕様であるSv32, Sv39について、なんもわかりませんが、わからないなりに解説します。
 
-## アドレス変換とは
-
-なんか書く
-
-## Sv32とSv39の違い
-
-なんか書く
-
 ## Sv32のアドレス変換
 
-Sv32ではS-mode, U-modeでのデータアクセス・命令フェッチにおいて、メモリアクセス前に 仮想アドレス -> 物理アドレス の変換を行いますが、
+Sv32ではS-mode, U-modeでのデータアクセス・命令フェッチにおいて、メモリアクセス前に **仮想アドレス(32 bit) -> 物理アドレス(34 bit)** の変換を行います。またその際に、許可されていない領域にアクセスしようとした場合や、許可されていない操作を行おうとした場合は**ページフォルト**を発生させます。
+
+このアドレス変換は**ページテーブル**と呼ばれる表を引いて行います。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/AddressTranslation.png)
+
+Sv32において、アドレス変換はページテーブルを２回引くことで物理アドレスを得る２段ページテーブルとなっています。
+
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/AddressTranslation_L2.png)
+
 
 ### Sv32の仮想アドレス
+
+Sv32では、32 bitの仮想アドレスに対して31 bit ~ 22 bitを`VPN[1]`, 21 bit ~ 12 bitを`VPN[0]`, 11 bit ~ 0 bitを`page offset`という名前を付けています。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_va.png)
 
 ### Sv32のsatpレジスタ
 
+satpレジスタはSupervisor address translation and Protectionの略で、現在のアドレス変換モードを示す値(`satp.MODE`)と、アドレス空間の識別子(`satp.ASID`)と、アドレス変換の最初の手掛かりとなるアドレス(`satp.PPN`)を保持しています。
+
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_satp.png)
+
+satpのフィールドで最も重要なものが`satp.PPN`であり、アドレス変換はまずこの値を読むことから始まります。
 
 ### Sv32のPTE
 
