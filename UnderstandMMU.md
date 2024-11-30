@@ -17,7 +17,7 @@ Sv32ではS-mode, U-modeでのデータアクセス・命令フェッチにお�
 
 Sv32において、アドレス変換はページテーブルを２回引くことで物理アドレスを得る２段ページテーブルとなっています。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/AddressTranslation_L2.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/AddressTranslation_2L.png)
 
 
 ### Sv32の仮想アドレス
