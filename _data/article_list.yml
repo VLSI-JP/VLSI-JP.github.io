@@ -4,6 +4,12 @@
   date: 
   link: Shrine.html
 
+- title: RISC-V Sv32,Sv39を理解する
+  author: Cra2yPierr0t
+  date: 2024/11/30
+  link: UnderstandMMU.html#risc-v-sv32sv39を理解する
+  icon: file
+
 - title: EthernetのCRCを実装した
   author: Cra2yPierr0t
   date: 2024/03/24
