@@ -62,43 +62,43 @@ RWXの全てが0の場合、`PTE.PPN`は次の段のページテーブルの先�
 
 Sv32のアドレス変換の手順は以下の通り。なお原文はRISC-V Specification Volume2の10.3.2. Virtual Address Translation Processにある。
 
-1 . satp.PPN x PAGESIZE(0x1000)をaとする。
+
+1. satp.PPN x PAGESIZE(0x1000)をaとする。
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step1.png)
-
-
-2 . aにVPN[1] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
+2. aにVPN[1] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step2.png)
-
-
-3 . validかどうかアレする。
-
-
-4 . PTE.PPN x PAGESIZE(0x1000)をaとする。
+3. validかどうかアレする。
+4. PTE.PPN x PAGESIZE(0x1000)をaとする。
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step4.png)
 
+<ol start=2>
+    <li>
+        (2回目) aにVPN[0] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
+        <img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step22.png" />
+    </li>
+    <li>
+        (2回目) validかどうかアレする。
+    </li>
+    <li>
+        (2回目) なんかアレだったら落とす。
+    </li>
+</ol>
 
-2(2回目) . aにVPN[0] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step22.png)
-
-
-3(2回目) . validかどうかアレする。
-
-
-4(2回目) . なんかアレだったら落とす。
-
-
-5 . これは物理アドレスを保持するPTEなのでLeaf PTEと呼ぶ。アクセスチェック。
-
-
-6 . よぐわがんね、これいる？ちなSuperpageはデカいページ、MegapageとかGigapage全般を指す
-
-
-7 . PTE.AとかDとかチェック
-
-
-8 . PTE.PPN x PAGESIZE(0x1000)にPage Offsetを加算した値が物理アドレスとなる。
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step8.png)
-
+<ol start=5>
+    <li>
+        これは物理アドレスを保持するPTEなのでLeaf PTEと呼ぶ。アクセスチェック。
+    </li>
+    <li>
+        よぐわがんね、これいる？ちなSuperpageはデカいページ、MegapageとかGigapage全般を指す
+    </li>
+    <li>
+        PTE.AとかDとかチェック
+    </li>
+    <li>
+        PTE.PPN x PAGESIZE(0x1000)にPage Offsetを加算した値が物理アドレスとなる。
+        <img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step8.png" />
+    </li>
+</ol>
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Translation.png)
 
@@ -139,8 +139,17 @@ typedef unsigned long uint64_t;
 #define PTE_R 0x2
 #define PTE_W 0x4
 #define PTE_X 0x8
+#define PTE_A 0x40
+#define PTE_D 0x80
 
 #define MMU_EN 0x8000000000000000
+
+#define TEXT_ADDR 0x80000000
+#define L3_PAGETABLE 0x80010000 // under .text
+#define L2_PAGETABLE 0x80020000
+#define L1_PAGETABLE 0x80030000
+#define L2_PAGETABLE_D 0x80080000
+#define L1_PAGETABLE_D 0x80090000
 
 void init_pmp() {
   //S-mode can access 0x00000000 ~ 0xffffffff range
@@ -166,9 +175,51 @@ void enter_smode() {
 void init_mmu() {
   uint64_t satp = 0;
   uint64_t *pte;
+  // L3 Page Table Head is 0x80010000
+  satp = (L3_PAGETABLE >> 12) & 0x00000fffffffffff;
 
-  // なんかやる
+  // direct mapping for instruction fetch
+  // 0x80000000 -> 0x80000000
+  // 0x80001000 -> 0x80000000
+  // ...
+  // 0x80040000 -> 0x80040000 0x41 Pages 260 KiB
 
+  // VPN[2],0b000 = (0x80000000 >> 30) << 3
+  pte = L3_PAGETABLE | (0x80000000 >> 30) << 3;
+  *pte = ((L2_PAGETABLE >> 12) << 10) | PTE_V;
+
+  // VPN[1],0b000 = ((0x80000000 & 0x3fe00000) >> 21) << 3
+  pte = L2_PAGETABLE | ((0x80000000 & 0x3fe00000) >> 21) << 3;
+  *pte = ((L1_PAGETABLE >> 12) << 10) | PTE_V;
+
+  // VPN[0],0b000 = ((0x80000000 & 0x1ff000) >> 12) << 3
+  for(int i = 0; i < 0x41; i++) {
+    pte = L1_PAGETABLE | (((0x80000000 + (i * 0x1000)) & 0x1ff000) >> 12) << 3;
+    *pte = (((0x80000000 + (i * 0x1000)) >> 12) << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
+  }
+
+  // mapping for data access
+  // VA : 0x00000000 -> PA: 0x80003000
+  // VA : 0x00001000 -> PA: 0x80004000
+  // VA : 0x00002000 -> PA: 0x80005000
+  // VA : 0x00003000 -> PA: 0x80006000 0x4 Pages 16 KiB
+
+  // VPN[2],0b000 = (0x00000000 >> 30) << 3
+  pte = L3_PAGETABLE | (0x00000000 >> 30) << 3;
+  *pte = ((L2_PAGETABLE_D >> 12) << 10) | PTE_V;
+
+  // VPN[1],0b000 = ((0x00000000 & 0x3fe00000) >> 21) << 3
+  pte = L2_PAGETABLE_D | ((0x00000000 & 0x3fe00000) >> 21) << 3;
+  *pte = ((L1_PAGETABLE_D >> 12) << 10) | PTE_V;
+
+  // VPN[0],0b000 = ((0x00000000 & 0x1ff000) >> 12) << 3
+  for(int i = 0; i < 0x4; i++) {
+    pte = L1_PAGETABLE_D | (((0x00000000 + (i * 0x1000)) & 0x1ff000) >> 12) << 3;
+    *pte = (((0x80003000 + (i * 0x1000)) >> 12) << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
+  }
+
+  // activate MMU
+  satp |= MMU_EN;
   asm volatile("csrw satp, %0" : : "r" (satp));
   asm volatile("sfence.vma zero, zero");
 }
@@ -181,6 +232,10 @@ int main() {
   init_mmu();
 
   int a = 0x114514;
+  uint64_t *mem;
+  mem = (uint64_t *)0x00000040;
+  *mem = a;
+
   return 0;
 }
 ```
