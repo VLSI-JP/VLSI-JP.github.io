@@ -29,7 +29,7 @@ title: About Cra2yPierr0t
 
 ## Background
 - 2024/04 - Present : Graduate Student at National Institute of Informatics
-- 2023/12 - Present : Intern at Turing  Inc.
+- 2023/12 - 2024/08 : Intern at Turing  Inc.
 - 2022/05 - 2024/03 : Intern at PEZY Computing Inc.
 - 2022/05 - 2023/12 : Intern at TIER IV  Inc.
 - 2019/04 - 2024/03 : Student at Information Security Engineering Program, University of Electro-Communications
