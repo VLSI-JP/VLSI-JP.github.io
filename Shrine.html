@@ -25,7 +25,35 @@ title: VLSI Shrine
     <font size="8">
     <code>⛩</code> <br>
     <code>▒</code> <br>
+    </font>
+    <code id="count_pray_i">i</code> 礼
+    <code id="count_clap_j">j</code> 拍手
+    <code id="count_pray_k">k</code> 礼 <br>
+    <button id="button_pray_i"> 礼🙏 </button>
+    <button id="button_clap_j"> 拍手👏 </button> 
+    <button id="button_pray_k"> 礼🙏 </button> <br>
+    <font size="8">
     <code>合</code><br>
     </font>
   </body>
+    <script language="javascript" type=text/javascript>
+      const button_pray_i = document.querySelector("#button_pray_i");
+      const button_clap_j = document.querySelector("#button_clap_j");
+      const button_pray_k = document.querySelector("#button_pray_k");
+      let pray_i = 0;
+      let clap_j = 0;
+      let pray_k = 0;
+      button_pray_i.onclick = () => {
+        pray_i += 1;
+        count_pray_i.textContent = `${pray_i}`;
+      };
+      button_clap_j.onclick = () => {
+        clap_j += 1;
+        count_clap_j.textContent = `${clap_j}`;
+      };
+      button_pray_k.onclick = () => {
+        pray_k += 1;
+        count_pray_k.textContent = `${pray_k}`;
+      };
+    </script>
 </html>
