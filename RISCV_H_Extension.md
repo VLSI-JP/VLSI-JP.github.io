@@ -1,7 +1,7 @@
 ---
 layout: default
 title: RISC-V H拡張でHS-modeからVS-modeに遷移する
-image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/RISCV_H_Extension/h_priviledge.png"
+image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/RISCV_H_extension/h_priviledge.png"
 ---
 
 # RISC-V H拡張でHS-modeからVS-modeに遷移する
@@ -12,7 +12,7 @@ RISC-VのM-modeからS-modeへ遷移する方法はネット上に割とある�
 
 RISC-V H拡張では、従来の特権モード(M-mode, S-mode, U-mode)に対して、S-modeをHS-modeに改め、そしてVirtualizedされたモード(VS-mode, VU-mode)を追加する。
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/RISCV_H_Extension/h_priviledge.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/RISCV_H_extension/h_priviledge.png)
 
 ## 1. M-mode to HS-mode
 
@@ -54,7 +54,7 @@ HS-modeでは、S-modeのCSRである `sstatus`, `sepc`等に加え、`hstatus`,
 
 #### `hstatus`の各フィールド
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/RISCV_H_Extension/hstatus.png)
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/RISCV_H_extension/hstatus.png)
 
 - `hstatus.VTSR` , `hstatus.VTW` , `hstatus.VTVM` : `mstatus.TSR` , `mstatus.TW` , `mstatus.TVM` と同様。だたしVS-modeにしか影響を与えない
 - `hstatus.VGEIN` : よくわかんないけどあんま重要じゃない
