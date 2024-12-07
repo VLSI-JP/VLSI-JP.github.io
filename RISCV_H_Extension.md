@@ -64,7 +64,7 @@ HS-modeでは、S-modeのCSRである `sstatus`, `sepc`等に加え、`hstatus`,
 - `hstatus.GVA` : `stval` にGuest Virtual Addressが書き込まれるような例外の場合は1が書き込まれ、それ以外なら0が書き込まれる。
 - `hstatus.VSBE` : VS-modeによるメモリアクセスのエンディアンを制御する。0ならリトルエンディアン、1ならビッグエンディアン。これいる？
 
-### VS-mdoeへの遷移手順
+### VS-modeへの遷移手順
 
 手順をまとめると以下の通り。`sstatus.SPP`でSRET後の特権モードをS-modeに設定し、`hstatus.SPV`でSRET後のVを1に設定し、`sepc`でSRET後のプログラムカウンタを設定している。
 
