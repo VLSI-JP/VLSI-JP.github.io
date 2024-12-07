@@ -31,7 +31,7 @@ Sv32では、32 bitの仮想アドレスに対して31 bit ~ 22 bitを`VPN[1]`, 
 
 ## Sv32のページとメガページ
 
-Sv32のページサイズは4KiB、メガページ(Megapage)のサイズは4MiB
+Sv32のページサイズは4KiB、メガページ(Megapage)のサイズは2MiB
 
 ### Sv32のsatpレジスタ
 
@@ -63,42 +63,6 @@ RWXの全てが0の場合、`PTE.PPN`は次の段のページテーブルの先�
 Sv32のアドレス変換の手順は以下の通り。なお原文はRISC-V Specification Volume2の10.3.2. Virtual Address Translation Processにある。
 
 
-1. satp.PPN x PAGESIZE(0x1000)をaとする。
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step1.png)
-2. aにVPN[1] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする。このアドレスがPMP, PMAチェックに違反している場合はaccess-faultを発生させる。
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step2.png)
-3. 有効なPTEかチェック。PTE.V = 0又はPTE.R = 0かつPTE.W = 1ならpage-faultを発生させる。
-4. PTE.PPN x PAGESIZE(0x1000)をaとする。
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step4.png)
-
-<ol start=2>
-    <li>
-        (2回目) aにVPN[0] x PTESIZE(Sv32では0x4)を加算した値のアドレスにあるPTEにアクセスする。
-        <img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step22.png" />
-    </li>
-    <li>
-        (2回目) 有効なPTEかチェック。PTE.V = 0又はPTE.R = 0かつPTE.W = 1ならpage-faultを発生させる。
-    </li>
-    <li>
-        (2回目) PTE.R = 1またはPTE.X = 1なら次へ。
-    </li>
-</ol>
-
-<ol start=5>
-    <li>
-        これは物理アドレスを保持するPTEなのでLeaf PTEと呼ぶ。PTE.R, PTE.W, PTE.X, PTE.Uのビットがメモリアクセスの要件を満たしているかチェック。そうでないならpage-faultを発生させる。
-    </li>
-    <li>
-        PTE.PPNがSuperpageに合致しない内容ならpage-faultを発生させる。Superpageはデカいページ、MegapageとかGigapage全般を指す
-    </li>
-    <li>
-        PTE.A = 0またはストア命令かつPTE.D = 0なら、Svade拡張が実装されている場合はpage-fault。
-    </li>
-    <li>
-        PTE.PPN x PAGESIZE(0x1000)にPage Offsetを加算した値が物理アドレスとなる。
-        <img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Step8.png" />
-    </li>
-</ol>
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/Sv32_Translation.png)
 
@@ -112,7 +76,7 @@ Sv32のアドレス変換の手順は以下の通り。なお原文はRISC-V Spe
 
 ### Sv39のページとメガページとギガページ
 
-Sv39のページサイズは4KiB、メガページ(Megapage)のサイズは4MiB、ギガページ(Gigapage)のサイズは1GiB。
+Sv39のページサイズは4KiB、メガページ(Megapage)のサイズは2MiB、ギガページ(Gigapage)のサイズは1GiB。
 
 ### Sv39のsatpレジスタ
 
