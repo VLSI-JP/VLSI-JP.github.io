@@ -4,6 +4,12 @@
   date: 
   link: Shrine.html
 
+- title: RISC-V H拡張でHS-modeからVS-modeに遷移する
+  author: Cra2yPierr0t
+  date: 2024/12/07
+  link: RISCV_H_Extension.html#risc-v-h拡張でhs-modeからvs-modeに遷移する
+  icon: file
+
 - title: RISC-V Sv32,Sv39を理解する
   author: Cra2yPierr0t
   date: 2024/11/30
