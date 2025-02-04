@@ -224,7 +224,7 @@ Verilog HDLで記述されたディジタル回路は、**論理合成**とい�
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/run_cmd.png)
 
-そして`iverlog`コマンドと`vvp`コマンドを実行してください。以下のような表示が出たら成功です。
+そして`iverilog`コマンドと`vvp`コマンドを実行してください。以下のような表示が出たら成功です。
 
 ![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/LetsMakeCPU/check_iverilog.png)
 
