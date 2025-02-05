@@ -6,6 +6,8 @@ image: "https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/m
 
 # RISC-V Sv32,Sv39を理解する
 
+注意：本記事は作成途中です。筆者の誤解が多く含まれている可能があるため、参考にするのは控えてください。
+
 MMUなんもわからん。本記事ではRISC-VにおけるMMUの仕様であるSv32, Sv39について、なんもわかりませんが、わからないなりに解説します。
 
 ## Sv32のアドレス変換
