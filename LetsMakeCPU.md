@@ -93,6 +93,7 @@ Pull request, Issueで記事に貢献して頂いた皆様に感謝いたしま�
 - [@funera1](https://github.com/funera1)
 - [@azure17581](https://github.com/azure17581)
 - [@RZYN2020](https://github.com/RZYN2020)
+- [@kiokuless](https://github.com/kiokuless)
 
 <div align="right"> おわり </div>
 ---
