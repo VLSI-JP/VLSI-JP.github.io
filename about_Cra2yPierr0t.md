@@ -24,8 +24,9 @@ title: About Cra2yPierr0t
 
 ## Awards
 
-- 2018/02 第二回高校生セキュリティコンテスト 神奈川県知事賞
+- 2024/08 xSIG 2024 Poster Award
 - 2023/03 情報処理学会 第85回全国大会 学生奨励賞
+- 2018/02 第二回高校生セキュリティコンテスト 神奈川県知事賞
 
 ## Background
 - 2024/04 - Present : Graduate Student at National Institute of Informatics
