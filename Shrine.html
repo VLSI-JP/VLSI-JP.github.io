@@ -33,6 +33,8 @@ title: VLSI Shrine
     <button id="button_pray_i"> 礼🙏 </button>
     <button id="button_clap_j"> 拍手👏 </button> 
     <button id="button_pray_k"> 礼🙏 </button> <br>
+    <button id="button_bell"> 鐘🔔 </button> <br>
+    <div id="player"></div>
     <font size="8">
     <code>合</code><br>
     </font>
@@ -41,6 +43,7 @@ title: VLSI Shrine
       const button_pray_i = document.querySelector("#button_pray_i");
       const button_clap_j = document.querySelector("#button_clap_j");
       const button_pray_k = document.querySelector("#button_pray_k");
+      const button_bell   = document.querySelector("#button_bell");
       let pray_i = 0;
       let clap_j = 0;
       let pray_k = 0;
@@ -55,6 +58,9 @@ title: VLSI Shrine
       button_pray_k.onclick = () => {
         pray_k += 1;
         count_pray_k.textContent = `${pray_k}`;
+      };
+      button_bell.onclick = () => {
+        alert("₍₍⁽⁽🔔₎₎⁾⁾");
       };
     </script>
 </html>
