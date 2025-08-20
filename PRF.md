@@ -13,11 +13,12 @@ title: 現代コンピュータアーキテクチャとPRF方式まとめ
 
 [https://comp.anu.edu.au/courses/comp3710-uarch/assets/lectures/week7.pdf](https://comp.anu.edu.au/courses/comp3710-uarch/assets/lectures/week7.pdf)
 
-## Out-of-Order実行方式の変遷
+## ARF+ROB方式
 
-省略
+![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/ARFROB.png)
+<p style="text-align:center"> <b>図1. 概ね正しいARF+ROB方式のデータフロー</b></p>
 
-## Tomasulo+ROB方式の欠点
+## ARF+ROB方式の欠点
 
 - Issueステージ前の Register Read
     - Register Read が Issueステージの前に存在しており、これを Issueステージの前にすることは出来ない。
