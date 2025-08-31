@@ -81,6 +81,7 @@ pre.highlight {
   height: 100vh;
   width: auto;
   object-fit: contain;
+  box-shadow: 0 0 5px #333;
 }
 
 @media screen and (max-width:1024px) {
@@ -150,6 +151,7 @@ pre.highlight {
     .responsive-ad-image {
       width: 100%;
       height: auto;
+      box-shadow: 0 0 5px #333;
     }
 
 }
