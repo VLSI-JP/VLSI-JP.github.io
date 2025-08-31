@@ -6,18 +6,21 @@ background-color: rgba(220,220,220,0.2) !important;
   border-bottom: none !important;
 }
 
-/* 文字大きくしてフォント変更する */
-table.highlight tr td,table.highlight tr td span {
-	font-size: 15px !important;
-}
-
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
 }
 
+/* clamp() を使ってフォントサイズを可変に */
+h1 { font-size: clamp(2.0rem, 5vw, 3.0rem); }
+h2 { font-size: clamp(1.8rem, 4.5vw, 2.5rem); }
+h3 { font-size: clamp(1.5rem, 4vw, 2.2rem); }
+p, li, a, th, td { font-size: clamp(1.0rem, 2.5vw, 1.2rem); } /* 1rem = 約16px */
 
 p {
     color: #3d4245!important;
+}
+a.topname {
+    font-size: 65px;
 }
 
 table {
@@ -84,47 +87,8 @@ pre.highlight {
 }
 
 @media screen and (max-width:1024px) {
-    table.highlight tr td,table.highlight tr td span {
-        font-size: 25px !important;
-        height: 30px;
-    }
-    body {
-        height: auto;
-        width: auto;
-    }
-    h1 {
-        font-size: 55px;
-    }
-    h2 {
-        font-size: 45px;
-    }
-    h3 {
-        font-size: 40px;
-    }
-    h4 {
-        font-size: 35px;
-    }
-    h5 {
-        font-size: 30px;
-    }
-    h6 {
-        font-size: 25px;
-    }
-    pre.highlight {
-        font-size: 25px;
-    }
-    a, th, td {
-        font-size: 25px;
-    }
     a.topname {
         font-size: 65px;
-    }
-    ol {
-        padding-left: 5rem;
-    }
-    p, li {
-        overflow-wrap: break-word;
-        font-size: 30px;
     }
     .sidebar {
         overflow: auto;
@@ -151,5 +115,4 @@ pre.highlight {
       width: 100%;
       height: auto;
     }
-
 }
