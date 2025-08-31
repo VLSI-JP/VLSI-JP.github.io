@@ -33,19 +33,19 @@
             {% include navigation.html %}
         </div>
         {% if page.tenant == true %}
+        {% endif %}
         <div class="tenant">
           <!-- Link -->
           <a href="https://talkrtl.connpass.com/event/367389/">
             <picture>
               <!-- for SmartPhone -->
-              <source media="screen and (max-width:900px)" srcset="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/tenant_img/rtltalk18_yoko.png">
+              <source media="screen and (max-width:1024px)" srcset="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/tenant_img/rtltalk18_yoko.png">
               <!-- for PC -->
-              <source media="(min-width:901px)" srcset="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/tenant_img/rtltalk18_tate.png">
+              <source media="(min-width:1025px)" srcset="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/tenant_img/rtltalk18_tate.png">
               <img class="responsive-ad-image">
             </picture>
           </a>
         </div>
-        {% endif %}
         <div class="content">
             {% include anchor_headings.html html=content beforeHeading=true %}
         </div>

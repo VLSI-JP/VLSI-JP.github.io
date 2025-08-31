@@ -83,7 +83,7 @@ pre.highlight {
   object-fit: contain;
 }
 
-@media screen and (max-width:900px) {
+@media screen and (max-width:1024px) {
     table.highlight tr td,table.highlight tr td span {
         font-size: 25px !important;
         height: 30px;
