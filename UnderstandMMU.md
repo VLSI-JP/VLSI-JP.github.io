@@ -106,7 +106,7 @@ Sv39においてPTEのサイズはSv39では64 bitとなっている。PTEのフ
 
 ### Sv39のページテーブルのレベルと管轄範囲
 
-![](https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/refs/heads/main/images/UnderstandMMU/addressSpace.png)
+
 
 ### Sv39を試してみる
 
