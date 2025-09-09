@@ -4,6 +4,12 @@
   date: 
   link: Shrine.html
 
+- title: RISC-V Sv39x4 非完全解説
+  author: Cra2yPierr0t
+  date: 2025/09/09
+  link: RISCVSv39x4.html#risc-v-sv39x4-%E9%9D%9E%E5%AE%8C%E5%85%A8%E8%A7%A3%E8%AA%AC
+  icon: file
+
 - title: Vivado in CLI
   author: WhatACotton
   date: 2025/05/19
