@@ -94,6 +94,7 @@ Pull request, Issueで記事に貢献して頂いた皆様に感謝いたしま�
 - [@azure17581](https://github.com/azure17581)
 - [@RZYN2020](https://github.com/RZYN2020)
 - [@kiokuless](https://github.com/kiokuless)
+- [@jinnosukeKato](https://github.com/jinnosukeKato)
 
 <div align="right"> おわり </div>
 ---
