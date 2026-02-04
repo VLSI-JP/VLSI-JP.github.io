@@ -521,11 +521,11 @@ module Basic;
     r_a = 1'b0;
     r_b = 1'b0;
     #2
-    r_a = 1'b1;
-    r_b = 1'b0;
-    #2
     r_a = 1'b0;
     r_b = 1'b1;
+    #2
+    r_a = 1'b1;
+    r_b = 1'b0;
     #2
     r_a = 1'b1;
     r_b = 1'b1;
