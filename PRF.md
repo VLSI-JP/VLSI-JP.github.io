@@ -31,15 +31,15 @@ title: 現代コンピュータアーキテクチャとPRF方式まとめ
 
 ## Physical Register File方式
 
-<img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/PRF.png" width="50%">
+<img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/PRF.png" width="65%">
 <p style="text-align:center"> <b>図2. 概ね正しいPRF方式の構造</b></p>
 
 ### ARF+ROBとの比較
 
-<img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/ARFROB_dataflow.png" width="50%">
+<img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/ARFROB_dataflow.png" width="65%">
 <p style="text-align:center"> <b>図3. ARF+ROB方式のデータフロー</b></p>
 
-<img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/PRF_dataflow.png" width="50%">
+<img src="https://raw.githubusercontent.com/VLSI-JP/VLSI-JP.github.io/main/images/PRF/PRF_dataflow.png" width="65%">
 <p style="text-align:center"> <b>図4. PRF方式のデータフロー</b></p>
 
 - モノリシックなPhysical Regsiter Fileがリネーミングのためのレジスタの拡張セットを提供する
