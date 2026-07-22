@@ -43,22 +43,22 @@ RISC-V Unprivileged ISA Specificationの頭の方には，`x0`-`x31`の汎用レ
 
 上記の表の通りいろんなレジスタが存在するが，この後はマジで重要なレジスタ，ゼロレジスタについてのみ説明する．
 
-## ゼロレジスタと疑似命令
+## ゼロレジスタと擬似命令
 
 レジスタ番号０のレジスタ，`x0/zero`はゼロレジスタと呼ばれており，値が常に０のレジスタである．なのでこれに何を書き込もうが常にゼロになる．ならなければならない．ゼロ以外になり得る場合はそれはもはやRISC-Vではない．
 
-このゼロレジスタ，聡明な読者の諸君(死ね)なら様々な用法を思いつくだろうが，RISC-Vではpseudoinstructions(疑似命令)でよく用いられる．
+このゼロレジスタ，聡明な読者の諸君(死ね)なら様々な用法を思いつくだろうが，RISC-Vではpseudoinstructions(擬似命令)でよく用いられる．
 
-RISC-Vのアセンブリを読んでいると，よく`li`や`j`や`ret`など，RISC-V ISA Specificationには存在しない命令が出てくることがある．これらは疑似命令と呼ばれ，特定の命令に特定のオペランドを与えたものの別名であり，頻出する命令とオペランドの組み合わせに与えられる．便利なので．
+RISC-Vのアセンブリを読んでいると，よく`li`や`j`や`ret`など，RISC-V ISA Specificationには存在しない命令が出てくることがある．これらは擬似命令と呼ばれ，特定の命令に特定のオペランドを与えたものの別名であり，頻出する命令とオペランドの組み合わせに与えられる．便利なので．
 アセンブル時には，アセンブラがいい感じに解釈して元の命令に戻してくれる．
 
-ではアセンブラが対応している疑似命令には何があるか，これはRISC-V ISA Specificationでなく，Non-ISAのカテゴリの**RISC-V Assembly Programmer's Manual**に，ISA準拠の命令と共に書かれている．
+ではアセンブラが対応している擬似命令には何があるか，これはRISC-V ISA Specificationでなく，Non-ISAのカテゴリの**RISC-V Assembly Programmer's Manual**に，ISA準拠の命令と共に書かれている．
 
 [RISC-V Assembly Programmer's Manual](https://github.com/riscv-non-isa/riscv-asm-manual)
 
 具体的なものを抜粋したのが以下の通り．
 
-| 疑似命令 | 実態 | 意味 |
+| 擬似命令 | 実態 | 意味 |
 | ------- | -- | ---- |
 | `nop` | `addi x0, x0, 0` | nop |
 | `li rd, immediate` | 色々 | 即値ロード |
